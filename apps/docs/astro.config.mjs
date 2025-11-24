@@ -5,6 +5,7 @@ import starlightThemeRapide from "starlight-theme-rapide";
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://jsson-docs.vercel.app",
   integrations: [
     starlight({
       plugins: [starlightThemeRapide()],
