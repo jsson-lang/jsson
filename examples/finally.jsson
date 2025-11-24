@@ -1,0 +1,20 @@
+users [
+  template { name, age, department, yearsOfService }
+  
+  map (u) = {
+    name = u.name
+    age = u.age
+    department = u.department
+    yearsOfService = u.yearsOfService
+    
+    canVote = u.age >= 18
+    isExecutive = u.yearsOfService >= 10
+    accessLevel = u.yearsOfService >= 10 ? "senior" : u.yearsOfService >= 5 ? "mid" : "junior"
+    salary = u.yearsOfService >= 10 ? 150000 : u.yearsOfService >= 5 ? 100000 : 60000
+    benefits = u.yearsOfService >= 5 ? ["health", "dental", "401k"] : ["health"]
+  }
+  
+  "João Silva", 35, Engineering, 12
+  "Maria Santos", 28, Sales, 6
+  "Pedro Costa", 22, Marketing, 2
+]

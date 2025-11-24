@@ -1,0 +1,440 @@
+---
+title: Basic Syntax
+description: Master the fundamentals of JSSON syntax. Learn assignments, objects, arrays, and all the core concepts you need to write effective JSSON.
+---
+
+import { Code, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Ready to master JSSON? This guide covers all the fundamental syntax you need to know. Let's build your JSSON skills from the ground up! 💪
+
+## Core Concepts
+
+JSSON has just a few simple rules. Master these, and you'll be writing clean configs in no time.
+
+### Assignments
+
+The foundation of JSSON: key-value pairs.
+
+<Code lang="jsson" code={`name = João
+age = 25
+active = true`} />
+
+**Rules:**
+- No quotes needed around keys
+- Use `=` for assignment
+- One assignment per line (no commas!)
+
+### When to Use Quotes
+
+This is the #1 question! Here's the simple rule:
+
+<Tabs>
+  <TabItem label="No Quotes Needed">
+    <Code lang="jsson" code={`// Single words
+name = João
+city = Tokyo
+status = active
+
+// Numbers
+age = 25
+price = 19.99
+
+// Booleans
+admin = true
+disabled = false`} />
+  </TabItem>
+
+  <TabItem label="Quotes Required">
+    <Code lang="jsson" code={`// Values with spaces
+title = "Software Engineer"
+message = "Hello, World!"
+
+// Values with special characters
+email = "user@example.com"
+url = "https://example.com"
+
+// Empty strings
+empty = ""`} />
+  </TabItem>
+</Tabs>
+
+> **Pro Tip:** When in doubt, use quotes! They always work. But skipping them makes your JSSON cleaner.
+
+## Data Types
+
+JSSON supports all JSON data types with a friendlier syntax.
+
+### Strings
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`// Without quotes (simple identifiers)
+firstName = João
+lastName = Silva
+
+// With quotes (spaces or special chars)
+fullName = "João Silva"
+email = "joao@example.com"
+bio = "Developer from Brazil 🇧🇷"`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "firstName": "João",
+  "lastName": "Silva",
+  "fullName": "João Silva",
+  "email": "joao@example.com",
+  "bio": "Developer from Brazil 🇧🇷"
+}`} />
+  </TabItem>
+</Tabs>
+
+### Numbers
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`// Integers
+age = 25
+count = 100
+negative = -42
+
+// Floats
+price = 19.99
+temperature = 36.5
+pi = 3.14159`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "age": 25,
+  "count": 100,
+  "negative": -42,
+  "price": 19.99,
+  "temperature": 36.5,
+  "pi": 3.14159
+}`} />
+  </TabItem>
+</Tabs>
+
+### Booleans
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`active = true
+disabled = false
+isAdmin = true
+hasAccess = false`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "active": true,
+  "disabled": false,
+  "isAdmin": true,
+  "hasAccess": false
+}`} />
+  </TabItem>
+</Tabs>
+
+## Objects
+
+Objects in JSSON are beautifully simple — no colons, no commas, just clean nesting.
+
+### Simple Objects
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`user {
+  name = João
+  age = 25
+  email = "joao@example.com"
+}`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "user": {
+    "name": "João",
+    "age": 25,
+    "email": "joao@example.com"
+  }
+}`} />
+  </TabItem>
+</Tabs>
+
+### Nested Objects
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`user {
+  name = João
+  contact {
+    email = "joao@example.com"
+    phone = "+55 11 99999-9999"
+  }
+  preferences {
+    theme = dark
+    language = pt-BR
+    notifications {
+      email = true
+      push = false
+    }
+  }
+}`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "user": {
+    "name": "João",
+    "contact": {
+      "email": "joao@example.com",
+      "phone": "+55 11 99999-9999"
+    },
+    "preferences": {
+      "theme": "dark",
+      "language": "pt-BR",
+      "notifications": {
+        "email": true,
+        "push": false
+      }
+    }
+  }
+}`} />
+  </TabItem>
+</Tabs>
+
+> **Use Case:** Objects are perfect for configuration files, API responses, and any hierarchical data.
+
+## Arrays
+
+Arrays in JSSON are just like JSON, but cleaner — no quotes needed for simple values!
+
+### Simple Arrays
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`// Numbers
+numbers = [ 1, 2, 3, 4, 5 ]
+
+// Strings (no quotes needed!)
+colors = [ red, blue, green, yellow ]
+
+// Mixed types
+mixed = [ João, 25, true, 1.75 ]
+
+// With quotes when needed
+cities = [ "São Paulo", "Rio de Janeiro", Tokyo ]`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "numbers": [1, 2, 3, 4, 5],
+  "colors": ["red", "blue", "green", "yellow"],
+  "mixed": ["João", 25, true, 1.75],
+  "cities": ["São Paulo", "Rio de Janeiro", "Tokyo"]
+}`} />
+  </TabItem>
+</Tabs>
+
+### Arrays of Objects
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`users = [
+  { name = João, age = 25 },
+  { name = Maria, age = 30 },
+  { name = Pedro, age = 28 }
+]`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "users": [
+    { "name": "João", "age": 25 },
+    { "name": "Maria", "age": 30 },
+    { "name": "Pedro", "age": 28 }
+  ]
+}`} />
+  </TabItem>
+</Tabs>
+
+> **Better way:** For arrays of objects, use [template arrays](/guides/templates/) — they're much cleaner!
+
+## Comments
+
+Document your configs with comments — they're ignored during transpilation.
+
+<Code lang="jsson" code={`// This is a single-line comment
+
+// Application settings
+app {
+  name = "My App"  // Inline comments work too!
+  version = "1.0.0"
+  
+  // Server configuration
+  server {
+    port = 8080  // Default port
+    host = localhost
+  }
+}`} />
+
+> **Pro Tip:** Use comments to explain *why* a setting exists, not just *what* it is.
+
+## Building from Simple to Complex
+
+Let's build a real-world example step by step.
+
+### Step 1: Basic Info
+
+<Code lang="jsson" code={`name = "My Application"
+version = "1.0.0"
+debug = true`} />
+
+### Step 2: Add Objects
+
+<Code lang="jsson" code={`name = "My Application"
+version = "1.0.0"
+debug = true
+
+server {
+  host = localhost
+  port = 8080
+}`} />
+
+### Step 3: Add Arrays
+
+<Code lang="jsson" code={`name = "My Application"
+version = "1.0.0"
+debug = true
+
+server {
+  host = localhost
+  port = 8080
+  allowedOrigins = [ "http://localhost:3000", "https://example.com" ]
+}`} />
+
+### Step 4: Add Nesting
+
+<Code lang="jsson" code={`name = "My Application"
+version = "1.0.0"
+debug = true
+
+server {
+  host = localhost
+  port = 8080
+  allowedOrigins = [ "http://localhost:3000", "https://example.com" ]
+}
+
+database {
+  connection {
+    host = localhost
+    port = 5432
+    name = myapp_db
+  }
+  pool {
+    min = 2
+    max = 10
+  }
+}`} />
+
+See how natural it feels? No JSON ceremony, just clean configuration!
+
+## Practice Exercises
+
+Try these on your own! Create a `.jsson` file and transpile it to see the results.
+
+### Exercise 1: Personal Profile
+
+Create a profile with:
+- Your name, age, and email
+- A list of hobbies
+- An address object with city and country
+
+<details>
+<summary>Solution</summary>
+
+<Code lang="jsson" code={`profile {
+  name = "Your Name"
+  age = 25
+  email = "you@example.com"
+  hobbies = [ coding, reading, gaming, music ]
+  
+  address {
+    city = "Your City"
+    country = Brazil
+  }
+}`} />
+
+</details>
+
+### Exercise 2: API Configuration
+
+Create an API config with:
+- Base URL
+- Timeout in milliseconds
+- List of endpoints
+- Authentication settings
+
+<details>
+<summary>Solution</summary>
+
+<Code lang="jsson" code={`api {
+  baseUrl = "https://api.example.com"
+  timeout = 5000
+  endpoints = [ users, posts, comments, products ]
+  
+  auth {
+    type = bearer
+    tokenExpiry = 3600
+    refreshEnabled = true
+  }
+}`} />
+
+</details>
+
+## Common Patterns
+
+### Configuration Files
+
+<Code lang="jsson" code={`app {
+  name = "My App"
+  env = production
+}
+
+server {
+  port = 8080
+  host = "0.0.0.0"
+}
+
+database {
+  host = localhost
+  port = 5432
+}`} />
+
+### Feature Flags
+
+<Code lang="jsson" code={`features {
+  newUI = true
+  betaFeatures = false
+  analytics = true
+  darkMode = true
+}`} />
+
+### API Endpoints
+
+<Code lang="jsson" code={`endpoints {
+  users = "/api/v1/users"
+  posts = "/api/v1/posts"
+  auth = "/api/v1/auth"
+}`} />
+
+## What's Next?
+
+You've mastered the basics! Here's where to go from here:
+
+- **[Templates Guide](/guides/templates/)** — Learn about template arrays for structured data
+- **[Syntax Reference](/reference/syntax/)** — Explore advanced features like ranges, expressions, and map clauses
+- **[CLI Guide](/guides/cli/)** — Master the command-line tool
+
+Ready for more power? Check out the [Templates Guide](/guides/templates/) to see how JSSON handles tabular data! 🚀

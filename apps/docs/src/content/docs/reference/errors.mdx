@@ -1,0 +1,340 @@
+---
+title: Errors & Debugging
+description: Understanding JSSON's friendly error messages and how to debug common issues. Meet the goblins, wizards, and gremlins!
+---
+
+import { Code } from '@astrojs/starlight/components';
+
+JSSON has a unique approach to errors — instead of cryptic messages, you get help from friendly (well, mostly friendly) creatures! 🧙‍♂️👺
+
+## The Error Squad
+
+JSSON's error system has three characters, each responsible for a different phase:
+
+| Character | Phase | What They Check |
+|-----------|-------|-----------------|
+| **Lex Goblin** 👺 | Lexing | Invalid characters, unterminated strings |
+| **Parse Wizard** 🧙‍♂️ | Parsing | Syntax errors, unexpected tokens |
+| **Transpiler Gremlin** 👹 | Transpilation | Type errors, undefined references |
+
+## Lex Goblin Errors 👺
+
+The Lex Goblin catches errors during tokenization — when JSSON reads your file character by character.
+
+### Illegal Character
+
+**Error:**
+```
+Lex goblin: 1:5 — Illegal character: '@'
+```
+
+**What it means:** You used a character that JSSON doesn't recognize.
+
+**Example:**
+<Code lang="jsson" code={`name = João@Silva  // ❌ @ is not allowed without quotes`} />
+
+**Fix:**
+<Code lang="jsson" code={`name = "João@Silva"  // ✅ Use quotes for special characters`} />
+
+### Unterminated String
+
+**Error:**
+```
+Lex goblin: 2:10 — Unterminated string
+```
+
+**What it means:** You started a string with `"` but never closed it.
+
+**Example:**
+<Code lang="jsson" code={`name = "João
+age = 25  // ❌ Missing closing quote`} />
+
+**Fix:**
+<Code lang="jsson" code={`name = "João"  // ✅ Close the string
+age = 25`} />
+
+## Parse Wizard Errors 🧙‍♂️
+
+The Parse Wizard catches syntax errors — when your JSSON structure is invalid.
+
+### Unexpected Token
+
+**Error:**
+```
+Parse wizard: 3:8 — Unexpected token: expected '=', got '{'
+```
+
+**What it means:** The parser expected one thing but found another.
+
+**Example:**
+<Code lang="jsson" code={`user
+{  // ❌ Missing assignment operator
+  name = João
+}`} />
+
+**Fix:**
+<Code lang="jsson" code={`user {  // ✅ Add the assignment (or just put { on same line)
+  name = João
+}`} />
+
+### Missing Closing Brace
+
+**Error:**
+```
+Parse wizard: EOF — Expected '}', got EOF
+```
+
+**What it means:** You opened a `{` but never closed it.
+
+**Example:**
+<Code lang="jsson" code={`user {
+  name = João
+  age = 25
+// ❌ Missing }`} />
+
+**Fix:**
+<Code lang="jsson" code={`user {
+  name = João
+  age = 25
+}  // ✅ Close the object`} />
+
+### Invalid Array Syntax
+
+**Error:**
+```
+Parse wizard: 2:15 — Expected ']', got ','
+```
+
+**What it means:** Array syntax is incorrect.
+
+**Example:**
+<Code lang="jsson" code={`colors = [ red, blue, green,, ]  // ❌ Double comma`} />
+
+**Fix:**
+<Code lang="jsson" code={`colors = [ red, blue, green ]  // ✅ Remove extra comma`} />
+
+### Template Errors
+
+**Error:**
+```
+Parse wizard: 3:5 — Template expects 3 fields, got 2
+```
+
+**What it means:** A template row doesn't match the template definition.
+
+**Example:**
+<Code lang="jsson" code={`users [
+  template { name, age, email }
+  João, 25  // ❌ Missing email
+]`} />
+
+**Fix:**
+<Code lang="jsson" code={`users [
+  template { name, age, email }
+  João, 25, "joao@test.com"  // ✅ All 3 fields
+]`} />
+
+## Transpiler Gremlin Errors 👹
+
+The Transpiler Gremlin catches semantic errors — when your JSSON is syntactically correct but logically wrong.
+
+### Undefined Reference
+
+**Error:**
+```
+Transpiler gremlin: 5:12 — Undefined reference: 'config.port'
+```
+
+**What it means:** You're trying to access a property that doesn't exist.
+
+**Example:**
+<Code lang="jsson" code={`server {
+  host = localhost
+}
+
+url = server.host + ":" + config.port  // ❌ config doesn't exist`} />
+
+**Fix:**
+<Code lang="jsson" code={`server {
+  host = localhost
+  port = 8080  // ✅ Define port
+}
+
+url = server.host + ":" + server.port  // ✅ Use server.port`} />
+
+### Type Mismatch
+
+**Error:**
+```
+Transpiler gremlin: 3:10 — Cannot perform operation '+' on boolean and string
+```
+
+**What it means:** You're trying to combine incompatible types.
+
+**Example:**
+<Code lang="jsson" code={`active = true
+message = "Status: " + active  // ❌ Can't add boolean to string`} />
+
+**Fix:**
+<Code lang="jsson" code={`active = "true"  // ✅ Make it a string
+message = "Status: " + active`} />
+
+## Common Mistakes & Solutions
+
+### 1. Forgetting Quotes
+
+**Problem:**
+<Code lang="jsson" code={`title = Software Engineer  // ❌ Space without quotes`} />
+
+**Solution:**
+<Code lang="jsson" code={`title = "Software Engineer"  // ✅ Use quotes for spaces`} />
+
+### 2. Using JSON Syntax
+
+**Problem:**
+<Code lang="jsson" code={`user {
+  "name": "João",  // ❌ JSON syntax
+  "age": 25,
+}`} />
+
+**Solution:**
+<Code lang="jsson" code={`user {
+  name = João  // ✅ JSSON syntax
+  age = 25
+}`} />
+
+### 3. Missing Commas in Arrays
+
+**Problem:**
+<Code lang="jsson" code={`colors = [ red blue green ]  // ❌ Missing commas`} />
+
+**Solution:**
+<Code lang="jsson" code={`colors = [ red, blue, green ]  // ✅ Add commas`} />
+
+### 4. Trailing Commas
+
+**Problem:**
+<Code lang="jsson" code={`colors = [ red, blue, green, ]  // ❌ Trailing comma`} />
+
+**Solution:**
+<Code lang="jsson" code={`colors = [ red, blue, green ]  // ✅ Remove trailing comma`} />
+
+### 5. Wrong File Extension
+
+**Problem:**
+```bash
+jsson -i config.json  # ❌ Wrong extension
+```
+
+**Solution:**
+```bash
+jsson -i config.jsson  # ✅ Use .jsson extension
+```
+
+## Debugging Tips
+
+### 1. Check Line Numbers
+
+Error messages always include line and column numbers:
+
+```
+Parse wizard: 15:8 — Unexpected token
+              ↑  ↑
+            line column
+```
+
+Go to that exact location in your file!
+
+### 2. Look for Unclosed Brackets
+
+If you see `EOF` (End Of File) errors, you probably forgot to close something:
+
+<Code lang="jsson" code={`user {
+  name = João
+  config {
+    theme = dark
+  // ❌ Missing } for config
+// ❌ Missing } for user`} />
+
+**Tip:** Use an editor with bracket matching!
+
+### 3. Validate Incrementally
+
+Build your JSSON file step by step:
+
+```bash
+# Start simple
+echo 'name = João' > test.jsson
+jsson -i test.jsson  # ✅ Works
+
+# Add more
+echo 'age = 25' >> test.jsson
+jsson -i test.jsson  # ✅ Still works
+
+# Keep adding until you find the problem
+```
+
+### 4. Use Comments to Debug
+
+Comment out sections to isolate the problem:
+
+<Code lang="jsson" code={`user {
+  name = João
+  age = 25
+}
+
+// database {
+//   host = localhost
+//   port = 5432
+// }
+
+api {
+  url = "https://api.example.com"
+}`} />
+
+### 5. Check Your Quotes
+
+Mixed quotes can cause issues:
+
+<Code lang="jsson" code={`name = "João'  // ❌ Mismatched quotes
+name = "João"  // ✅ Matching quotes`} />
+
+## Error Message Format
+
+All JSSON errors follow this format:
+
+```
+[Character]: [Location] — [Message]
+```
+
+**Example:**
+```
+Lex goblin: config.jsson:15:8 — Illegal character: '@'
+↑           ↑                   ↑
+Character   Location            Message
+```
+
+**Location formats:**
+- `15:8` — Line 15, column 8
+- `config.jsson:15:8` — File, line, column
+- `EOF` — End of file
+
+## Getting Help
+
+If you're stuck:
+
+1. **Read the error message carefully** — it usually tells you exactly what's wrong
+2. **Check the line number** — go to that exact location
+3. **Look at examples** in the [Syntax Reference](/reference/syntax/)
+4. **Compare with working code** — what's different?
+5. **Ask for help** on [GitHub Issues](https://github.com/carlosedujs/jsson/issues)
+
+## What's Next?
+
+Now that you know how to debug JSSON:
+
+- **[Syntax Reference](/reference/syntax/)** — Complete syntax guide
+- **[Templates Guide](/guides/templates/)** — Master template arrays
+- **[CLI Guide](/guides/cli/)** — Command-line options
+
+Don't fear the errors — the goblins, wizards, and gremlins are here to help! 🧙‍♂️👺👹

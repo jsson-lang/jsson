@@ -1,0 +1,20 @@
+---
+title: How to Contribute
+description: Guidelines for contributing to the JSSON project.
+---
+
+- Run existing tests before opening a PR. Tests live under `internal/` and use Go's test tooling.
+- Follow existing code style in Go files.
+- Add small, focused PRs — it's easier to review.
+
+## Running tests
+
+```powershell
+go test ./... 
+```
+
+## Local docs
+
+To preview the docs locally, run the dev server in `apps/docs` (see project README or `apps/docs/package.json`).
+
+We love small, well-documented contributions — add examples to `examples/` if you add syntax.

@@ -1,0 +1,14 @@
+products [
+  template { id, name, price }
+  
+  map (p) = {
+    id = p.id
+    name = p.name
+    price = p.price
+    discount = p.price > 100 ? 0.10 : 0
+    finalPrice = p.price * (1 - discount)
+    inStock = true
+  }
+  
+  1..50, "Product", 10..500
+]

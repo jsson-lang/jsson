@@ -1,111 +1,84 @@
-# 🚀 **JSSON v0.1.0 – The Human JSON Release**
+# 🚀 **JSSON v0.0.2 – The Logic & Arithmetic Release**
 
-JSSON (**JavaScript Simplified Object Notation**) is a modern, human-friendly syntax that transpiles directly to JSON — with templates, ranges, includes, maps, and more.
-
-This is the **first full-featured release** of the language.
+JSSON (**JavaScript Simplified Object Notation**) is a modern, human-friendly syntax that transpiles directly to JSON — with templates, ranges, includes, maps, and now **full arithmetic and conditional logic**.
 
 ---
 
-# ✨ **🎯 Key Features**
+# ✨ **🎯 New in v0.0.2**
 
-### 🔶 **1. Template Arrays (⚡ Killer Feature)**
+### 🧠 **1. Conditional Logic (NEW!)**
 
-Generate structured JSON objects using simple row-based syntax:
+JSSON now supports powerful decision-making syntax directly in your configuration files.
+
+**Comparison Operators:**
+`==`, `!=`, `>`, `<`, `>=`, `<=`
+
+**Ternary Operator:**
+Conditional values are now possible with `? :` syntax.
 
 ```jsson
 users [
-  template { name, age, job }
-  João, 19, Student
-  Maria, 25, Teacher
-]
-```
-
-Output:
-
-```json
-{
-  "users": [
-    { "name": "João", "age": 19, "job": "Student" },
-    { "name": "Maria", "age": 25, "job": "Teacher" }
-  ]
-}
-```
-
----
-
-### 🔶 **2. Map Transformer**
-
-```jsson
-routes [
-  template { path, method }
-
-  map (item) = {
-    path = "/api/" + item.path
-    method = item.method
+  template { name, age, role, access }
+  
+  map (u) = {
+    name = u.name
+    age = u.age
+    role = u.role
+    // Conditional logic in action
+    isAdult = u.age >= 18
+    access = u.role == "admin" ? "full" : "read-only"
+    category = u.age < 13 ? "child" : u.age < 20 ? "teen" : "adult"
   }
-
-  users, GET
-  posts, POST
+  
+  Alice, 25, admin
+  Bob, 12, user
 ]
 ```
 
 ---
 
-### 🔶 **3. Includes (modularization)**
+### 🧮 **2. Arithmetic Expressions (NEW!)**
 
-Supports relative file includes:
+Perform calculations right inside your JSSON files. No more manual math!
 
-```jsson
-include "./config/database.jsson"
-```
+**Operators:** `+`, `-`, `*`, `/`, `%` (modulo)
 
-Circular include detection ✔
-Include cache ✔
-
----
-
-### 🔶 **4. Ranges and Step Support**
+**Mixed Type Support:**
+Seamlessly mix integers and floats. JSSON handles the promotion automatically.
 
 ```jsson
-ports = [ 8080..8085 ]
-even = [ 0..10 step 2 ]
+products [
+  template { price, discount }
+  
+  map (p) = {
+    originalPrice = p.price
+    // Arithmetic with mixed types (int * float)
+    finalPrice = p.price * (1.0 - p.discount)
+    savings = p.price - finalPrice
+  }
+  
+  100, 0.15
+  50, 0.0
+]
 ```
 
 ---
 
-### 🔶 **5. Literal Types**
+### � **3. Advanced Ranges & Zipping (IMPROVED!)**
 
-* Strings
-* Integers
-* **Floats (NEW!)**
-* Booleans
-* Objects
-* Arrays
-* Identifiers
-* Member access (`obj.key`)
-* String concatenation (`"a" + b`)
+Ranges are now more robust than ever.
 
----
+*   **Smart Zipping:** You can now mix ranges of different lengths in templates. JSSON automatically zips them up to the shortest length.
+*   **String Ranges:** `"server-1" .. "server-5"` works out of the box.
 
-### 🔶 **6. Clean Syntax**
-
-No braces required for arrays/objects inside templates.
-Readable. Minimal. Fast to write.
-
----
-
-### 🔶 **7. Fully JSON-Accurate Output**
-
-The transpiler guarantees 100% valid JSON output.
-
----
-
-### 🔶 **8. Wizard/Goblin Error Messages™**
-
-Fun, descriptive error reporting:
-
-```
-Syntax wizard: line 3 col 12 — expected '}' — wizard can't find the closing brace
+```jsson
+servers [
+  template { id, ip, region }
+  
+  // Different length ranges? No problem!
+  // Zips until the shortest range ends.
+  1..100, "192.168.1." + (10..50), "us-east-1"
+]
 ```
 
 ---
@@ -114,22 +87,22 @@ Syntax wizard: line 3 col 12 — expected '}' — wizard can't find the closing 
 
 Download the binary for your OS:
 
-* **Windows:** `jsson-v0.1.0-windows-amd64.exe`
-* **Linux:** `jsson-v0.1.0-linux-amd64`
-* **macOS (Intel):** `jsson-v0.1.0-darwin-amd64`
-* **macOS (Apple Silicon):** `jsson-v0.1.0-darwin-arm64`
+*   **Windows:** `jsson-v0.0.2-windows-amd64.exe`
+*   **Linux:** `jsson-v0.0.2-linux-amd64`
+*   **macOS (Intel):** `jsson-v0.0.2-darwin-amd64`
+*   **macOS (Apple Silicon):** `jsson-v0.0.2-darwin-arm64`
 
 ### Linux/macOS
 
 ```bash
-chmod +x jsson-v0.1.0-*
-sudo mv jsson-v0.1.0-* /usr/local/bin/jsson
+chmod +x jsson-v0.0.2-*
+sudo mv jsson-v0.0.2-* /usr/local/bin/jsson
 ```
 
 ### Windows
 
 ```powershell
-Rename-Item jsson-v0.1.0-windows-amd64.exe jsson.exe
+Rename-Item jsson-v0.0.2-windows-amd64.exe jsson.exe
 ```
 
 ---
@@ -139,29 +112,6 @@ Rename-Item jsson-v0.1.0-windows-amd64.exe jsson.exe
 ```bash
 jsson -i input.jsson
 ```
-
----
-
-# 📘 **Example**
-
-**example.jsson**
-
-```jsson
-app {
-  name = "JSSON"
-  version = "0.1.0"
-
-  ports = [ 8080..8083 ]
-
-  authors [
-    template { name, role }
-    Carlos, Creator
-    João, Contributor
-  ]
-}
-```
-
-Output is valid JSON.
 
 ---
 
@@ -175,15 +125,8 @@ Official syntax highlighting + language support:
 
 # 📚 Documentation
 
-Docs & playground:
+Docs:
 👉 [https://github.com/carlosedujs/jsson](https://github.com/carlosedujs/jsson)
-
----
-
-# 🐛 Known Issues
-
-* No known issues after float fix
-* Please report anything unexpected in GitHub issues
 
 ---
 
@@ -191,4 +134,3 @@ Docs & playground:
 
 Thanks to everyone helping shape this language.
 Special thanks to the wizards, goblins and gremlins of the parser.
-

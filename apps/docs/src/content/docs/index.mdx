@@ -1,0 +1,75 @@
+---
+title: Welcome to JSSON
+description: JSSON is not a replacement for JSON — it's a simpler way to write it. A human-first syntax that transpiles to 100% valid JSON.
+template: splash
+hero:
+  tagline: The human-friendly way to write JSON.
+  image:
+    file: ../../assets/dark.svg
+  actions:
+    - text: Get Started
+      link: /guides/getting-started/
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/carlosedujs/jsson
+      variant: minimal
+      icon: external
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Why JSSON?
+
+JSSON (**JavaScript Simplified Object Notation**) is a modern, lightweight
+syntax that makes writing JSON faster, cleaner, and way more readable —  
+without replacing JSON, and without adding a runtime.
+
+It’s **just a transpiler**.  
+You write JSSON → it outputs real JSON.
+
+Perfect for:
+- API configs  
+- Seed files  
+- Mock data  
+- Structured lists  
+- Data templates  
+- Anything that would normally be a giant JSON wall  
+
+## What makes it different?
+
+<CardGrid stagger>
+  <Card title="Template Arrays" icon="sparkles">
+    Generate structured objects using row-based syntax — perfect for lists,
+    tables, seed data and mock files.
+  </Card>
+
+  <Card title="Map Transformations" icon="bolt">
+    Apply transformations inside the syntax using JSSON’s `map (item)` blocks.
+  </Card>
+
+  <Card title="Includes & Modularization" icon="folder">
+    Split large files with `include "./file.jsson"` and avoid repetition.
+  </Card>
+
+  <Card title="Ranges & Steps" icon="list">
+    Write lists like `[ 0..10 step 2 ]` — cleaner and faster than ever.
+  </Card>
+
+  <Card title="Zero Runtime" icon="code">
+    JSSON only transpiles. No hidden logic, no magic, no interpreter needed.
+  </Card>
+
+  <Card title="Fun Error Messages" icon="wand">
+    Wizards, gremlins and goblins guide you when something breaks.
+  </Card>
+</CardGrid>
+
+## Ready to begin?
+
+Start with the basic syntax and real examples in the  
+**[Getting Started guide →](/guides/getting-started/)**
+
+Or explore everything the language offers in the  
+**Reference section →** located in the sidebar.
+
+Happy JSSONing! 🚀 

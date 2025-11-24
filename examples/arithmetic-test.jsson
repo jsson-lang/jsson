@@ -1,0 +1,10 @@
+// Test all arithmetic operators
+result1 = 10 + 5   // 15
+result2 = 10 - 3   // 7
+result3 = 10 * 2   // 20
+result4 = 10 / 2   // 5
+result5 = 10 % 3   // 1
+
+// Test in expressions
+combined = (10 + 5) * 2  // 30
+modulo = 100 % 7         // 2

@@ -1,0 +1,155 @@
+---
+title: Demo Example
+description: A comprehensive demo showcasing JSSON's core features - objects, arrays, booleans, and nesting.
+---
+
+import { Code, Tabs, TabItem } from '@astrojs/starlight/components';
+
+This example demonstrates the fundamental features of JSSON in a single, practical configuration file.
+
+## The JSSON
+
+<Code lang="jsson" code={`// User configuration
+user {
+  name = João
+  age = 20
+  admin = true
+  roles = [ "admin", "editor" ]
+  
+  config {
+    theme = dark
+    language = pt-BR
+    notifications = true
+  }
+  
+  preferences {
+    fontSize = 14
+    lineHeight = 1.5
+    autoSave = true
+  }
+}`} />
+
+## The JSON Output
+
+<Code lang="json" code={`{
+  "user": {
+    "name": "João",
+    "age": 20,
+    "admin": true,
+    "roles": ["admin", "editor"],
+    "config": {
+      "theme": "dark",
+      "language": "pt-BR",
+      "notifications": true
+    },
+    "preferences": {
+      "fontSize": 14,
+      "lineHeight": 1.5,
+      "autoSave": true
+    }
+  }
+}`} />
+
+## What This Demonstrates
+
+### ✅ Simple Assignments
+```jsson
+name = João
+age = 20
+```
+
+No quotes needed for simple values!
+
+### ✅ Booleans
+```jsson
+admin = true
+notifications = true
+autoSave = true
+```
+
+Native boolean support.
+
+### ✅ Arrays
+```jsson
+roles = [ "admin", "editor" ]
+```
+
+Mix quoted and unquoted values as needed.
+
+### ✅ Nested Objects
+```jsson
+user {
+  config {
+    theme = dark
+  }
+}
+```
+
+Clean, readable nesting without JSON ceremony.
+
+### ✅ Comments
+```jsson
+// User configuration
+```
+
+Document your configs!
+
+### ✅ Mixed Data Types
+```jsson
+fontSize = 14        // Number
+lineHeight = 1.5     // Float
+autoSave = true      // Boolean
+theme = dark         // String
+```
+
+All JSON types supported.
+
+## Try It Yourself!
+
+1. Save the JSSON code above to `demo.jsson`
+2. Run: `jsson -i demo.jsson -o demo.json`
+3. Open `demo.json` to see the result!
+
+## Variations to Try
+
+### Add More Nesting
+
+<Code lang="jsson" code={`user {
+  profile {
+    personal {
+      name = João
+      age = 20
+    }
+    professional {
+      title = "Developer"
+      company = "Tech Corp"
+    }
+  }
+}`} />
+
+### Add Arrays of Objects
+
+<Code lang="jsson" code={`user {
+  name = João
+  socialMedia = [
+    { platform = twitter, handle = "@joao" },
+    { platform = github, handle = "joaodev" }
+  ]
+}`} />
+
+### Add More Arrays
+
+<Code lang="jsson" code={`user {
+  name = João
+  skills = [ JavaScript, Python, Go ]
+  hobbies = [ coding, reading, gaming ]
+  languages = [ Portuguese, English, Spanish ]
+}`} />
+
+## What's Next?
+
+- **[Basic Syntax Guide](/guides/basic-syntax/)** — Learn all the syntax features
+- **[Templates Example](/examples/template/)** — See template arrays in action
+- **[Getting Started](/guides/getting-started/)** — Complete beginner's guide
+
+Play with this file and make it your own! 🎨

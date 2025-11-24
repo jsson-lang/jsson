@@ -12,20 +12,29 @@ import (
 const (
 	_ int = iota
 	LOWEST
-	EQUALS      // ==
-	LESSGREATER // > or <
-	SUM         // +
-	PRODUCT     // *
+	TERNARY     // ? :
+	EQUALS      // == !=
+	LESSGREATER // > < >= <=
+	SUM         // + -
+	PRODUCT     // * / %
 	PREFIX      // -X or !X
 	CALL        // myFunction(X)
 	INDEX       // array[index] or obj.prop
 )
 
 var precedences = map[token.TokenType]int{
+	token.EQ:       EQUALS,
+	token.NEQ:      EQUALS,
+	token.LT:       LESSGREATER,
+	token.GT:       LESSGREATER,
+	token.LTE:      LESSGREATER,
+	token.GTE:      LESSGREATER,
 	token.PLUS:     SUM,
 	token.MINUS:    SUM,
 	token.SLASH:    PRODUCT,
 	token.ASTERISK: PRODUCT,
+	token.MODULO:   PRODUCT,
+	token.QUESTION: TERNARY,
 	token.DOT:      INDEX,
 	token.RANGE:    INDEX,
 }
@@ -195,9 +204,13 @@ func (p *Parser) parsePrefix() ast.Expression {
 
 func (p *Parser) parseInfix(left ast.Expression) ast.Expression {
 	switch p.peekToken.Type {
-	case token.PLUS, token.MINUS, token.SLASH, token.ASTERISK:
+	case token.PLUS, token.MINUS, token.SLASH, token.ASTERISK, token.MODULO,
+		token.EQ, token.NEQ, token.LT, token.GT, token.LTE, token.GTE:
 		p.nextToken()
 		return p.parseBinaryExpression(left)
+	case token.QUESTION:
+		p.nextToken()
+		return p.parseConditionalExpression(left)
 	case token.DOT:
 		p.nextToken()
 		return p.parseMemberExpression(left)
@@ -257,6 +270,27 @@ func (p *Parser) parseMemberExpression(left ast.Expression) ast.Expression {
 	}
 
 	expr.Property = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	return expr
+}
+
+func (p *Parser) parseConditionalExpression(condition ast.Expression) ast.Expression {
+	expr := &ast.ConditionalExpression{
+		Token:     p.curToken,
+		Condition: condition,
+	}
+
+	p.nextToken() // consume ?
+	expr.Consequence = p.parseExpression(TERNARY)
+
+	if p.peekToken.Type != token.COLON {
+		p.addError(ie.MissingColonInTernary())
+		return nil
+	}
+
+	p.nextToken() // move to :
+	p.nextToken() // consume :
+	expr.Alternative = p.parseExpression(LOWEST)
+
 	return expr
 }
 

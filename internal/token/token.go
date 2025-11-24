@@ -22,12 +22,20 @@ const (
 	// Operators
 	ASSIGN   = "="
 	COLON    = ":"
+	QUESTION = "?"
+	EQ       = "=="
+	NEQ      = "!="
+	LT       = "<"
+	GT       = ">"
+	LTE      = "<="
+	GTE      = ">="
 	RANGE    = ".."
 	DOT      = "."
 	PLUS     = "+"
 	MINUS    = "-"
 	SLASH    = "/"
 	ASTERISK = "*"
+	MODULO   = "%"
 
 	// Delimiters
 	COMMA    = ","

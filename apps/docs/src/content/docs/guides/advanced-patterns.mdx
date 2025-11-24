@@ -1,0 +1,235 @@
+---
+title: Advanced Patterns
+description: Unlock the full potential of JSSON with these powerful configuration patterns.
+---
+
+import { Code, Tabs, TabItem } from '@astrojs/starlight/components';
+
+JSSON isn't just for simple key-value pairs. Its features can be combined to solve complex configuration challenges. Here are some advanced patterns to supercharge your workflow.
+
+## 🧪 Test Data Generation
+
+Need to generate thousands of records for load testing? JSSON's ranges and string concatenation make it trivial.
+
+### Generating Dates
+
+Combine numeric ranges with string concatenation to generate calendar dates:
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`test_data [
+  template { date, event }
+  
+  map (row) = {
+    date = "2025-01-" + row.day
+    event = "Login Attempt"
+    status = "Success"
+  }
+  
+  // Generate dates from 1 to 31
+  1..31
+]`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "test_data": [
+    {
+      "date": "2025-01-1",
+      "event": "Login Attempt",
+      "status": "Success"
+    },
+    // ... up to 31
+    {
+      "date": "2025-01-31",
+      "event": "Login Attempt",
+      "status": "Success"
+    }
+  ]
+}`} />
+  </TabItem>
+</Tabs>
+
+### Generating User Accounts
+
+Create realistic user profiles by zipping ranges and using templates:
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`users [
+  template { id, department }
+  
+  map (u) = {
+    id = u.id
+    username = "user_" + u.id
+    email = "user_" + u.id + "@company.com"
+    dept = u.department
+    role = "employee"
+  }
+  
+  // Generate 5 users for Engineering
+  100..104, Engineering
+  
+  // Generate 5 users for Sales
+  200..204, Sales
+]`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "users": [
+    {
+      "id": 100,
+      "username": "user_100",
+      "email": "user_100@company.com",
+      "dept": "Engineering",
+      "role": "employee"
+    },
+    // ...
+    {
+      "id": 204,
+      "username": "user_204",
+      "email": "user_204@company.com",
+      "dept": "Sales",
+      "role": "employee"
+    }
+  ]
+}`} />
+  </TabItem>
+</Tabs>
+
+## 🌍 Environment Management
+
+Manage multiple environments (Dev, Staging, Prod) cleanly using the **Base + Overlay** pattern with `include`.
+
+### 1. Base Configuration (`base.jsson`)
+
+Define the common settings shared across all environments.
+
+```jsson
+// base.jsson
+app {
+  name = "MyApp"
+  version = "1.0.0"
+  retry_attempts = 3
+}
+
+database {
+  driver = "postgres"
+  pool_size = 10
+}
+```
+
+### 2. Environment Overlays (`prod.jsson`)
+
+Include the base config and override only what changes.
+
+```jsson
+// prod.jsson
+include "base.jsson"
+
+// Override database settings for production
+database {
+  host = "prod-db.aws.com"
+  pool_size = 100  // Higher pool size for prod
+}
+
+// Add prod-specific settings
+logging {
+  level = "error"
+  format = "json"
+}
+```
+
+> **Why this works:** JSSON's `include` merges the included file into the current scope. If you redefine a key (like `database`), JSSON merges the new properties into the existing object, allowing for granular overrides.
+
+## 🏷️ Dynamic Resource Naming
+
+Enforce naming conventions automatically using the `map` clause. This ensures consistency across your infrastructure configuration.
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`resources [
+  template { name, type, region }
+  
+  map (res) = {
+    // Auto-generate standardized ID: type-name-region
+    id = res.type + "-" + res.name + "-" + res.region
+    
+    // Pass through original fields
+    name = res.name
+    type = res.type
+    region = res.region
+    
+    // Add default tags
+    tags {
+      managed_by = "jsson"
+      env = "production"
+    }
+  }
+  
+  "web-server", ec2, "us-east-1"
+  "db-primary", rds, "us-west-2"
+  "cache-cluster", redis, "eu-central-1"
+]`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "resources": [
+    {
+      "id": "ec2-web-server-us-east-1",
+      "name": "web-server",
+      "type": "ec2",
+      "region": "us-east-1",
+      "tags": { "managed_by": "jsson", "env": "production" }
+    },
+    {
+      "id": "rds-db-primary-us-west-2",
+      "name": "db-primary",
+      "type": "rds",
+      "region": "us-west-2",
+      "tags": { "managed_by": "jsson", "env": "production" }
+    },
+    {
+      "id": "redis-cache-cluster-eu-central-1",
+      "name": "cache-cluster",
+      "type": "redis",
+      "region": "eu-central-1",
+      "tags": { "managed_by": "jsson", "env": "production" }
+    }
+  ]
+}`} />
+  </TabItem>
+</Tabs>
+
+## 🔢 Matrix Generation
+
+Need to generate a matrix of configurations? Use nested templates or simple multiplication logic.
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`// Generating a grid of coordinates
+grid [
+  template { x, y }
+  
+  // This is a simple way to visualize it, 
+  // though JSSON doesn't have a 'cross-product' operator yet,
+  // you can list ranges explicitly for simple grids.
+  
+  1..3, 1
+  1..3, 2
+  1..3, 3
+]`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "grid": [
+    { "x": 1, "y": 1 }, { "x": 2, "y": 1 }, { "x": 3, "y": 1 },
+    { "x": 1, "y": 2 }, { "x": 2, "y": 2 }, { "x": 3, "y": 2 },
+    { "x": 1, "y": 3 }, { "x": 2, "y": 3 }, { "x": 3, "y": 3 }
+  ]
+}`} />
+  </TabItem>
+</Tabs>

@@ -1,0 +1,398 @@
+---
+title: Syntax Reference
+description: Complete reference guide for JSSON syntax. Learn all the features that make JSSON simple, human-friendly, and incredibly productive.
+---
+
+import { Code, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Let's dive in!
+
+## Comments
+
+Keep your configs documented with single-line comments:
+
+<Code lang="jsson" code={`// This is a comment
+name = João  // Inline comment
+age = 20`} />
+
+> **Pro Tip:** Use comments to explain *why* a configuration exists, not just *what* it is.
+
+## Basic Assignments
+
+The heart of JSSON: simple key-value pairs without the quote ceremony.
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`name = João
+age = 20
+height = 1.75
+admin = true`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "name": "João",
+  "age": 20,
+  "height": 1.75,
+  "admin": true
+}`} />
+  </TabItem>
+</Tabs>
+
+**When to use quotes:**
+- Use quotes when your value contains spaces: `title = "Software Engineer"`
+- Skip quotes for simple identifiers: `name = João`
+
+## Data Types
+
+JSSON supports all JSON data types with a cleaner syntax:
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`// Strings (with or without quotes)
+name = João
+title = "Software Engineer"
+
+// Numbers (integers and floats)
+age = 25
+price = 19.99
+
+// Booleans
+active = true
+disabled = false`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "name": "João",
+  "title": "Software Engineer",
+  "age": 25,
+  "price": 19.99,
+  "active": true,
+  "disabled": false
+}`} />
+  </TabItem>
+</Tabs>
+
+## Objects
+
+Nested objects are clean and intuitive — perfect for configuration files:
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`user {
+  name = João
+  age = 20
+  admin = true
+  config {
+    theme = dark
+    notifications = true
+  }
+}`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "user": {
+    "name": "João",
+    "age": 20,
+    "admin": true,
+    "config": {
+      "theme": "dark",
+      "notifications": true
+    }
+  }
+}`} />
+  </TabItem>
+</Tabs>
+
+> **Use Case:** Perfect for app configs, server settings, and any hierarchical data.
+
+## Arrays
+
+Mix any types freely — no quotes needed for simple values:
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`numbers = [ 1, 2, 3, 4, 5 ]
+colors = [ red, blue, green ]
+mixed = [ João, 25, true, 1.75 ]`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "numbers": [1, 2, 3, 4, 5],
+  "colors": ["red", "blue", "green"],
+  "mixed": ["João", 25, true, 1.75]
+}`} />
+  </TabItem>
+</Tabs>
+
+> **Power move:** The `map` clause lets you transform each row. Add prefixes, compute values, or inject default fields — all in one place!
+
+## Expressions 🧮
+
+Compute values instead of hardcoding them:
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`price = 100
+tax = 15
+total = price + tax
+
+discount = 20
+final = total - discount
+
+quantity = 5
+itemPrice = 10
+subtotal = quantity * itemPrice`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "price": 100,
+  "tax": 15,
+  "total": 115,
+  "discount": 20,
+  "final": 95,
+  "quantity": 5,
+  "itemPrice": 10,
+  "subtotal": 50
+}`} />
+  </TabItem>
+</Tabs>
+
+**Supported operators:**
+- Arithmetic: `+`, `-`, `*`, `/`, `%` (modulo)
+- Grouping: `( )` for precedence
+
+> **Use Case:** Perfect for configs where values depend on each other — no need to manually calculate!
+
+## Member Access
+
+Access object properties using dot notation:
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`config {
+  host = localhost
+  port = 5432
+}
+
+connectionString = config.host + ":" + config.port`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "config": {
+    "host": "localhost",
+    "port": 5432
+  },
+  "connectionString": "localhost:5432"
+}`} />
+  </TabItem>
+</Tabs>
+
+> **Pro Tip:** Combine member access with expressions to build dynamic values from existing config!
+
+## Conditional Logic 🔀
+
+JSSON supports powerful conditional logic with comparison operators and ternary expressions.
+
+### Comparison Operators
+
+Compare values to get boolean results:
+
+<Code lang="jsson" code={`age = 20
+isAdult = age >= 18      // true
+canRentCar = age >= 25   // false
+isTeenager = age >= 13
+hasDiscount = age < 12`} />
+
+Supported operators: `==`, `!=`, `>`, `<`, `>=`, `<=`
+
+### Ternary Operator
+
+Choose between two values based on a condition:
+
+<Code lang="jsson" code={`status = age >= 18 ? "adult" : "minor"
+access = role == "admin" ? "full" : "limited"`} />
+
+You can even nest them for complex logic:
+
+<Code lang="jsson" code={`salary = level == "senior" ? 120000 : 
+         level == "mid"    ? 80000  : 
+                             50000`} />
+
+## Include Files 🧩
+
+Split large configurations across multiple files for better organization:
+
+<Tabs>
+  <TabItem label="database.jsson">
+    <Code lang="jsson" code={`database {
+  host = "localhost"
+  port = 5432
+}`} />
+  </TabItem>
+
+  <TabItem label="apiconfig.jsson">
+    <Code lang="jsson" code={`api {
+  url = "https://api.example.com"
+  timeout = 5000
+}
+
+include "database.jsson"`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "api": {
+    "url": "https://api.example.com",
+    "timeout": 5000
+  },
+  "database": {
+    "host": "localhost",
+    "port": 5432
+  }
+}`} />
+  </TabItem>
+</Tabs>
+
+> **Organization tip:** Use includes to separate concerns — one file for database config, another for API settings, etc.
+
+## Complete Example
+
+Putting it all together — a real-world application configuration:
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code lang="jsson" code={`// Application Configuration
+app {
+  name = "My Application"
+  version = "1.0.0"
+  debug = true
+}
+
+// Server settings
+server {
+  host = localhost
+  ports = [ 8080..8083 ]
+}
+
+// User data with transformations
+users [
+  template { name, age, role }
+  
+  map (user) = {
+    name = user.name
+    age = user.age
+    role = user.role
+    active = true
+    createdAt = "2025-11-23"
+  }
+  
+  João, 25, admin
+  Maria, 30, editor
+  Pedro, 28, viewer
+]
+
+// Include database config
+include "database.jsson"`} />
+  </TabItem>
+
+  <TabItem label="JSON Output">
+    <Code lang="json" code={`{
+  "app": {
+    "name": "My Application",
+    "version": "1.0.0",
+    "debug": true
+  },
+  "server": {
+    "host": "localhost",
+    "ports": [8080, 8081, 8082, 8083]
+  },
+  "users": [
+    {
+      "name": "João",
+      "age": 25,
+      "role": "admin",
+      "active": true,
+      "createdAt": "2025-11-23"
+    },
+    {
+      "name": "Maria",
+      "age": 30,
+      "role": "editor",
+      "active": true,
+      "createdAt": "2025-11-23"
+    },
+    {
+      "name": "Pedro",
+      "age": 28,
+      "role": "viewer",
+      "active": true,
+      "createdAt": "2025-11-23"
+    }
+  ],
+  "database": {
+    "host": "localhost",
+    "port": 5432
+  }
+}`} />
+  </TabItem>
+</Tabs>
+
+## Pro Tips 💡
+
+**1. Quotes vs No Quotes**
+- Use quotes when values have spaces or special characters
+- Skip quotes for simple identifiers and numbers
+- When in doubt, quotes always work!
+
+**2. Template Arrays**
+- Define your template once, then focus on data
+- Perfect for migrating from CSV or spreadsheet data
+- Use `map` to add computed fields or defaults
+
+**3. Organizing Large Configs**
+- Split by concern: `database.jsson`, `api.jsson`, `auth.jsson`
+- Use a main config file that includes others
+- Keep related settings together
+
+**4. Expressions**
+- Great for derived values (totals, concatenations)
+- Reduces manual calculation errors
+- Makes configs self-documenting
+
+**5. Ranges**
+- Use for any sequential numeric data
+- Combine with `step` for custom increments
+- Perfect for port ranges, years, IDs
+
+## Keywords Reference
+
+| Keyword | Description |
+|---------|-------------|
+| `template` | Defines the structure for array items |
+| `map` | Transforms template data with custom logic |
+| `include` | Imports another JSSON file |
+| `step` | Defines the increment in ranges |
+| `true` / `false` | Boolean values |
+
+## Operators
+
+| Operator | Description |
+|----------|-------------|
+| `=` | Assignment |
+| `+` | Addition / Concatenation |
+| `-` | Subtraction |
+| `*` | Multiplication |
+| `/` | Division |
+| `%` | Modulo (remainder) |
+| `==` `!=` | Equality / Inequality |
+| `>` `<` | Greater / Less than |
+| `>=` `<=` | Greater/Less than or equal |
+| `? :` | Ternary conditional |
+| `..` | Range operator |
+| `.` | Member access |

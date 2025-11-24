@@ -1,0 +1,25 @@
+employees [
+  template { id, dept, level }
+  
+  map (e) = {
+    id = e.id
+    name = "Employee " + e.id
+    email = "emp" + e.id + "@corp.com"
+    department = e.dept
+    level = e.level
+    salary = e.level == "senior" ? 120000 : e.level == "mid" ? 80000 : 50000
+  }
+  
+  // Engineering team
+  1000..1004, Engineering, junior
+  1005..1009, Engineering, mid
+  1010..1012, Engineering, senior
+  s
+  // Sales team
+  2000..2009, Sales, junior
+  2010..2014, Sales, mid
+  
+  // HR team
+  3000..3002, HR, mid
+  3003..3004, HR, senior
+]

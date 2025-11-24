@@ -44,7 +44,41 @@ func (l *Lexer) NextToken() token.Token {
 
 	switch l.ch {
 	case '=':
-		tok = l.newToken(token.ASSIGN, string(l.ch))
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			tok = token.Token{Type: token.EQ, Literal: string(ch) + string(l.ch), Line: l.line, Column: l.column}
+		} else {
+			tok = l.newToken(token.ASSIGN, string(l.ch))
+		}
+	case '!':
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			tok = token.Token{Type: token.NEQ, Literal: string(ch) + string(l.ch), Line: l.line, Column: l.column}
+		} else {
+			msg := l.lexErrMsg(ie.IllegalCharacter(l.ch))
+			l.errors = append(l.errors, msg)
+			tok = l.newToken(token.ILLEGAL, msg)
+		}
+	case '<':
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			tok = token.Token{Type: token.LTE, Literal: string(ch) + string(l.ch), Line: l.line, Column: l.column}
+		} else {
+			tok = l.newToken(token.LT, string(l.ch))
+		}
+	case '>':
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			tok = token.Token{Type: token.GTE, Literal: string(ch) + string(l.ch), Line: l.line, Column: l.column}
+		} else {
+			tok = l.newToken(token.GT, string(l.ch))
+		}
+	case '?':
+		tok = l.newToken(token.QUESTION, string(l.ch))
 	case ':':
 		tok = l.newToken(token.COLON, string(l.ch))
 	case ',':
@@ -69,6 +103,8 @@ func (l *Lexer) NextToken() token.Token {
 		tok = l.newToken(token.SLASH, string(l.ch))
 	case '*':
 		tok = l.newToken(token.ASTERISK, string(l.ch))
+	case '%':
+		tok = l.newToken(token.MODULO, string(l.ch))
 	case '"':
 		lit, ok := l.readString()
 		tok.Line = l.line
@@ -81,6 +117,7 @@ func (l *Lexer) NextToken() token.Token {
 			tok.Type = token.STRING
 			tok.Literal = lit
 		}
+		return tok
 	case '.':
 		if l.peekChar() == '.' {
 			ch := l.ch

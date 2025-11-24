@@ -1,0 +1,12 @@
+servers [
+  template { id, port }
+  
+  map (s) = {
+    id = s.id
+    ip = "192.168.1." + s.id
+    port = s.port
+  }
+  
+  100..120, 
+  3000..3020
+]

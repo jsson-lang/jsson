@@ -1,0 +1,4 @@
+// Test ternary with different values
+test1 = true ? 1 : 2
+test2 = true ? "hello" : "world"
+test3 = true ? [1, 2] : [3]

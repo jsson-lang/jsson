@@ -308,7 +308,7 @@ func (t *Transpiler) evalExpression(expr ast.Expression, ctx map[string]interfac
 		return arr, nil
 
 	case *ast.RangeExpression:
-		// Evaluate start, end and optional step (integers expected)
+		// Evaluate start, end and optional step
 		startV, err := t.evalExpression(e.Start, ctx)
 		if err != nil {
 			return nil, err
@@ -326,7 +326,15 @@ func (t *Transpiler) evalExpression(expr ast.Expression, ctx map[string]interfac
 			}
 		}
 
-		// Convert to int64
+		// Check if both start and end are strings (String Range)
+		if startStr, ok1 := startV.(string); ok1 {
+			if endStr, ok2 := endV.(string); ok2 {
+				// String Range: find numeric suffix and increment it
+				return t.evalStringRange(startStr, endStr, stepV, e)
+			}
+		}
+
+		// Integer Range (original behavior)
 		sInt, ok1 := startV.(int64)
 		eInt, ok2 := endV.(int64)
 		if !ok1 || !ok2 {
@@ -366,37 +374,94 @@ func (t *Transpiler) evalExpression(expr ast.Expression, ctx map[string]interfac
 		keys := e.Template.Keys
 
 		for _, row := range e.Rows {
-			// Create the row object
-			rowObj := make(map[string]interface{})
+			// First, evaluate all expressions in the row
+			evaluatedRow := make([]interface{}, len(row))
 			for i, expr := range row {
-				if i >= len(keys) {
-					break
-				}
-				key := keys[i]
 				val, err := t.evalExpression(expr, ctx)
 				if err != nil {
 					return nil, err
 				}
-				rowObj[key] = val
+				evaluatedRow[i] = val
 			}
 
-			// Apply Map Clause if present
-			if e.Map != nil {
-				// Create context with param
-				mapCtx := make(map[string]interface{})
-				// Copy parent context?
-				for k, v := range ctx {
-					mapCtx[k] = v
-				}
-				mapCtx[e.Map.Param.Value] = rowObj
+			// Check if we have ranges that need zipping
+			// If we have arrays, we zip them up to the shortest length
+			hasArrays := false
+			minArrayLength := -1
 
-				mappedVal, err := t.evalExpression(e.Map.Body, mapCtx)
-				if err != nil {
-					return nil, err
+			for _, val := range evaluatedRow {
+				if arr, ok := val.([]interface{}); ok {
+					hasArrays = true
+					if minArrayLength == -1 || len(arr) < minArrayLength {
+						minArrayLength = len(arr)
+					}
 				}
-				result = append(result, mappedVal)
+			}
+
+			// Range Zipping: if we have arrays, zip them
+			if hasArrays && minArrayLength > 0 {
+				// Create multiple objects, one for each index up to minArrayLength
+				for idx := 0; idx < minArrayLength; idx++ {
+					rowObj := make(map[string]interface{})
+					for i, val := range evaluatedRow {
+						if i >= len(keys) {
+							break
+						}
+						key := keys[i]
+
+						// If it's an array, take the element at idx
+						if arr, ok := val.([]interface{}); ok {
+							rowObj[key] = arr[idx]
+						} else {
+							// If it's not an array, use the same value for all rows
+							rowObj[key] = val
+						}
+					}
+
+					// Apply Map Clause if present
+					if e.Map != nil {
+						mapCtx := make(map[string]interface{})
+						for k, v := range ctx {
+							mapCtx[k] = v
+						}
+						mapCtx[e.Map.Param.Value] = rowObj
+
+						mappedVal, err := t.evalExpression(e.Map.Body, mapCtx)
+						if err != nil {
+							return nil, err
+						}
+						result = append(result, mappedVal)
+					} else {
+						result = append(result, rowObj)
+					}
+				}
 			} else {
-				result = append(result, rowObj)
+				// No zipping needed
+				rowObj := make(map[string]interface{})
+				for i, val := range evaluatedRow {
+					if i >= len(keys) {
+						break
+					}
+					key := keys[i]
+					rowObj[key] = val
+				}
+
+				// Apply Map Clause if present
+				if e.Map != nil {
+					mapCtx := make(map[string]interface{})
+					for k, v := range ctx {
+						mapCtx[k] = v
+					}
+					mapCtx[e.Map.Param.Value] = rowObj
+
+					mappedVal, err := t.evalExpression(e.Map.Body, mapCtx)
+					if err != nil {
+						return nil, err
+					}
+					result = append(result, mappedVal)
+				} else {
+					result = append(result, rowObj)
+				}
 			}
 		}
 		return result, nil
@@ -411,6 +476,20 @@ func (t *Transpiler) evalExpression(expr ast.Expression, ctx map[string]interfac
 		}
 
 		return t.evalBinary(left, e.Operator, right)
+	case *ast.ConditionalExpression:
+		condition, err := t.evalExpression(e.Condition, ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		// Convert to boolean
+		isTruthy := t.isTruthy(condition)
+
+		if isTruthy {
+			return t.evalExpression(e.Consequence, ctx)
+		} else {
+			return t.evalExpression(e.Alternative, ctx)
+		}
 	case *ast.MemberExpression:
 		left, err := t.evalExpression(e.Left, ctx)
 		if err != nil {
@@ -440,21 +519,282 @@ func (t *Transpiler) evalBinary(left interface{}, op string, right interface{}) 
 		if rStr, ok := right.(string); ok {
 			return fmt.Sprintf("%v", left) + rStr, nil
 		}
-		// Int addition
+		// Numeric addition
+		lFloat, lIsFloat := toFloat(left)
+		rFloat, rIsFloat := toFloat(right)
+		if lIsFloat || rIsFloat {
+			return lFloat + rFloat, nil
+		}
 		if lInt, ok := left.(int64); ok {
 			if rInt, ok := right.(int64); ok {
 				return lInt + rInt, nil
 			}
 		}
+	case "-":
+		// Numeric subtraction
+		lFloat, lIsFloat := toFloat(left)
+		rFloat, rIsFloat := toFloat(right)
+		if lIsFloat || rIsFloat {
+			return lFloat - rFloat, nil
+		}
+		if lInt, ok := left.(int64); ok {
+			if rInt, ok := right.(int64); ok {
+				return lInt - rInt, nil
+			}
+		}
 	case "*":
-		// Int multiplication
+		// Numeric multiplication
+		lFloat, lIsFloat := toFloat(left)
+		rFloat, rIsFloat := toFloat(right)
+		if lIsFloat || rIsFloat {
+			return lFloat * rFloat, nil
+		}
 		if lInt, ok := left.(int64); ok {
 			if rInt, ok := right.(int64); ok {
 				return lInt * rInt, nil
 			}
 		}
+	case "/":
+		// Numeric division
+		lFloat, lIsFloat := toFloat(left)
+		rFloat, rIsFloat := toFloat(right)
+		if lIsFloat || rIsFloat {
+			if rFloat == 0 {
+				return nil, t.errMsg(ie.DivisionByZero())
+			}
+			return lFloat / rFloat, nil
+		}
+		if lInt, ok := left.(int64); ok {
+			if rInt, ok := right.(int64); ok {
+				if rInt == 0 {
+					return nil, t.errMsg(ie.DivisionByZero())
+				}
+				return lInt / rInt, nil
+			}
+		}
+	case "%":
+		// Int modulo
+		if lInt, ok := left.(int64); ok {
+			if rInt, ok := right.(int64); ok {
+				if rInt == 0 {
+					return nil, t.errMsg(ie.ModuloByZero())
+				}
+				return lInt % rInt, nil
+			}
+		}
+	case "==":
+		return t.compareEqual(left, right), nil
+	case "!=":
+		return !t.compareEqual(left, right), nil
+	case "<":
+		return t.compareLess(left, right)
+	case ">":
+		return t.compareLess(right, left)
+	case "<=":
+		eq := t.compareEqual(left, right)
+		if eq {
+			return true, nil
+		}
+		return t.compareLess(left, right)
+	case ">=":
+		eq := t.compareEqual(left, right)
+		if eq {
+			return true, nil
+		}
+		return t.compareLess(right, left)
 	}
 	return nil, t.errMsg(ie.UnsupportedBinaryOp(left, op, right))
+}
+
+func toFloat(val interface{}) (float64, bool) {
+	switch v := val.(type) {
+	case float64:
+		return v, true
+	case int64:
+		return float64(v), true
+	case int:
+		return float64(v), true
+	}
+	return 0, false
+}
+
+func (t *Transpiler) isTruthy(val interface{}) bool {
+	switch v := val.(type) {
+	case bool:
+		return v
+	case int64:
+		return v != 0
+	case float64:
+		return v != 0.0
+	case string:
+		return v != ""
+	case nil:
+		return false
+	default:
+		return true
+	}
+}
+
+func (t *Transpiler) compareEqual(left, right interface{}) bool {
+	// Handle mixed numeric types
+	lFloat, lIsFloat := toFloat(left)
+	rFloat, rIsFloat := toFloat(right)
+	if lIsFloat && rIsFloat {
+		return lFloat == rFloat
+	}
+
+	// Handle same types
+	switch l := left.(type) {
+	case int64:
+		if r, ok := right.(int64); ok {
+			return l == r
+		}
+	case float64:
+		if r, ok := right.(float64); ok {
+			return l == r
+		}
+	case string:
+		if r, ok := right.(string); ok {
+			return l == r
+		}
+	case bool:
+		if r, ok := right.(bool); ok {
+			return l == r
+		}
+	}
+	return false
+}
+
+func (t *Transpiler) compareLess(left, right interface{}) (bool, error) {
+	// Handle mixed numeric types
+	lFloat, lIsFloat := toFloat(left)
+	rFloat, rIsFloat := toFloat(right)
+	if lIsFloat && rIsFloat {
+		return lFloat < rFloat, nil
+	}
+
+	switch l := left.(type) {
+	case int64:
+		if r, ok := right.(int64); ok {
+			return l < r, nil
+		}
+	case float64:
+		if r, ok := right.(float64); ok {
+			return l < r, nil
+		}
+	case string:
+		if r, ok := right.(string); ok {
+			return l < r, nil
+		}
+	}
+	return false, t.errMsg(ie.UnsupportedComparison(left, right))
+}
+
+// evalStringRange handles ranges of strings with numeric suffixes (e.g., IP addresses)
+// Example: "192.168.1.100".."192.168.1.109" generates ["192.168.1.100", "192.168.1.101", ...]
+func (t *Transpiler) evalStringRange(start, end string, stepV interface{}, node ast.Node) (interface{}, error) {
+	// Find the numeric suffix in both strings
+	// We'll look for the last sequence of digits
+	var startPrefix, endPrefix string
+	var startNum, endNum int64
+	var foundStart, foundEnd bool
+
+	// Extract numeric suffix from start
+	for i := len(start) - 1; i >= 0; i-- {
+		if start[i] < '0' || start[i] > '9' {
+			// Found non-digit, extract number after this position
+			if i < len(start)-1 {
+				startPrefix = start[:i+1]
+				numStr := start[i+1:]
+				if n, err := fmt.Sscanf(numStr, "%d", &startNum); n == 1 && err == nil {
+					foundStart = true
+				}
+			}
+			break
+		}
+		if i == 0 {
+			// Entire string is a number
+			startPrefix = ""
+			if n, err := fmt.Sscanf(start, "%d", &startNum); n == 1 && err == nil {
+				foundStart = true
+			}
+			break
+		}
+	}
+
+	// Extract numeric suffix from end
+	for i := len(end) - 1; i >= 0; i-- {
+		if end[i] < '0' || end[i] > '9' {
+			if i < len(end)-1 {
+				endPrefix = end[:i+1]
+				numStr := end[i+1:]
+				if n, err := fmt.Sscanf(numStr, "%d", &endNum); n == 1 && err == nil {
+					foundEnd = true
+				}
+			}
+			break
+		}
+		if i == 0 {
+			endPrefix = ""
+			if n, err := fmt.Sscanf(end, "%d", &endNum); n == 1 && err == nil {
+				foundEnd = true
+			}
+			break
+		}
+	}
+
+	if !foundStart || !foundEnd {
+		return nil, t.errfNode(node, "string range requires numeric suffix in both start and end (e.g., \"192.168.1.100\"..\"192.168.1.109\")")
+	}
+
+	if startPrefix != endPrefix {
+		return nil, t.errfNode(node, "string range prefixes must match (start: %q, end: %q)", startPrefix, endPrefix)
+	}
+
+	// Determine step
+	step := int64(1)
+	if stepV != nil {
+		if st, ok := stepV.(int64); ok {
+			step = st
+		} else {
+			return nil, t.errfNode(node, "step must be an integer for string ranges")
+		}
+	} else {
+		if startNum > endNum {
+			step = -1
+		}
+	}
+
+	if step == 0 {
+		return nil, t.errfNode(node, "step cannot be zero")
+	}
+
+	// Calculate number of digits in original (for zero-padding)
+	startStr := start[len(startPrefix):]
+	padding := len(startStr)
+
+	// Generate range
+	res := make([]interface{}, 0)
+	if step > 0 {
+		for i := startNum; i <= endNum; i += step {
+			// Format with zero-padding if original had it
+			if padding > 1 && startStr[0] == '0' {
+				res = append(res, fmt.Sprintf("%s%0*d", startPrefix, padding, i))
+			} else {
+				res = append(res, fmt.Sprintf("%s%d", startPrefix, i))
+			}
+		}
+	} else {
+		for i := startNum; i >= endNum; i += step {
+			if padding > 1 && startStr[0] == '0' {
+				res = append(res, fmt.Sprintf("%s%0*d", startPrefix, padding, i))
+			} else {
+				res = append(res, fmt.Sprintf("%s%d", startPrefix, i))
+			}
+		}
+	}
+
+	return res, nil
 }
 
 // wtf???

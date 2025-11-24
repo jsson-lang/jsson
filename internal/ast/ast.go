@@ -247,3 +247,17 @@ func (is *IncludeStatement) TokenLiteral() string { return is.Token.Literal }
 func (is *IncludeStatement) String() string {
 	return "include " + is.Path.String()
 }
+
+// ConditionalExpression: condition ? consequence : alternative
+type ConditionalExpression struct {
+	Token       token.Token // The '?' token
+	Condition   Expression
+	Consequence Expression
+	Alternative Expression
+}
+
+func (ce *ConditionalExpression) expressionNode()      {}
+func (ce *ConditionalExpression) TokenLiteral() string { return ce.Token.Literal }
+func (ce *ConditionalExpression) String() string {
+	return "(" + ce.Condition.String() + " ? " + ce.Consequence.String() + " : " + ce.Alternative.String() + ")"
+}

@@ -1,0 +1,352 @@
+---
+title: FAQ
+description: Frequently Asked Questions about JSSON - syntax, features, and common use cases.
+---
+
+import { Code } from '@astrojs/starlight/components';
+
+## Getting Started
+
+### What is JSSON?
+
+JSSON (**JavaScript Simplified Object Notation**) is a human-friendly syntax that transpiles to JSON. It removes the ceremony of JSON while maintaining 100% compatibility.
+
+Think of it as: **You write JSSON → Transpiler outputs JSON**
+
+### Why use JSSON instead of JSON?
+
+**JSON:**
+```json
+{
+  "user": {
+    "name": "João",
+    "age": 25,
+    "admin": true
+  }
+}
+```
+
+**JSSON:**
+```jsson
+user {
+  name = João
+  age = 25
+  admin = true
+}
+```
+
+JSSON is cleaner, more readable, and supports comments!
+
+### How do I install JSSON?
+
+Download the binary from [GitHub Releases](https://github.com/carlosedujs/jsson/releases) or build from source:
+
+```bash
+git clone https://github.com/carlosedujs/jsson
+cd jsson
+go build -o jsson cmd/jsson/main.go
+```
+
+See the [Getting Started guide](/guides/getting-started/) for details.
+
+### Is JSSON production-ready?
+
+Yes! JSSON transpiles to standard JSON, so the output is always valid and safe to use in production.
+
+## Syntax Questions
+
+### When do I need quotes?
+
+**Use quotes when:**
+- Values have spaces: `title = "Software Engineer"`
+- Values have special characters: `email = "user@example.com"`
+- You want to force a string: `version = "1.0.0"`
+
+**Skip quotes when:**
+- Simple identifiers: `name = João`
+- Numbers: `age = 25`
+- Booleans: `active = true`
+
+**Rule of thumb:** When in doubt, use quotes!
+
+### Can I use comments?
+
+Yes! Single-line comments with `//`:
+
+<Code lang="jsson" code={`// This is a comment
+name = João  // Inline comment
+age = 25`} />
+
+### Do I need commas between fields?
+
+No! JSSON doesn't use commas between object fields:
+
+<Code lang="jsson" code={`// Correct ✅
+user {
+  name = João
+  age = 25
+}
+
+// Wrong ❌
+user {
+  name = João,
+  age = 25,
+}`} />
+
+Arrays still use commas: `colors = [ red, blue, green ]`
+
+### How do I create nested objects?
+
+Just nest them naturally:
+
+<Code lang="jsson" code={`user {
+  name = João
+  config {
+    theme = dark
+    notifications {
+      email = true
+      push = false
+    }
+  }
+}`} />
+
+### Can I mix JSSON and JSON syntax?
+
+No. Choose one or the other. JSSON files should use JSSON syntax throughout.
+
+## Features
+
+### What are template arrays?
+
+Template arrays let you define structure once, then list data rows:
+
+<Code lang="jsson" code={`users [
+  template { name, age, job }
+  João, 25, Developer
+  Maria, 30, Designer
+  Pedro, 28, Manager
+]`} />
+
+See the [Templates Guide](/guides/templates/) for details!
+
+### What is the map clause?
+
+The `map` clause transforms template data:
+
+<Code lang="jsson" code={`routes [
+  template { path, method }
+  
+  map (item) = {
+    path = "/api/" + item.path
+    method = item.method
+    version = "v1"
+  }
+  
+  users, GET
+  posts, POST
+]`} />
+
+It adds computed fields and transforms values!
+
+### What are ranges?
+
+Ranges generate numeric sequences:
+
+<Code lang="jsson" code={`ports = [ 8080..8085 ]
+// Becomes: [8080, 8081, 8082, 8083, 8084, 8085]
+
+evens = [ 0..10 step 2 ]
+// Becomes: [0, 2, 4, 6, 8, 10]`} />
+
+### How do includes work?
+
+Use `include` to split large configs:
+
+**database.jsson:**
+<Code lang="jsson" code={`database {
+  host = localhost
+  port = 5432
+}`} />
+
+**main.jsson:**
+<Code lang="jsson" code={`include "database.jsson"
+
+app {
+  name = "My App"
+}`} />
+
+See the [Include Modules Guide](/guides/include-modules/)!
+
+### Can I do arithmetic?
+
+Yes! JSSON supports basic expressions:
+
+<Code lang="jsson" code={`price = 100
+tax = 15
+total = price + tax  // 115
+
+quantity = 5
+itemPrice = 10
+subtotal = quantity * itemPrice  // 50`} />
+
+Operators: `+`, `-`, `*`, `/`
+
+### Can I access object properties?
+
+Yes, with dot notation:
+
+<Code lang="jsson" code={`config {
+  host = localhost
+  port = 8080
+}
+
+url = config.host + ":" + config.port
+// Becomes: "localhost:8080"`} />
+
+## Use Cases
+
+### What is JSSON good for?
+
+- **Configuration files** (app configs, server settings)
+- **Seed data** (database fixtures, test data)
+- **Mock APIs** (fake data for development)
+- **Structured lists** (products, users, routes)
+- **Data templates** (CSV-like data → JSON)
+
+### Can I use JSSON for large files?
+
+Yes! Use `include` to split large configs into modules:
+
+```
+config/
+├── main.jsson
+├── database.jsson
+├── api.jsson
+└── cache.jsson
+```
+
+### Can I use JSSON with my build tool?
+
+Yes! Integrate with npm scripts, Makefiles, or CI/CD:
+
+**package.json:**
+```json
+{
+  "scripts": {
+    "build:config": "jsson -i config.jsson -o dist/config.json"
+  }
+}
+```
+
+See the [CLI Guide](/guides/cli/) for integration examples!
+
+### Is JSSON faster than JSON?
+
+JSSON adds a transpilation step, so it's slightly slower than parsing JSON directly. However:
+
+- **Development:** JSSON is faster to write and maintain
+- **Production:** Use transpiled JSON (no runtime overhead)
+
+### Can I validate JSSON files?
+
+Yes! Run the transpiler to check for errors:
+
+```bash
+jsson -i config.jsson
+```
+
+If there are errors, you'll see helpful messages from the goblins, wizards, and gremlins! 🧙‍♂️
+
+## Comparison
+
+### JSSON vs JSON
+
+| Feature | JSSON | JSON |
+|---------|-------|------|
+| **Quotes on keys** | ❌ Not needed | ✅ Required |
+| **Quotes on values** | Optional | Required for strings |
+| **Comments** | ✅ Supported | ❌ Not supported |
+| **Commas** | Only in arrays | Required everywhere |
+| **Templates** | ✅ Built-in | ❌ Not available |
+| **Ranges** | ✅ Built-in | ❌ Not available |
+| **Expressions** | ✅ Supported | ❌ Not available |
+
+### JSSON vs YAML
+
+| Feature | JSSON | YAML |
+|---------|-------|------|
+| **Syntax** | Simple, JSON-like | Indentation-based |
+| **Output** | JSON | YAML (or JSON) |
+| **Learning curve** | Low | Medium |
+| **Templates** | ✅ Built-in | ❌ Not available |
+| **Complexity** | Simple | Can be complex |
+
+### JSSON vs TOML
+
+| Feature | JSSON | TOML |
+|---------|-------|------|
+| **Syntax** | JSON-like | INI-like |
+| **Output** | JSON | TOML |
+| **Arrays of objects** | Easy (templates) | Verbose |
+| **Nesting** | Natural | Can be awkward |
+
+## Troubleshooting
+
+### I'm getting "Illegal character" errors
+
+You're using a special character without quotes:
+
+<Code lang="jsson" code={`// Wrong ❌
+email = user@example.com
+
+// Right ✅
+email = "user@example.com"`} />
+
+### My template has the wrong number of values
+
+Each row must match the template:
+
+<Code lang="jsson" code={`users [
+  template { name, age, email }
+  João, 25, "joao@test.com"  // ✅ 3 values
+  Maria, 30                   // ❌ Only 2 values
+]`} />
+
+### Include file not found
+
+Check that:
+1. The file exists
+2. The path is correct (relative to the including file)
+3. The extension is `.jsson`
+
+### Where can I get help?
+
+- **[Errors & Debugging](/reference/errors/)** — Common errors and solutions
+- **[GitHub Issues](https://github.com/carlosedujs/jsson/issues)** — Report bugs or ask questions
+- **[Syntax Reference](/reference/syntax/)** — Complete syntax guide
+
+## Contributing
+
+### Can I contribute to JSSON?
+
+Yes! JSSON is open source. See the [Contributing Guide](/contributing/) for details.
+
+### How do I report a bug?
+
+Open an issue on [GitHub](https://github.com/carlosedujs/jsson/issues) with:
+- Your JSSON code
+- The error message
+- Expected vs actual behavior
+
+### Can I request a feature?
+
+Absolutely! Open a feature request on [GitHub Issues](https://github.com/carlosedujs/jsson/issues).
+
+## More Questions?
+
+Check out:
+- **[Getting Started](/guides/getting-started/)** — Complete beginner's guide
+- **[Syntax Reference](/reference/syntax/)** — Full syntax documentation
+- **[Examples](/examples/demo/)** — Real-world examples
+
+Still stuck? Ask on [GitHub Discussions](https://github.com/carlosedujs/jsson/discussions)! 🚀

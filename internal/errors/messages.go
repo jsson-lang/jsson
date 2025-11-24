@@ -111,3 +111,23 @@ func IntegerTooSpicy(literal string) string {
 func ExpectedIdentifierAfterDot() string {
 	return "expected identifier after '.' — maybe use letters, not emojis"
 }
+
+// DivisionByZero returns a fun message for division by zero
+func DivisionByZero() string {
+	return "division by zero — even gremlins can't divide by nothing!"
+}
+
+// ModuloByZero returns a fun message for modulo by zero
+func ModuloByZero() string {
+	return "modulo by zero — gremlins are confused!"
+}
+
+// MissingColonInTernary returns a fun message for missing colon in ternary
+func MissingColonInTernary() string {
+	return "expected ':' in ternary expression — wizard needs both ? and :"
+}
+
+// UnsupportedComparison returns a fun message for unsupported comparisons
+func UnsupportedComparison(left, right interface{}) string {
+	return fmt.Sprintf("can't compare %v and %v — gremlin doesn't know how", left, right)
+}

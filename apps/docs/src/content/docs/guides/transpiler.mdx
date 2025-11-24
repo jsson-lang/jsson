@@ -1,0 +1,390 @@
+---
+title: Transpiler Usage Guide
+description: Learn how the JSSON transpiler works, how to use it programmatically, and how to extend it for custom output formats.
+---
+
+import { Code } from '@astrojs/starlight/components';
+
+The JSSON transpiler is the engine that converts your clean JSSON syntax into valid JSON. Let's explore how it works and how to use it! ⚙️
+
+## How It Works
+
+The transpiler follows a three-stage pipeline:
+
+```
+JSSON Source → Lexer → Parser → Transpiler → JSON Output
+```
+
+### 1. Lexer (Tokenization)
+
+Breaks your JSSON into tokens:
+
+```jsson
+name = João
+```
+
+Becomes:
+
+```
+IDENT("name") ASSIGN IDENT("João")
+```
+
+### 2. Parser (AST Generation)
+
+Creates an Abstract Syntax Tree:
+
+```
+Program
+└── AssignmentStatement
+    ├── name: "name"
+    └── value: StringLiteral("João")
+```
+
+### 3. Transpiler (JSON Generation)
+
+Converts the AST to JSON:
+
+```json
+{
+  "name": "João"
+}
+```
+
+## Using the Transpiler
+
+### Command Line
+
+The easiest way:
+
+```bash
+jsson -i input.jsson -o output.json
+```
+
+### Programmatic Usage (Go)
+
+Use JSSON as a library in your Go code:
+
+```go
+package main
+
+import (
+    "fmt"
+    "jsson/internal/lexer"
+    "jsson/internal/parser"
+    "jsson/internal/transpiler"
+)
+
+func main() {
+    // Your JSSON source
+    source := `
+    app {
+        name = "My App"
+        version = "1.0.0"
+    }
+    `
+    
+    // Step 1: Lex
+    l := lexer.New(source)
+    
+    // Step 2: Parse
+    p := parser.New(l)
+    program := p.ParseProgram()
+    
+    // Check for parse errors
+    if len(p.Errors()) > 0 {
+        for _, err := range p.Errors() {
+            fmt.Println(err)
+        }
+        return
+    }
+    
+    // Step 3: Transpile
+    t := transpiler.New()
+    json, err := t.Transpile(program)
+    if err != nil {
+        fmt.Println("Transpile error:", err)
+        return
+    }
+    
+    fmt.Println(json)
+}
+```
+
+### Reading from Files
+
+```go
+package main
+
+import (
+    "fmt"
+    "os"
+    "jsson/internal/lexer"
+    "jsson/internal/parser"
+    "jsson/internal/transpiler"
+)
+
+func transpileFile(inputPath, outputPath string) error {
+    // Read input file
+    content, err := os.ReadFile(inputPath)
+    if err != nil {
+        return err
+    }
+    
+    // Lex and parse
+    l := lexer.New(string(content))
+    l.SetSourceFile(inputPath)  // For better error messages
+    
+    p := parser.New(l)
+    program := p.ParseProgram()
+    
+    if len(p.Errors()) > 0 {
+        for _, err := range p.Errors() {
+            fmt.Println(err)
+        }
+        return fmt.Errorf("parse errors")
+    }
+    
+    // Transpile
+    t := transpiler.New()
+    json, err := t.Transpile(program)
+    if err != nil {
+        return err
+    }
+    
+    // Write output
+    return os.WriteFile(outputPath, []byte(json), 0644)
+}
+
+func main() {
+    err := transpileFile("config.jsson", "config.json")
+    if err != nil {
+        fmt.Println("Error:", err)
+        os.Exit(1)
+    }
+}
+```
+
+## Output Formats
+
+Currently, JSSON transpiles to JSON. Future versions may support:
+
+- **YAML** — For Kubernetes configs
+- **TOML** — For Rust/Go configs
+- **XML** — For legacy systems
+- **Custom formats** — Via plugins
+
+## Performance Considerations
+
+### File Size
+
+JSSON handles files efficiently:
+
+- **Small files** (< 1KB): Instant
+- **Medium files** (1-100KB): < 100ms
+- **Large files** (> 100KB): < 1s
+
+### Memory Usage
+
+The transpiler loads the entire file into memory. For very large files (> 10MB), consider:
+
+1. **Splitting with includes**
+2. **Processing in chunks**
+3. **Streaming (future feature)**
+
+### Optimization Tips
+
+**1. Use includes for large configs:**
+
+```jsson
+// Instead of one 1000-line file
+include "users.jsson"      // 200 lines
+include "products.jsson"   // 300 lines
+include "settings.jsson"   // 500 lines
+```
+
+**2. Avoid deeply nested structures:**
+
+```jsson
+// This is fine
+user {
+  profile {
+    settings {
+      theme = dark
+    }
+  }
+}
+
+// This might be slow (10+ levels deep)
+a { b { c { d { e { f { g { h { i { j {
+  value = deep
+}}}}}}}}}}
+```
+
+**3. Use template arrays efficiently:**
+
+```jsson
+// Good - 1000 users
+users [
+  template { name, email }
+  // ... 1000 rows
+]
+
+// Better - split into multiple files
+include "users-1-500.jsson"
+include "users-501-1000.jsson"
+```
+
+## Error Handling
+
+The transpiler provides detailed error messages:
+
+### Lex Errors
+
+```
+Lex goblin: config.jsson:15:8 — Illegal character: '@'
+```
+
+### Parse Errors
+
+```
+Parse wizard: config.jsson:20:5 — Unexpected token: expected '=', got '{'
+```
+
+### Transpile Errors
+
+```
+Transpiler gremlin: config.jsson:25:10 — Undefined reference: 'config.port'
+```
+
+See the [Errors & Debugging](/reference/errors/) guide for details!
+
+## Extending the Transpiler
+
+### Custom Output Format (Future)
+
+```go
+// Future API (not yet implemented)
+type OutputFormatter interface {
+    Format(program *ast.Program) (string, error)
+}
+
+type YAMLFormatter struct{}
+
+func (y *YAMLFormatter) Format(program *ast.Program) (string, error) {
+    // Convert AST to YAML
+    return yaml, nil
+}
+
+// Usage
+t := transpiler.New()
+t.SetFormatter(&YAMLFormatter{})
+output, _ := t.Transpile(program)
+```
+
+### Custom Transformations
+
+You can modify the AST before transpiling:
+
+```go
+// Example: Add a timestamp to all objects
+func addTimestamp(program *ast.Program) {
+    for _, stmt := range program.Statements {
+        if assign, ok := stmt.(*ast.AssignmentStatement); ok {
+            if obj, ok := assign.Value.(*ast.ObjectLiteral); ok {
+                // Add timestamp field
+                obj.Pairs["_timestamp"] = &ast.StringLiteral{
+                    Value: time.Now().Format(time.RFC3339),
+                }
+            }
+        }
+    }
+}
+
+// Use it
+program := p.ParseProgram()
+addTimestamp(program)
+json, _ := t.Transpile(program)
+```
+
+## Integration Examples
+
+### Web Server
+
+```go
+package main
+
+import (
+    "net/http"
+    "jsson/internal/lexer"
+    "jsson/internal/parser"
+    "jsson/internal/transpiler"
+)
+
+func transpileHandler(w http.ResponseWriter, r *http.Request) {
+    // Read JSSON from request body
+    body, _ := io.ReadAll(r.Body)
+    
+    // Transpile
+    l := lexer.New(string(body))
+    p := parser.New(l)
+    program := p.ParseProgram()
+    
+    if len(p.Errors()) > 0 {
+        http.Error(w, p.Errors()[0], http.StatusBadRequest)
+        return
+    }
+    
+    t := transpiler.New()
+    json, err := t.Transpile(program)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return
+    }
+    
+    w.Header().Set("Content-Type", "application/json")
+    w.Write([]byte(json))
+}
+
+func main() {
+    http.HandleFunc("/transpile", transpileHandler)
+    http.ListenAndServe(":8080", nil)
+}
+```
+
+### Build Tool Plugin
+
+```go
+// Webpack/Vite plugin concept
+func JssonPlugin() {
+    return Plugin{
+        Name: "jsson",
+        Transform: func(code, id string) (string, error) {
+            if !strings.HasSuffix(id, ".jsson") {
+                return code, nil
+            }
+            
+            // Transpile JSSON to JSON
+            l := lexer.New(code)
+            p := parser.New(l)
+            program := p.ParseProgram()
+            
+            t := transpiler.New()
+            json, err := t.Transpile(program)
+            if err != nil {
+                return "", err
+            }
+            
+            // Return as JS module
+            return fmt.Sprintf("export default %s", json), nil
+        },
+    }
+}
+```
+
+## What's Next?
+
+- **[AST Reference](/reference/ast/)** — Understand the Abstract Syntax Tree
+- **[Errors & Debugging](/reference/errors/)** — Handle errors gracefully
+- **[CLI Guide](/guides/cli/)** — Master the command-line tool
+
+The transpiler is the heart of JSSON — now you know how it works! ⚙️
