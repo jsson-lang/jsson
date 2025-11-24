@@ -1,0 +1,37 @@
+// PROXIMA FEATURE: 
+
+projects [
+  template { id, name, manager, status, tasks }
+
+  map (p) = {
+    id = p.id
+    fullName = p.name + " (" + p.manager + ")"
+    
+    // Converte o status para um booleano de conclusão
+    isComplete = p.status == "DONE"
+    
+    // Lista de Tarefas (Array Aninhado)
+    tasks = p.tasks map (t) = {
+      description = t.description
+      isUrgent = t.priority == "High"
+    }
+  }
+  
+  // Dados brutos
+  // ID, Nome, Gerente, Status, Tarefas (como um array interno)
+  
+  101, "Alpha Launch", "Ana", "DONE", [
+    { description: "Code Review", priority: "High" },
+    { description: "Deploy Prod", priority: "Medium" }
+  ]
+  
+  102, "Beta Refactor", "Bruno", "IN_PROGRESS", [
+    { description: "DB Schema Update", priority: "High" },
+    { description: "API Doc", priority: "Low" },
+    { description: "Test Coverage", priority: "Medium" }
+  ]
+  
+  103, "Gamma Cleanup", "Carlos", "CANCELLED", [
+    { description: "Review backlog", priority: "Low" }
+  ]
+]

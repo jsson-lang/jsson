@@ -9,15 +9,48 @@ export default defineConfig({
     starlight({
       plugins: [starlightThemeRapide()],
       title: "JSSON Docs",
+      description:
+        "JSSON - The human-friendly way to write JSON. A modern syntax that transpiles to 100% valid JSON.",
       logo: {
         src: "./src/assets/logo.svg",
         alt: "JSSON Logo",
       },
+      head: [
+        {
+          tag: "meta",
+          attrs: {
+            property: "og:image",
+            content: "/og-image.png",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            property: "og:type",
+            content: "website",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            name: "twitter:card",
+            content: "summary_large_image",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            name: "keywords",
+            content:
+              "JSON, JSSON, JSON syntax, transpiler, configuration, human-friendly JSON",
+          },
+        },
+      ],
       social: [
         {
           icon: "github",
           label: "GitHub",
-          href: "https://github.com/withastro/starlight",
+          href: "https://github.com/carlosedujs/jsson",
         },
       ],
       sidebar: [

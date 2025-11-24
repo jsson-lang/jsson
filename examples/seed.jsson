@@ -14,7 +14,6 @@ employees [
   1000..1004, Engineering, junior
   1005..1009, Engineering, mid
   1010..1012, Engineering, senior
-  s
   // Sales team
   2000..2009, Sales, junior
   2010..2014, Sales, mid

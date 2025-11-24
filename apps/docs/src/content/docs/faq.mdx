@@ -170,38 +170,10 @@ Use `include` to split large configs:
 
 **main.jsson:**
 <Code lang="jsson" code={`include "database.jsson"
-
-app {
-  name = "My App"
-}`} />
-
-See the [Include Modules Guide](/guides/include-modules/)!
-
-### Can I do arithmetic?
-
-Yes! JSSON supports basic expressions:
-
-<Code lang="jsson" code={`price = 100
-tax = 15
-total = price + tax  // 115
-
-quantity = 5
-itemPrice = 10
-subtotal = quantity * itemPrice  // 50`} />
-
-Operators: `+`, `-`, `*`, `/`
-
-### Can I access object properties?
-
-Yes, with dot notation:
-
-<Code lang="jsson" code={`config {
   host = localhost
   port = 8080
-}
-
-url = config.host + ":" + config.port
-// Becomes: "localhost:8080"`} />
+`} 
+/>
 
 ## Use Cases
 
