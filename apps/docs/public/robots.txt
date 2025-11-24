@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://jsson-docs.vercel.app/sitemap-index.xml
+Sitemap: https://jsson-docs.vercel.app/sitemap-0.xml
