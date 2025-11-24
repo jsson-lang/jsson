@@ -9,6 +9,7 @@ export default defineConfig({
   integrations: [
     starlight({
       plugins: [starlightThemeRapide()],
+
       title: "JSSON Docs",
       description:
         "JSSON - The human-friendly way to write JSON. A modern syntax that transpiles to 100% valid JSON.",
@@ -17,6 +18,13 @@ export default defineConfig({
         alt: "JSSON Logo",
       },
       head: [
+        {
+          tag: "meta",
+          attrs: {
+            name: "google-site-verification",
+            content: "Bco0meN-73Wimh1fOAJS4gtnEdGqooYR5zKQOfH0CkU",
+          },
+        },
         {
           tag: "meta",
           attrs: {
