@@ -1,0 +1,195 @@
+---
+title: Real-World Use Cases
+description: Discover how JSSON solves real production problems - from generating millions of geographic records to managing Kubernetes configs across environments.
+---
+
+import { Code } from "@astrojs/starlight/components";
+
+JSSON isn't just for simple configs. It excels at solving real-world production challenges where JSON becomes unwieldy and error-prone.
+
+## Why JSSON for Production?
+
+When your JSON files grow beyond a few dozen lines, you start hitting these pain points:
+
+- **Massive repetition** — Copy-pasting similar structures hundreds of times
+- **Large datasets** — Generating thousands of records manually is impractical
+- **Multi-environment configs** — Maintaining separate files for dev/staging/prod
+- **Error-prone** — Missing commas, mismatched brackets, typos in repeated data
+- **Hard to maintain** — Changes require updating dozens of places
+
+JSSON solves all of these with **templates**, **ranges**, **map transformations**, and **conditional logic**.
+
+## Real-World Examples
+
+### Geographic Data
+
+Generate **millions** of coordinate records for mapping applications, postal code boundaries, or GPS systems.
+
+**Problem**: Legacy systems need massive JSON files with geographic data  
+**JSSON Solution**: Generate 10,000+ records from 20 lines of code
+
+[View Example →](/real-world/geographic-data/)
+
+---
+
+### Kubernetes Configuration
+
+Manage multi-environment deployments with consistent naming and environment-specific settings.
+
+**Problem**: Maintaining separate K8s manifests for prod/staging/dev  
+**JSSON Solution**: One template, multiple environments with conditional logic
+
+[View Example →](/real-world/kubernetes/)
+
+---
+
+### API Gateway Configuration
+
+Configure microservices routing with rate limiting, authentication, and CORS policies.
+
+**Problem**: Hundreds of similar route definitions with slight variations  
+**JSSON Solution**: Templates with service-specific customizations
+
+[View Example →](/real-world/api-gateway/)
+
+---
+
+### i18n Translations
+
+Manage translation keys across multiple languages with consistency.
+
+**Problem**: Keeping translation files in sync across 4+ languages  
+**JSSON Solution**: Define keys once, translate across all languages
+
+[View Example →](/real-world/i18n/)
+
+---
+
+### Feature Flags
+
+Environment-specific feature toggles and configuration management.
+
+**Problem**: Managing different configs for dev/staging/prod  
+**JSSON Solution**: Conditional logic for environment-specific settings
+
+[View Example →](/real-world/feature-flags/)
+
+---
+
+### Database Seeding
+
+Generate realistic relational data for development and testing.
+
+**Problem**: Creating hundreds of related database records manually  
+**JSSON Solution**: Templates with foreign key relationships
+
+[View Example →](/real-world/database-seed/)
+
+---
+
+## Common Patterns
+
+All these examples leverage JSSON's core strengths:
+
+### Templates for Structured Data
+
+<Code
+  lang="jsson"
+  code={`users [
+  template { name, role }
+  
+  "Alice", "admin"
+  "Bob", "user"
+  "Carol", "user"
+]`}
+/>
+
+Generates an array of objects from tabular data.
+
+### Ranges for Sequences
+
+<Code lang="jsson" code={`// Generate 1000 IDs
+ids = 1..1000
+
+// Generate IP addresses
+ips = "192.168.1.1".."192.168.1.255"`} />
+
+Create sequences automatically.
+
+### Map Transformations
+
+<Code
+  lang="jsson"
+  code={`servers [
+  template { id, env }
+  
+  map (s) = {
+    id = "srv-" + s.id
+    env = s.env
+    replicas = s.env == "prod" ? 5 : 2
+  }
+  
+  1..10, "prod"
+]`}
+/>
+
+Transform and enrich data with logic.
+
+### Conditional Logic
+
+<Code
+  lang="jsson"
+  code={`config {
+  logLevel = env == "prod" ? "error" : "debug"
+  cacheSize = env == "prod" ? "2gb" : "512mb"
+}`}
+/>
+
+Environment-specific configurations.
+
+---
+
+## Performance at Scale
+
+JSSON is designed to handle **large-scale data generation**:
+
+| Use Case        | JSSON Lines | JSON Output     | Ratio |
+| --------------- | ----------- | --------------- | ----- |
+| Geographic Data | ~70         | 10,000+ records | 140:1 |
+| K8s Deployments | ~90         | 21 resources    | 4:1   |
+| API Routes      | ~85         | 12 routes       | 3:1   |
+| i18n Keys       | ~95         | 27 translations | 5:1   |
+| Database Seeds  | ~130        | 200 records     | 8:1   |
+
+**Total**: ~500 lines of JSSON → ~600+ JSON records
+
+---
+
+## When to Use JSSON
+
+**Perfect for:**
+
+- Configuration files with repetitive structures
+- Large datasets that follow patterns
+- Multi-environment setups
+- Infrastructure as code
+- Data generation for testing
+
+**Not ideal for:**
+
+- One-off, unique JSON structures
+- Extremely dynamic data (use a programming language)
+- Simple, small configs (raw JSON is fine)
+
+---
+
+## Get Started
+
+Pick an example that matches your use case and dive in! Each page includes:
+
+- Complete JSSON code
+- JSON output samples
+- Explanation of techniques used
+- When to use this pattern
+
+Ready to see JSSON in action? Choose an example above!

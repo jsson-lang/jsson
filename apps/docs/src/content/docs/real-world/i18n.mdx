@@ -1,0 +1,123 @@
+---
+title: i18n Translations
+description: Manage translation keys across multiple languages with JSSON - define once, translate everywhere.
+---
+
+import { Code, Tabs, TabItem } from "@astrojs/starlight/components";
+
+Manage internationalization (i18n) translation keys across multiple languages with consistency and reduced duplication.
+
+## The Problem
+
+Translation files across languages require:
+
+- **Duplicate keys** — Same keys repeated in each language file
+- **Inconsistency** — Easy to miss keys in some languages
+- **Hard to maintain** — Adding a key requires updating 4+ files
+
+## The JSSON Solution
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code
+      lang="jsson"
+      code={`uiTranslations [
+  template { key, lang, text }
+  
+  map (t) = {
+    key = t.key
+    language = t.lang
+    value = t.text
+    category = "ui"
+    lastUpdated = "2025-11-25"
+  }
+  
+  // Navigation
+  "nav.home", "en", "Home"
+  "nav.home", "pt", "Início"
+  "nav.home", "es", "Inicio"
+  "nav.home", "fr", "Accueil"
+  
+  // Buttons
+  "btn.save", "en", "Save"
+  "btn.save", "pt", "Salvar"
+  "btn.save", "es", "Guardar"
+  "btn.save", "fr", "Enregistrer"
+]`}
+    />
+  </TabItem>
+  <TabItem label="JSON Output">
+    <Code
+      lang="json"
+      code={`{
+  "uiTranslations": [
+    {
+      "key": "nav.home",
+      "language": "en",
+      "value": "Home",
+      "category": "ui",
+      "lastUpdated": "2025-11-25"
+    },
+    {
+      "key": "nav.home",
+      "language": "pt",
+      "value": "Início",
+      "category": "ui",
+      "lastUpdated": "2025-11-25"
+    }
+    // ... more translations
+  ]
+}`}
+    />
+  </TabItem>
+</Tabs>
+
+## Benefits
+
+**Consistency** — All languages have the same keys  
+**Easy to add** — New language = new rows  
+**Metadata** — Attach category, lastUpdated, etc.  
+**Scalability** — Handle thousands of keys
+
+## Error Messages
+
+<Code
+  lang="jsson"
+  code={`errorMessages [
+  template { code, lang, message, severity }
+  
+  map (err) = {
+    errorCode = err.code
+    language = err.lang
+    message = err.message
+    severity = err.severity
+    helpUrl = "https://docs.example.com/" + err.lang + "/errors/" + err.code
+  }
+  
+  "AUTH_001", "en", "Invalid credentials", "error"
+  "AUTH_001", "pt", "Credenciais inválidas", "error"
+  "AUTH_001", "es", "Credenciales inválidas", "error"
+]`}
+/>
+
+## When to Use
+
+**Perfect for:**
+
+- Multi-language applications
+- Translation management
+- Error message catalogs
+- Email templates
+
+## Try It!
+
+1. Save to `i18n.jsson`
+2. Run: `jsson -i i18n.jsson`
+3. Manage your translations!
+
+## What's Next?
+
+- **[Database Seed](/real-world/database-seed/)** — Relational data
+- **[Overview](/real-world/overview/)** — All examples
+
+Translate once, use everywhere! 🌍

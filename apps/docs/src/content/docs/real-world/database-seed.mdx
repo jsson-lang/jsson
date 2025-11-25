@@ -1,0 +1,210 @@
+---
+title: Database Seeding
+description: Generate realistic relational database seed data with JSSON - users, products, orders with proper foreign key relationships.
+---
+
+import { Code, Tabs, TabItem } from "@astrojs/starlight/components";
+
+Generate hundreds of related database records for development and testing with proper foreign key relationships.
+
+## The Problem
+
+Creating seed data for development requires:
+
+- **Manual work** — Writing hundreds of INSERT statements
+- **Relationships** — Maintaining foreign key consistency
+- **Realistic data** — Making it look like real production data
+- **Variety** — Different values, not just copy-paste
+
+## The JSSON Solution
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code
+      lang="jsson"
+      code={`users [
+  template { id, role }
+  
+  map (u) = {
+    id = u.id
+    uuid = "usr-" + u.id + "-" + (u.id * 1234)
+    email = "user" + u.id + "@example.com"
+    username = "user_" + u.id
+    role = u.role
+    
+    // Profile
+    firstName = u.role == "admin" ? "Admin" : "User"
+    lastName = "Number" + u.id
+    avatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=" + u.id
+    
+    // Settings
+    language = u.id % 3 == 0 ? "pt" : (u.id % 3 == 1 ? "en" : "es")
+    theme = u.id % 2 == 0 ? "dark" : "light"
+    
+    // Status
+    isActive = true
+    isVerified = u.id <= 50 ? true : false
+  }
+  
+  // Admin users
+  1..5, "admin"
+  
+  // Regular users
+  6..100, "user"
+]`}
+    />
+  </TabItem>
+  <TabItem label="JSON Output">
+    <Code
+      lang="json"
+      code={`{
+  "users": [
+    {
+      "id": 1,
+      "uuid": "usr-1-1234",
+      "email": "user1@example.com",
+      "username": "user_1",
+      "role": "admin",
+      "firstName": "Admin",
+      "lastName": "Number1",
+      "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=1",
+      "language": "en",
+      "theme": "light",
+      "isActive": true,
+      "isVerified": true
+    }
+    // ... 99 more users
+  ]
+}`}
+    />
+  </TabItem>
+</Tabs>
+
+## Products with Categories
+
+<Code
+  lang="jsson"
+  code={`products [
+  template { id, category }
+  
+  map (p) = {
+    id = p.id
+    sku = "PRD-" + p.category + "-" + p.id
+    name = p.category + " Product " + p.id
+    category = p.category
+    
+    // Pricing
+    price = (p.id * 10) + 99
+    currency = "BRL"
+    discount = p.id % 5 == 0 ? 10 : 0
+    
+    // Inventory
+    stock = p.id * 10
+    inStock = true
+    
+    // SEO
+    slug = p.category + "-product-" + p.id
+  }
+  
+  1..30, "electronics"
+  31..60, "clothing"
+  61..80, "books"
+  81..100, "home"
+]`}
+/>
+
+## Orders with Relationships
+
+<Code
+  lang="jsson"
+  code={`orders [
+  template { id, userId, productId }
+  
+  map (o) = {
+    id = o.id
+    orderNumber = "ORD-2025-" + o.id
+    
+    // Foreign keys
+    userId = o.userId
+    productId = o.productId
+    
+    // Order details
+    quantity = (o.id % 5) + 1
+    subtotal = ((o.productId * 10) + 99) * ((o.id % 5) + 1)
+    
+    // Status
+    status = o.id % 4 == 0 ? "delivered" : (o.id % 4 == 1 ? "shipped" : "pending")
+    paymentMethod = o.id % 2 == 0 ? "credit_card" : "pix"
+  }
+  
+  // Generate 100 orders
+  1..25, 1, 1
+  26..50, 2, 5
+  51..75, 3, 10
+  76..100, 4, 15
+]`}
+/>
+
+## Key Features
+
+### Ranges for Scale
+
+<Code lang="jsson" code={`// Generate 100 users
+1..100, "user"
+
+// Generate 100 products across categories
+1..30, "electronics"
+31..60, "clothing"`} />
+
+### Foreign Keys
+
+<Code
+  lang="jsson"
+  code={`// Orders reference users and products
+userId = o.userId
+productId = o.productId`}
+/>
+
+### Variety with Modulo
+
+<Code lang="jsson" code={`// Different languages
+language = u.id % 3 == 0 ? "pt" : (u.id % 3 == 1 ? "en" : "es")
+
+// Different payment methods
+paymentMethod = o.id % 2 == 0 ? "credit_card" : "pix"`} />
+
+## Benefits
+
+**Realistic** — Varied, production-like data  
+**Relationships** — Proper foreign keys  
+**Scalable** — Generate thousands of records  
+**Consistent** — Templates ensure structure  
+**Fast** — 100 lines → 200+ records
+
+## When to Use
+
+**Perfect for:**
+
+- Development database seeding
+- Testing with realistic data
+- Demo environments
+- Load testing data
+
+**Not ideal for:**
+
+- Production data
+- Extremely unique records
+- Complex business logic
+
+## Try It!
+
+1. Save to `database-seed.jsson`
+2. Run: `jsson -i database-seed.jsson`
+3. Import into your database!
+
+## What's Next?
+
+- **[Geographic Data](/real-world/geographic-data/)** — Millions of coordinates
+- **[Overview](/real-world/overview/)** — All examples
+
+Seed your database with ease! 💾

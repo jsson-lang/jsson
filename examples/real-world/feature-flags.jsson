@@ -1,0 +1,91 @@
+// Feature Flags & Configuration Management
+// Real-world production configuration with environment-specific feature toggles
+// Shows how JSSON manages complex conditional configurations
+
+// Feature flags across environments
+featureFlags [
+  template { feature, env, enabled }
+  
+  map (flag) = {
+    name = flag.feature
+    environment = flag.env
+    enabled = flag.enabled
+    key = flag.feature + "_" + flag.env
+    lastModified = "2025-11-25T09:00:00Z"
+    modifiedBy = "devops-team"
+    
+    // Rollout configuration
+    rolloutPercentage = flag.enabled == true ? 100 : 0
+    rolloutStrategy = "gradual"
+  }
+  
+  // New UI features
+  "new-dashboard", "prod", false
+  "new-dashboard", "staging", true
+  "new-dashboard", "dev", true
+  
+  "dark-mode", "prod", true
+  "dark-mode", "staging", true
+  "dark-mode", "dev", true
+  
+  // Payment features
+  "crypto-payments", "prod", false
+  "crypto-payments", "staging", true
+  "crypto-payments", "dev", true
+  
+  "installments", "prod", true
+  "installments", "staging", true
+  "installments", "dev", true
+  
+  // Experimental features
+  "ai-recommendations", "prod", false
+  "ai-recommendations", "staging", true
+  "ai-recommendations", "dev", true
+]
+
+// Service configuration per environment
+serviceConfig [
+  template { service, env }
+  
+  map (cfg) = {
+    serviceName = cfg.service
+    environment = cfg.env
+    
+    // Database configuration
+    databaseHost = "db-" + cfg.env + ".internal"
+    databasePort = 5432
+    maxConnections = cfg.env == "prod" ? 100 : 20
+    connectionTimeout = cfg.env == "prod" ? 30000 : 10000
+    sslEnabled = cfg.env == "prod" ? true : false
+    
+    // Cache configuration
+    cacheHost = "redis-" + cfg.env + ".internal"
+    cachePort = 6379
+    cacheTTL = cfg.env == "prod" ? 3600 : 300
+    maxMemory = cfg.env == "prod" ? "2gb" : "512mb"
+    
+    // Logging
+    logLevel = cfg.env == "prod" ? "error" : "debug"
+    logFormat = "json"
+    logDestination = cfg.env == "prod" ? "cloudwatch" : "stdout"
+    
+    // Performance
+    profilingEnabled = cfg.env == "dev" ? true : false
+    metricsEnabled = true
+    metricsInterval = cfg.env == "prod" ? 60 : 300
+  }
+  
+  "api", "prod"
+  "api", "staging"
+  "api", "dev"
+  
+  "worker", "prod"
+  "worker", "staging"
+  "worker", "dev"
+]
+
+// WHY JSSON FOR FEATURE FLAGS?
+// - Environment management: Same structure across dev/staging/prod
+// - Conditional logic: Different settings per environment
+// - Rapid deployment: Toggle features without code changes
+// - Rollout control: Gradual feature releases with safety checks

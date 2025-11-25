@@ -419,6 +419,11 @@ func (p *Parser) parseObjectLiteral() ast.Expression {
 			val := p.parseExpression(LOWEST)
 			obj.Properties[key] = val
 			p.nextToken()
+		} else if p.curToken.Type == token.LBRACKET {
+			// Support arrays as object property values
+			val := p.parseArrayLiteral()
+			obj.Properties[key] = val
+			p.nextToken()
 		} else {
 			obj.Properties[key] = nil
 		}

@@ -1,0 +1,120 @@
+---
+title: API Gateway Configuration
+description: Configure microservices routing with rate limiting, authentication, and CORS using JSSON templates.
+---
+
+import { Code, Tabs, TabItem } from "@astrojs/starlight/components";
+
+Centralize API gateway configuration for microservices with service-specific rate limiting, authentication strategies, and CORS policies.
+
+## The Problem
+
+API gateways require dozens of similar route definitions with slight variations:
+
+- **Repetitive configs** — Copy-pasting route definitions
+- **Inconsistent settings** — Easy to miss rate limits or auth rules
+- **Hard to maintain** — Adding a service requires updating multiple places
+
+## The JSSON Solution
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code
+      lang="jsson"
+      code={`routes [
+  template { service, version, basePath }
+  
+  map (route) = {
+    id = route.service + "-v" + route.version
+    service = route.service
+    path = "/api/v" + route.version + "/" + route.basePath
+    
+    // Auth based on version
+    authType = route.version >= 2 ? "jwt" : "basic"
+    tokenExpiry = route.version >= 3 ? 3600 : 7200
+    
+    // Rate limiting based on service
+    requestsPerMinute = route.service == "auth" ? 100 : (route.service == "payment" ? 50 : 1000)
+    burstSize = route.service == "payment" ? 10 : 100
+    
+    // CORS
+    allowMethods = ["GET", "POST", "PUT", "DELETE"]
+    allowHeaders = ["Content-Type", "Authorization"]
+    
+    // Caching
+    cacheEnabled = route.service == "catalog" ? true : false
+    cacheTTL = 300
+  }
+  
+  "auth", 2, "auth"
+  "payment", 2, "payments"
+  "catalog", 3, "products"
+  "users", 2, "users"
+]`}
+    />
+  </TabItem>
+  <TabItem label="JSON Output">
+    <Code
+      lang="json"
+      code={`{
+  "routes": [
+    {
+      "id": "auth-v2",
+      "service": "auth",
+      "path": "/api/v2/auth",
+      "authType": "jwt",
+      "tokenExpiry": 7200,
+      "requestsPerMinute": 100,
+      "burstSize": 100,
+      "allowMethods": ["GET", "POST", "PUT", "DELETE"],
+      "allowHeaders": ["Content-Type", "Authorization"],
+      "cacheEnabled": false,
+      "cacheTTL": 300
+    }
+    // ... more routes
+  ]
+}`}
+    />
+  </TabItem>
+</Tabs>
+
+## Key Features
+
+### Arrays in Objects
+
+<Code
+  lang="jsson"
+  code={`allowMethods = ["GET", "POST", "PUT", "DELETE"]
+allowHeaders = ["Content-Type", "Authorization"]`}
+/>
+
+### Nested Ternary Logic
+
+<Code
+  lang="jsson"
+  code={`requestsPerMinute = route.service == "auth" ? 100 : (route.service == "payment" ? 50 : 1000)`}
+/>
+
+Different rate limits per service type!
+
+## When to Use
+
+✅ **Perfect for:**
+
+- API gateway configurations
+- Microservices routing
+- Rate limiting policies
+- CORS management
+
+## Try It!
+
+1. Save to `api-gateway.jsson`
+2. Run: `jsson -i api-gateway.jsson`
+3. Configure your gateway!
+
+## What's Next?
+
+- **[Feature Flags](/real-world/feature-flags/)** — Environment configs
+- **[i18n](/real-world/i18n/)** — Multi-language support
+
+Centralize your API config! 🌐

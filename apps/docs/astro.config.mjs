@@ -51,7 +51,7 @@ export default defineConfig({
           attrs: {
             name: "keywords",
             content:
-              "JSON, JSSON, JSON syntax, transpiler, configuration, human-friendly JSON",
+              "JSON, JSSON, JSON syntax, transpiler, configuration files, human-friendly JSON, JSON generator, JSON template, infrastructure as code, Kubernetes config, API gateway configuration, i18n translations, feature flags, database seeding, geographic data, coordinate generation, multi-environment config, DevOps tools, configuration management, JSON alternative, YAML alternative, data generation, map transformation, conditional logic, range syntax, template arrays",
           },
         },
       ],
@@ -95,7 +95,20 @@ export default defineConfig({
             { label: "Templates", slug: "examples/template" },
           ],
         },
+        {
+          label: "Real-World Use Cases",
+          items: [
+            { label: "Overview", slug: "real-world/overview" },
+            { label: "Geographic Data", slug: "real-world/geographic-data" },
+            { label: "Kubernetes Config", slug: "real-world/kubernetes" },
+            { label: "API Gateway", slug: "real-world/api-gateway" },
+            { label: "i18n Translations", slug: "real-world/i18n" },
+            { label: "Feature Flags", slug: "real-world/feature-flags" },
+            { label: "Database Seeding", slug: "real-world/database-seed" },
+          ],
+        },
         { label: "FAQ", slug: "faq" },
+        { label: "Release Notes", slug: "release-notes" },
       ],
       customCss: [
         // Relative path to your custom CSS file

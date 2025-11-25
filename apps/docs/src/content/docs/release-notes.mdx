@@ -1,9 +1,158 @@
 ---
 title: Release Notes
-description: Notable changes by version.
+description: Notable changes and improvements by version.
 ---
 
-- v0.0.1 — Initial parser, templates, and CLI.
-- v0.0.2 — Full arithmetic and conditional logic.
+## v0.0.3 — Arrays in Objects & Real-World Examples (2025-11-25)
 
-(You can expand this file with changelog entries as releases happen.)
+### New Features
+
+#### Arrays as Object Property Values
+
+You can now use arrays directly as object property values!
+
+```jsson
+config {
+  methods = ["GET", "POST", "PUT", "DELETE"]
+  ports = [8080, 8081, 8082]
+  tags = ["api", "v1", "production"]
+}
+```
+
+This unlocks powerful new use cases:
+
+- API gateway configurations with allowed methods
+- Kubernetes configs with container ports
+- Feature flags with target user segments
+- And much more!
+
+#### Arrays in Map Clauses
+
+Map transformations can now include array properties:
+
+```jsson
+routes [
+  template { service }
+
+  map (r) = {
+    service = r.service
+    allowMethods = ["GET", "POST", "PUT"]
+    allowHeaders = ["Content-Type", "Authorization"]
+  }
+
+  "auth"
+  "payment"
+]
+```
+
+### Real-World Examples
+
+Added 6 comprehensive real-world examples demonstrating JSSON's power:
+
+1. **Geographic Data** — Generate millions of coordinate records
+2. **Kubernetes Configuration** — Multi-environment deployments
+3. **API Gateway** — Microservices routing with rate limiting
+4. **i18n Translations** — Multi-language translation management
+5. **Feature Flags** — Environment-specific configuration
+6. **Database Seeding** — Relational data with foreign keys
+
+Each example includes:
+
+- Complete JSSON code
+- JSON output samples
+- Explanation of techniques used
+- When to use the pattern
+
+### Parser Improvements
+
+- Enhanced `parseObjectLiteral` to support array literals as property values
+- Better error messages for syntax issues
+- Improved handling of nested structures
+
+### Documentation
+
+- New "Real-World Use Cases" section in docs
+- Overview page explaining production scenarios
+- Individual pages for each example with detailed explanations
+- Updated SEO keywords for better discoverability
+
+### Bug Fixes
+
+- Fixed parsing of complex nested objects with arrays
+- Improved transpiler handling of mixed data structures
+
+### Performance
+
+JSSON v0.0.3 can now handle even more complex scenarios:
+
+- ~500 lines of JSSON → 600+ JSON records
+- Ratios up to 50,000:1 for large-scale data generation
+
+---
+
+## v0.0.2 — Arithmetic & Conditional Logic (2025-11-24)
+
+### Features
+
+- **Arithmetic operators**: `+`, `-`, `*`, `/`, `%`
+- **Comparison operators**: `==`, `!=`, `>`, `<`, `>=`, `<=`
+- **Ternary operator**: `condition ? true : false`
+- **Map transformations** with conditional logic
+- **String concatenation** in expressions
+
+### Examples
+
+```jsson
+users [
+  template { name, age }
+
+  map (u) = {
+    name = u.name
+    age = u.age
+    isAdult = u.age >= 18
+    category = u.age >= 18 ? "adult" : "minor"
+  }
+
+  "João", 25
+  "Maria", 16
+]
+```
+
+---
+
+## v0.0.1 — Initial Release (2025-11-23)
+
+### Features
+
+- **Core parser** for JSSON syntax
+- **Template arrays** for structured data
+- **Range expressions** (`1..100`)
+- **Include statements** for file composition
+- **CLI tool** for transpilation
+- **Basic data types**: strings, numbers, booleans, objects, arrays
+
+### Examples
+
+```jsson
+users [
+  template { name, age }
+
+  "João", 19
+  "Maria", 25
+]
+
+ports = 8080..8085
+```
+
+---
+
+## What's Next?
+
+Future versions may include:
+
+- Variable declarations
+- Functions/macros
+- Array methods (filter, map, reduce)
+- More advanced control flow
+
+Stay tuned! 

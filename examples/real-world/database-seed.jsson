@@ -1,0 +1,123 @@
+// Database Seed Data - Realistic Relational Data
+// Real-world use case: Generate seed data for development/testing with proper relationships
+// Shows how JSSON handles complex data structures with foreign keys and timestamps
+
+// Users with realistic data
+users [
+  template { id, role }
+  
+  map (u) = {
+    id = u.id
+    uuid = "usr-" + u.id + "-" + (u.id * 1234)
+    email = "user" + u.id + "@example.com"
+    username = "user_" + u.id
+    role = u.role
+    
+    // Profile data
+    firstName = u.role == "admin" ? "Admin" : "User"
+    lastName = "Number" + u.id
+    avatar = "https://api.dicebear.com/7.x/avataaars/svg?seed=" + u.id
+    bio = "This is user " + u.id
+    
+    // Account settings
+    language = u.id % 3 == 0 ? "pt" : (u.id % 3 == 1 ? "en" : "es")
+    timezone = "America/Sao_Paulo"
+    emailNotifications = u.id % 2 == 0 ? true : false
+    theme = u.id % 2 == 0 ? "dark" : "light"
+    
+    // Timestamps
+    createdAt = "2025-01-01T00:00:00Z"
+    updatedAt = "2025-11-25T09:00:00Z"
+    lastLoginAt = "2025-11-24T15:30:00Z"
+    
+    // Status
+    isActive = true
+    isVerified = u.id <= 50 ? true : false
+  }
+  
+  // Admin users
+  1..5, "admin"
+  
+  // Regular users
+  6..100, "user"
+]
+
+// Products catalog
+products [
+  template { id, category }
+  
+  map (p) = {
+    id = p.id
+    sku = "PRD-" + p.category + "-" + p.id
+    name = p.category + " Product " + p.id
+    category = p.category
+    
+    // Pricing
+    price = (p.id * 10) + 99
+    currency = "BRL"
+    discount = p.id % 5 == 0 ? 10 : 0
+    
+    // Inventory
+    stock = p.id * 10
+    lowStockThreshold = 20
+    inStock = true
+    
+    // Metadata
+    description = "High quality " + p.category + " product"
+    slug = p.category + "-product-" + p.id
+    metaTitle = p.category + " Product " + p.id + " | Shop"
+    metaDescription = "Buy the best " + p.category + " products online"
+    
+    // Timestamps
+    createdAt = "2025-01-15T00:00:00Z"
+    updatedAt = "2025-11-20T00:00:00Z"
+  }
+  
+  1..30, "electronics"
+  31..60, "clothing"
+  61..80, "books"
+  81..100, "home"
+]
+
+// Orders with relationships to users and products
+orders [
+  template { id, userId, productId }
+  
+  map (o) = {
+    id = o.id
+    orderNumber = "ORD-2025-" + o.id
+    
+    // Foreign keys
+    userId = o.userId
+    productId = o.productId
+    
+    // Order details
+    quantity = (o.id % 5) + 1
+    subtotal = ((o.productId * 10) + 99) * ((o.id % 5) + 1)
+    tax = (((o.productId * 10) + 99) * ((o.id % 5) + 1)) * 0.15
+    shipping = o.id % 3 == 0 ? 0 : 15
+    
+    // Status
+    status = o.id % 4 == 0 ? "delivered" : (o.id % 4 == 1 ? "shipped" : (o.id % 4 == 2 ? "processing" : "pending"))
+    paymentStatus = o.id % 3 == 0 ? "paid" : "pending"
+    paymentMethod = o.id % 2 == 0 ? "credit_card" : "pix"
+    
+    // Timestamps
+    createdAt = "2025-11-01T00:00:00Z"
+    updatedAt = "2025-11-25T00:00:00Z"
+    estimatedDelivery = "2025-12-01T00:00:00Z"
+  }
+  
+  // Generate 100 orders
+  1..25, 1, 1
+  26..50, 2, 5
+  51..75, 3, 10
+  76..100, 4, 15
+]
+
+// WHY JSSON FOR DATABASE SEEDING?
+// - Relationships: Easy to maintain foreign key references
+// - Consistency: Templates ensure all records have required fields
+// - Scalability: Generate thousands of records with ranges
+// - Realistic data: Conditional logic for varied, realistic data
+// - Speed: Write 100 lines, generate 200+ database records
