@@ -1,0 +1,13 @@
+// Test without parentheses
+test [
+  template { id, zone }
+  
+  map (point) = {
+    id = "grid-" + point.id
+    simple = point.id / 10
+    withParen = (point.id / 10)
+    zone = point.zone
+  }
+  
+  15, "urban"
+]

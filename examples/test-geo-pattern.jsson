@@ -1,0 +1,15 @@
+// Test exact pattern from geo-coordinates
+test [
+  template { id, zone }
+  
+  map (point) = {
+    id = "grid-" + point.id
+    lat = 23.5505 + (point.id / 10) * 0.01
+    lon = 46.6333 + (point.id % 10) * 0.01
+    zone = point.zone
+  }
+  
+  0, "urban"
+  1, "urban"
+  15, "urban"
+]

@@ -1,8 +1,8 @@
-# Build script for JSSON releases
+# Build script for JSSON v0.0.3
 # Builds binaries for Windows, Linux, and macOS
 
-$VERSION = "v0.0.2"
-$OUTPUT_DIR = "dist"
+$VERSION = "v0.0.3"
+$OUTPUT_DIR = "dist/$VERSION"
 
 # Create output directory
 New-Item -ItemType Directory -Force -Path $OUTPUT_DIR | Out-Null

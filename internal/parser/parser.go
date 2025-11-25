@@ -191,12 +191,15 @@ func (p *Parser) parsePrefix() ast.Expression {
 		return p.parseStringLiteral()
 	case token.TRUE, token.FALSE:
 		return p.parseBooleanLiteral()
-	case token.LBRACE:
-		return p.parseObjectLiteral()
-	case token.LBRACKET:
-		return p.parseArrayLiteral()
 	case token.LPAREN:
 		return p.parseGroupedExpression()
+	case token.LBRACKET:
+		return p.parseArrayLiteral()
+	case token.LBRACE:
+		return p.parseObjectLiteral()
+	case token.MINUS:
+		// Unary minus for negative numbers
+		return p.parsePrefixExpression()
 	default:
 		return nil
 	}
@@ -303,6 +306,20 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 	}
 	p.nextToken()
 	return exp
+}
+
+func (p *Parser) parsePrefixExpression() ast.Expression {
+	// Handle unary minus for negative numbers
+	expr := &ast.BinaryExpression{
+		Token:    p.curToken,
+		Operator: p.curToken.Literal,
+		Left:     &ast.IntegerLiteral{Token: p.curToken, Value: 0}, // 0 - value
+	}
+
+	p.nextToken() // consume MINUS
+	expr.Right = p.parseExpression(PREFIX)
+
+	return expr
 }
 
 func (p *Parser) parseArrayTemplate() ast.Expression {

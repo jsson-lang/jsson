@@ -1,0 +1,16 @@
+// Test negative numbers in expressions
+test [
+  template { id }
+  
+  map (item) = {
+    id = item.id
+    positive = 23.5505 + item.id
+    negative = -23.5505 + item.id
+    negativeInParen = (-23.5505) + item.id
+    negativeMultiply = -23.5505 + (item.id / 10) * 0.01
+  }
+  
+  0
+  1
+  15
+]
