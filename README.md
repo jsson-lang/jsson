@@ -1,6 +1,6 @@
 # JSSON - V0.0.3
 
-[![JSSON Banner](https://i.postimg.cc/xTPzcqNQ/og.png)](https://postimg.cc/zVVVBQzk2)
+[![JSSON Banner](https://i.postimg.cc/yx4C3YqC/og.png)](https://postimg.cc/WFnHQVb5)
 
 **JSON Simplified Object Notation** - A human-friendly syntax that transpiles to JSON.
 
