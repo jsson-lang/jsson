@@ -1,4 +1,4 @@
-# Build script for JSSON v0.0.3
+# Build script for JSSON v0.0.4
 # Builds binaries for Windows, Linux, and macOS
 
 $VERSION = "v0.0.4"
