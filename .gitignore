@@ -14,8 +14,6 @@ out/
 *.log
 *.tmp
 
-# JSSON test files
-*.json
 *.jsson-output
 
 # Anything huge
