@@ -1,7 +1,7 @@
 export default function sitemap() {
   return [
     {
-      url: "https://jsson.vercel.app",
+      url: "https://jssonlang.tech",
       lastModified: new Date(),
     },
   ];

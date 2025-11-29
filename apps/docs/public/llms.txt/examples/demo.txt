@@ -1,7 +1,7 @@
 # JSSON Documentation — LLM Mode
 Source: demo.mdx
 Version: 0.0.5
-Generated: 2025-11-29T16:01:15.646Z
+Generated: 2025-11-29T17:56:40.596Z
 
 ## Table of Contents
 - 0.1. The JSSON

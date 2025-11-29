@@ -1,7 +1,7 @@
 # JSSON Documentation — LLM Mode
 Source: changelog.mdx
 Version: 0.0.5
-Generated: 2025-11-29T16:01:15.568Z
+Generated: 2025-11-29T17:56:40.449Z
 
 ## Table of Contents
 - 0.1. v0.0.5 — Nested Logic Power-Up (2025-11-28)

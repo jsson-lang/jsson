@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { AnchoredToastProvider, ToastProvider } from "@/components/ui/toast"
+import { AnchoredToastProvider, ToastProvider } from "@/components/ui/toast";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     "meta-format",
   ],
   verification: {
-    google: "Bco0meN-73Wimh1fOAJS4gtnEdGqooYR5zKQOfH0CkU"
+    google: "Bco0meN-73Wimh1fOAJS4gtnEdGqooYR5zKQOfH0CkU",
   },
   robots: {
     index: true,
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     title: "JSSON — The Config Meta-Language",
     description:
       "Write once, generate everywhere. Templates, maps, logic, ranges and multi-format output.",
-    url: "https://jsson.vercel.app",
+    url: "https://jssonlang.tech",
     siteName: "JSSON",
     images: [
       {
@@ -69,9 +69,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ToastProvider position="top-center">
-          <AnchoredToastProvider>
-            {children}
-          </AnchoredToastProvider>
+          <AnchoredToastProvider>{children}</AnchoredToastProvider>
         </ToastProvider>
       </body>
     </html>

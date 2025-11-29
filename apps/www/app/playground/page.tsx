@@ -24,7 +24,7 @@ export default function PlaygroundPage() {
             </span>
           </div>
           <Stats />
-          <Link href={"https://jsson-docs.vercel.app/"}>
+          <Link href={"https://docs.jssonlang.tech/"}>
             <Button size="sm" variant={"ghost"}>
               Go to docs
             </Button>

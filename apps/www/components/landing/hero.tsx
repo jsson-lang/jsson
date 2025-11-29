@@ -22,7 +22,7 @@ export function Hero() {
       <Spotlight />
       <div className="container  relative z-10 mx-auto px-4 md:px-6">
         <div className="flex flex-col items-center text-center">
-          <Link href={"https://jsson-docs.vercel.app/changelog/#v005-2025-11-27"}>
+          <Link href={"https://docs.jssonlang.tech/changelog/#v005-2025-11-27"}>
             <Announcement variant="outline" themed className="max-w-4xl">
               <AnnouncementTag>Latest Update</AnnouncementTag>
               <AnnouncementTitle>
@@ -69,7 +69,7 @@ export function Hero() {
               Start Coding <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <Link
-              href="https://jsson-docs.vercel.app"
+              href="https://docs.jssonlang.tech"
               className={cn(
                 buttonVariants({ size: "lg", variant: "outline" }),
                 "h-12 px-8 text-base"

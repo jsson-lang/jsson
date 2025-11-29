@@ -6,6 +6,6 @@ export default function robots() {
         allow: "/",
       },
     ],
-    sitemap: "https://jsson.vercel.app/sitemap.xml",
+    sitemap: "https://jssonlang.tech/sitemap.xml",
   };
 }

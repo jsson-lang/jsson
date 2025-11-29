@@ -19,6 +19,7 @@
 - [Examples](#examples)
 - [Installation](#installation)
 - [Documentation](#documentation)
+- [LLM-Optimized Documentation](#llm-optimized-documentation)
 - [Real-World Use Cases](#real-world-use-cases)
 - [VS Code Extension](#vs-code-extension)
 - [Contributing](#contributing)
@@ -68,7 +69,7 @@ ports = 8080..8085
 | 📋 Repetitive data       | ✅ Templates for arrays             |
 | 🔢 Manual ranges         | ✅ Built-in range syntax (`1..100`) |
 | 📁 Scattered configs     | ✅ File includes                    |
-| 🔄 Copy-paste errors     | ✅ Map transformations              |
+| 🔄 Copy-paste errors     | ✅ Map transformations and variables |
 
 ---
 
@@ -445,13 +446,33 @@ Or search for "JSSON" in the Extensions view (`Ctrl+Shift+X`).
 
 ## 📖 Documentation
 
-**Full documentation available at:** [JSSON Docs](https://jsson-docs.vercel.app/)
+**Full documentation available at:** [JSSON Docs](https://docs.jssonlang.tech/)
 
-- [Getting Started](https://jsson-docs.vercel.app/guides/getting-started/)
-- [Syntax Reference](https://jsson-docs.vercel.app/reference/syntax/)
-- [Templates Guide](https://jsson-docs.vercel.app/guides/templates/)
-- [Advanced Patterns](https://jsson-docs.vercel.app/guides/advanced-patterns/)
-- [CLI Usage](https://jsson-docs.vercel.app/cli/usage/)
+- [Getting Started](https://docs.jssonlang.tech/guides/getting-started/)
+- [Syntax Reference](https://docs.jssonlang.tech/reference/syntax/)
+- [Templates Guide](https://docs.jssonlang.tech/guides/templates/)
+- [Advanced Patterns](https://docs.jssonlang.tech/guides/advanced-patterns/)
+- [CLI Usage](https://docs.jssonlang.tech/cli/usage/)
+
+### 🤖 LLM-Optimized Documentation
+
+JSSON provides LLM-friendly documentation at `/llms.txt/` for AI assistants and language models:
+
+- **Clean Text Format**: All documentation converted to `.txt` without HTML/JSX noise
+- **Structured Index**: Easy navigation with organized sections
+- **Auto-Generated**: Updated on every build from source `.mdx` files
+
+**Access:**
+
+- Index: [https://docs.jssonlang.tech/llms.txt/index.txt](https://docs.jssonlang.tech/llms.txt/index.txt)
+- Example: [https://docs.jssonlang.tech/llms.txt/guides/getting-started.txt](https://docs.jssonlang.tech/llms.txt/guides/getting-started.txt)
+
+Perfect for:
+
+- AI coding assistants (Copilot, Cursor, Claude)
+- LLM context injection
+- Automated documentation queries
+- RAG (Retrieval-Augmented Generation) systems
 
 ---
 
@@ -512,7 +533,7 @@ MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Links
 
-- **Documentation**: https://jsson-docs.vercel.app/
+- **Documentation**: https://docs.jssonlang.tech/
 - **VS Code Extension**: https://marketplace.visualstudio.com/items?itemName=carlosedujs.jsson
 - **GitHub**: https://github.com/carlosedujs/jsson
 - **Issues**: https://github.com/carlosedujs/jsson/issues

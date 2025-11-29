@@ -1,7 +1,7 @@
 # JSSON Documentation — LLM Mode
 Source: advanced-patterns.mdx
 Version: 0.0.5
-Generated: 2025-11-29T16:01:15.702Z
+Generated: 2025-11-29T17:56:40.692Z
 
 ## Table of Contents
 - 0.1. Clean Configuration with Variables

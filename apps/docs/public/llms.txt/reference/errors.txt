@@ -1,7 +1,7 @@
 # JSSON Documentation — LLM Mode
 Source: errors.mdx
 Version: 0.0.5
-Generated: 2025-11-29T16:01:16.018Z
+Generated: 2025-11-29T17:56:41.227Z
 
 ## Table of Contents
 - 0.1. The Error Squad

@@ -11,7 +11,8 @@ export function Footer() {
           <div className="md:col-span-1">
             <Logo size="lg" />
             <p className="mt-4 text-sm text-muted-foreground">
-              The Universal Configuration Language for modern configuration management.
+              The Universal Configuration Language for modern configuration
+              management.
             </p>
           </div>
 
@@ -28,7 +29,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="https://jsson-docs.vercel.app/"
+                  href="https://docs.jssonlang.tech/"
                   className="hover:text-foreground transition-colors"
                 >
                   Documentation
@@ -36,7 +37,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="https://jsson-docs.vercel.app/changelog"
+                  href="https://docs.jssonlang.tech/changelog"
                   className="hover:text-foreground transition-colors"
                 >
                   Changelog
@@ -101,7 +102,10 @@ export function Footer() {
 
         <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
           <p>© {new Date().getFullYear()} JSSON. All rights reserved.</p>
-          <p>Created with <span className="text-primary">love</span> by carlosedujs</p>
+          <p>
+            Created with <span className="text-primary">love</span> by
+            carlosedujs
+          </p>
         </div>
       </div>
     </footer>

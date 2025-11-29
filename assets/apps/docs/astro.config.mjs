@@ -5,7 +5,7 @@ import starlightThemeRapide from "starlight-theme-rapide";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://jsson-docs.vercel.app",
+  site: "https://docs.jssonlang.tech",
   integrations: [
     starlight({
       plugins: [starlightThemeRapide()],
@@ -102,7 +102,10 @@ export default defineConfig({
           items: [
             { label: "Overview", slug: "real-world/overview" },
             { label: "Geographic Data", slug: "real-world/geographic-data" },
-            { label: "E-commerce Variants", slug: "real-world/ecommerce-variants" },
+            {
+              label: "E-commerce Variants",
+              slug: "real-world/ecommerce-variants",
+            },
             { label: "Scheduling Matrix", slug: "real-world/scheduling" },
             { label: "Kubernetes Config", slug: "real-world/kubernetes" },
             { label: "API Gateway", slug: "real-world/api-gateway" },

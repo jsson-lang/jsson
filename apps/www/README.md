@@ -6,9 +6,8 @@ JSSON is a JavaScript Simplified Object Notation.
 
 ## Go to Documentation
 
-[Documentation](https://jsson-docs.vercel.app)
+[Documentation](https://docs.jssonlang.tech)
 
 ## Go to GitHub
 
 [GitHub](https://github.com/carlosedujs/jsson)
-
