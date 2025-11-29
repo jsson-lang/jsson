@@ -1,0 +1,66 @@
+---
+title: CLI Usage
+description: Learn how to use the JSSON command-line interface.
+---
+
+import { Code } from "@astrojs/starlight/components";
+
+The JSSON CLI is the primary way to transpile your `.jsson` files into JSON, YAML, TOML, or TypeScript.
+
+## Basic Usage
+
+```bash
+jsson -i input.jsson [options]
+```
+
+## Options
+
+| Flag              | Description                                          | Default    |
+| ----------------- | ---------------------------------------------------- | ---------- |
+| `-i`, `--input`   | Input JSSON file path                                | (Required) |
+| `-f`, `--format`  | Output format (`json`, `yaml`, `toml`, `typescript`) | `json`     |
+| `-h`, `--help`    | Show help message                                    | `false`    |
+
+> **Note:** The CLI outputs to standard output (stdout). Use shell redirection (`>`) to save to a file.
+
+## Examples
+
+### Transpile to JSON (Default)
+
+```bash
+jsson -i config.jsson > config.json
+```
+
+### Transpile to YAML
+
+```bash
+jsson -i config.jsson -f yaml > config.yaml
+```
+
+### Transpile to TOML
+
+```bash
+jsson -i config.jsson -f toml > config.toml
+```
+
+### Transpile to TypeScript
+
+Generates TypeScript code with `as const` assertions and inferred types.
+
+```bash
+jsson -i config.jsson -f ts > config.ts
+```
+
+### Output to Console
+
+Since JSSON prints to stdout by default, you can pipe the output to other tools like `jq`:
+
+```bash
+jsson -i config.jsson | jq .
+```
+
+## Include Modes
+
+When using `include` statements, JSSON merges the included files. The CLI handles this automatically based on the file paths relative to the input file.
+
+See the [Includes Guide](/guides/include-modules/) for more details on how merging works.

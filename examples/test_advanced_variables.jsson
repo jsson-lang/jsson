@@ -1,0 +1,19 @@
+// Test shadowing
+global := 100
+obj {
+  local := 1
+  shadowed := global  // Should be 100
+  
+  global := 50        // Shadow global
+  val = global        // Should be 50
+}
+outer = global        // Should be 100
+
+// Test nested maps
+list = ([1] map (i) = {
+  x := i
+  nested = ([2] map (j) = {
+     y := j
+     sum = x + y
+  })
+})

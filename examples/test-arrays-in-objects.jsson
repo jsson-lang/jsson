@@ -1,0 +1,11 @@
+// Test: Arrays in Objects
+config {
+  methods = ["GET", "POST", "PUT", "DELETE"]
+  tags = ["api", "v1", "production"]
+  ports = [8080, 8081, 8082]
+  
+  nested {
+    items = [1, 2, 3]
+    names = ["alice", "bob"]
+  }
+}

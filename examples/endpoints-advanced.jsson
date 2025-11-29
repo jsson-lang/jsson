@@ -1,0 +1,15 @@
+endpoints [
+  template { resource, version }
+  
+  map (e) = {
+    path = "/api/v" + e.version + "/" + e.resource
+    methods = ["GET", "POST", "PUT", "DELETE"]
+    auth = e.version >= 2 ? "jwt" : "basic"
+    rateLimit = e.resource == "users" ? 100 : 1000
+  }
+  
+  users, 1
+  posts, 2
+  comments, 2
+  analytics, 3
+]

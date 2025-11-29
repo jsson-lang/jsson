@@ -1,0 +1,205 @@
+---
+title: E-commerce Product Variants
+description: Generate all product size/color combinations using nested maps
+---
+
+import { Code } from "@astrojs/starlight/components";
+
+Managing product variants in e-commerce is a common challenge. When you have multiple sizes, colors, and materials, manually creating every combination becomes tedious and error-prone.
+
+## The Problem
+
+An e-commerce store sells t-shirts in:
+
+- **5 sizes**: XS, S, M, L, XL
+- **4 colors**: Black, White, Navy, Gray
+- **2 materials**: Cotton, Polyester
+
+That's **40 unique product variants** to manage. In traditional JSON, you'd need to manually write all 40 objects:
+
+```json
+{
+  "products": [
+    {
+      "sku": "XS-Black-Cotton",
+      "size": "XS",
+      "color": "Black",
+      "material": "Cotton",
+      "price": 29.99,
+      "inStock": true
+    },
+    {
+      "sku": "XS-Black-Polyester",
+      "size": "XS",
+      "color": "Black",
+      "material": "Polyester",
+      "price": 24.99,
+      "inStock": true
+    },
+    {
+      "sku": "XS-White-Cotton",
+      "size": "XS",
+      "color": "White",
+      "material": "Cotton",
+      "price": 29.99,
+      "inStock": true
+    }
+    // ... 37 more variants 😰
+  ]
+}
+```
+
+**Problems:**
+
+- ❌ Extremely repetitive
+- ❌ Easy to make mistakes
+- ❌ Hard to update pricing
+- ❌ Difficult to add new sizes/colors
+
+## The JSSON Solution
+
+With **nested maps** (v0.0.5), generate all combinations automatically:
+
+<Code
+  lang="javascript"
+  code={`products = (["XS", "S", "M", "L", "XL"] map (size) = (
+  ["Black", "White", "Navy", "Gray"] map (color) = (
+    ["Cotton", "Polyester"] map (material) = {
+      sku = size + "-" + color + "-" + material
+      name = "T-Shirt " + size + " " + color + " " + material
+      size = size
+      color = color
+      material = material
+      price = material == "Cotton" ? 29.99 : 24.99
+      inStock = true
+      category = "apparel"
+    }
+  )
+))`}
+/>
+
+**That's it!** 8 lines generate all 40 variants.
+
+## Output
+
+<Code
+  lang="json"
+  code={`{
+  "products": [
+    [
+      [
+        {
+          "sku": "XS-Black-Cotton",
+          "name": "T-Shirt XS Black Cotton",
+          "size": "XS",
+          "color": "Black",
+          "material": "Cotton",
+          "price": 29.99,
+          "inStock": true,
+          "category": "apparel"
+        },
+        {
+          "sku": "XS-Black-Polyester",
+          "name": "T-Shirt XS Black Polyester",
+          "size": "XS",
+          "color": "Black",
+          "material": "Polyester",
+          "price": 24.99,
+          "inStock": true,
+          "category": "apparel"
+        }
+      ],
+      // ... more color combinations
+    ],
+    // ... more size combinations (40 total)
+  ]
+}`}
+/>
+
+## Advanced: Conditional Pricing
+
+Add dynamic pricing based on multiple factors:
+
+<Code
+  lang="javascript"
+  code={`products = (["XS", "S", "M", "L", "XL", "XXL"] map (size) = (
+  ["Black", "White", "Navy", "Gray", "Red"] map (color) = (
+    ["Cotton", "Polyester", "Bamboo"] map (material) = {
+      sku = size + "-" + color + "-" + material
+      size = size
+      color = color
+      material = material
+      
+      // Dynamic pricing logic
+      basePrice := material == "Cotton" ? 29.99 : material == "Bamboo" ? 34.99 : 24.99
+      sizeUpcharge := (size == "XL" || size == "XXL") ? 5.00 : 0.00
+      colorUpcharge := color == "Red" ? 2.00 : 0.00
+      
+      price = basePrice + sizeUpcharge + colorUpcharge
+      inStock = true
+      featured = color == "Black" && material == "Cotton"
+    }
+  )
+))
+
+// Generates 90 variants (6 sizes × 5 colors × 3 materials)`}
+/>
+
+## Flattening for APIs
+
+If you need a flat array instead of nested arrays, use a template with ranges:
+
+<Code
+  lang="javascript"
+  code={`// Generate flat product list
+products [
+  template { sizeIdx, colorIdx }
+  
+  map (p) = {
+    sizes = ["XS", "S", "M", "L", "XL"]
+    colors = ["Black", "White", "Navy", "Gray"]
+    
+    size = sizes[p.sizeIdx]
+    color = colors[p.colorIdx]
+    sku = size + "-" + color
+    price = 29.99
+  }
+  
+  // Generate all combinations
+  0..4, 0  // XS in all colors
+  0..4, 1
+  0..4, 2
+  0..4, 3
+]`}
+/>
+
+## Key Features Used
+
+- **Nested Maps** — Three levels deep for size × color × material
+- **Conditional Logic** — Dynamic pricing based on attributes
+- **String Concatenation** — Generate SKUs automatically
+- **Computed Fields** — Calculate prices, determine featured products
+
+## Real-World Applications
+
+This pattern is perfect for:
+
+- **Fashion E-commerce** — Clothing with multiple size/color options
+- **Furniture Stores** — Products with material/finish/size variants
+- **Electronics** — Devices with storage/color/carrier combinations
+- **Food Products** — Items with flavor/size/packaging options
+- **Subscription Plans** — Feature matrix across tiers and billing cycles
+
+## Benefits
+
+**90% less code** — 8 lines vs 200+ lines of JSON  
+**Zero duplication** — Define logic once  
+**Easy updates** — Change pricing in one place  
+**No mistakes** — Automatic generation prevents typos  
+**Scalable** — Add new sizes/colors instantly
+
+## Next Steps
+
+- [Nested Maps Reference](/reference/syntax/#nested-map-transformations)
+- [Advanced Patterns](/guides/advanced-patterns/)
+- [Scheduling Matrix Example](/real-world/scheduling/)

@@ -1,0 +1,9 @@
+users [
+  template { name }
+  
+  map (u) = {
+    benefits = true ? ["health"] : ["none"]
+  }
+  
+  "João"
+]

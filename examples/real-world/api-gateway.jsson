@@ -1,0 +1,91 @@
+// API Gateway Configuration
+// Real-world microservices routing with rate limiting, authentication, and CORS
+// Shows how JSSON simplifies complex API gateway configurations
+
+// Microservice route definitions
+routes [
+  template { service, version, basePath }
+  
+  map (route) = {
+    id = route.service + "-v" + route.version
+    service = route.service
+    version = route.version
+    path = "/api/v" + route.version + "/" + route.basePath
+    
+    // Upstream configuration
+    upstreamHost = route.service + "-service.internal"
+    upstreamPort = 8080
+    protocol = "http"
+    healthCheck = "/health"
+    
+    // Authentication based on version
+    authType = route.version >= 2 ? "jwt" : "basic"
+    authRequired = true
+    tokenExpiry = route.version >= 3 ? 3600 : 7200
+    
+    // Rate limiting based on service criticality
+    requestsPerMinute = route.service == "auth" ? 100 : (route.service == "payment" ? 50 : 1000)
+    burstSize = route.service == "payment" ? 10 : 100
+    strategy = "sliding-window"
+    
+    // CORS configuration
+    allowMethods = ["GET", "POST", "PUT", "DELETE", "PATCH"]
+    allowHeaders = ["Content-Type", "Authorization"]
+    maxAge = 3600
+    
+    // Caching strategy
+    cacheEnabled = route.service == "catalog" ? true : false
+    cacheTTL = 300
+  }
+  
+  // Critical services - strict limits
+  "auth", 2, "auth"
+  "payment", 2, "payments"
+  
+  // High-traffic services - generous limits
+  "catalog", 3, "products"
+  "search", 3, "search"
+  
+  // Standard services
+  "users", 2, "users"
+  "orders", 2, "orders"
+  "notifications", 1, "notify"
+  "analytics", 3, "analytics"
+]
+
+// Load balancing configurations
+loadBalancers [
+  template { service, strategy }
+  
+  map (lb) = {
+    service = lb.service
+    strategy = lb.strategy
+    
+    // Health check configuration
+    healthCheckPath = "/health"
+    healthCheckInterval = 30
+    healthCheckTimeout = 5
+    unhealthyThreshold = 3
+    healthyThreshold = 2
+    
+    // Sticky sessions for stateful services
+    stickySession = lb.service == "auth" ? true : false
+    
+    // Circuit breaker
+    circuitBreakerEnabled = true
+    errorThreshold = 50
+    circuitTimeout = 30
+    volumeThreshold = 10
+  }
+  
+  "auth", "least-connections"
+  "payment", "round-robin"
+  "catalog", "ip-hash"
+  "search", "weighted-round-robin"
+]
+
+// WHY JSSON FOR API GATEWAYS?
+// - Centralized configuration: All routes in one maintainable file
+// - Conditional logic: Different settings per version/service
+// - Consistency: Ensure all routes follow the same patterns
+// - Rapid iteration: Add new services without copy-paste errors

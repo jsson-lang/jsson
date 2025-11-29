@@ -1,0 +1,25 @@
+servers [
+  template { id, region, tier }
+  
+  map (s) = {
+    id = "srv-" + s.id
+    region = s.region
+    tier = s.tier
+    ip = "10." + (s.id / 100) + ".0." + (s.id % 100)
+    replicas = s.tier == "prod" ? 5 : 2
+  }
+  
+  // US East - Production
+  100..109, "us-east-1", prod
+  
+  // US West - Staging
+  200..204, "us-west-2", staging
+  
+  // EU - Production
+  300..314, "eu-central-1", prod
+  
+  // APAC - Dev
+  400..402, "ap-south-1", dev
+]
+
+// THIS IS JSSON

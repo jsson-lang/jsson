@@ -1,0 +1,17 @@
+users [
+  template { id, department }
+
+  map (u) = {
+    id = u.id
+    username = "user_" + u.id
+    email = "user_" + u.id + "@company.com"
+    dept = u.department
+    role = "employee"
+  }
+
+  // Generate 5 users for Engineering
+  100..104, Engineering
+
+  // Generate 5 users for Sales
+  200..204, Sales
+]

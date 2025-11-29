@@ -1,0 +1,287 @@
+---
+title: Changelog
+description: List of changes and improvements by version.
+---
+
+## v0.0.5 — Nested Logic Power-Up (2025-11-28)
+
+### New Features
+
+#### Nested map() Support 🔄
+
+JSSON now allows `map()` transformations inside other `map()` transformations.
+This enables multi-level pipelines, matrix-like generation, combinatorial data creation, and far more expressive logic.
+
+**Example:**
+
+```jsson
+nested = (0..2 map (g) = (5..6 map (x) = g + x))
+```
+
+#### Full Support for Nested Arrays 📦
+
+Nested arrays now work everywhere:
+
+- Inside templates
+- Inside map clauses
+- As direct literal values
+- As intermediate evaluated expressions
+
+JSSON automatically expands, flattens, or structures arrays as needed without losing context.
+
+#### Universal Range Expressions 🔢
+
+Ranges (`0..N`) now work in all places where expressions are allowed:
+
+- Inside arrays
+- Inside map arguments
+- Inside templates
+- Nested within other ranges
+- Used as part of deeper transformations
+
+This makes large-scale data generation extremely simple:
+
+```jsson
+0..9999
+```
+
+#### Variable Declarations (`:=`) 📦
+
+Declare variables for reuse and cleaner configuration. Variables are scoped and support shadowing.
+
+```jsson
+host := "localhost"
+port := 8080
+url = host + ":" + port
+```
+
+#### Arithmetic Improvements (Division & Modulo) ➗
+
+Arithmetic is now fully stable for `/` and `%`.
+
+Modulo (`%`) and division (`/`) now work inside map logic, expressions, and nested operations.
+
+**Example:**
+
+```jsson
+hash = "uid-" + (u.id * 91 % 17)
+```
+
+Invalid operations (like applying modulo directly to an entire range literal) now produce clear semantic errors instead of causing crashes.
+
+### Stability & Internal Improvements
+
+- Better handling of `RangeResult` values during deep transformations
+- More reliable evaluation order for nested arrays and nested maps
+- Improved safety checks to prevent unexpected binary operations on non-scalar values
+- Cleaner error messages that explain exactly where an invalid operation was attempted
+- Internal prep for future collection operators and functional features
+
+### Summary
+
+JSSON v0.0.5 turns the language into a true data-generation powerhouse:
+
+- Unlimited nesting
+- Unlimited ranges
+- Stable math
+- Cleaner semantics
+- Smarter expansion rules
+
+Large-scale data creation is now faster, safer, and easier than ever.
+
+---
+
+## v0.0.4 — Universal Meta-Format (2025-11-26)
+
+### New Features
+
+#### Multi-Format Transpilation 🚀
+
+JSSON is no longer just for JSON. You can now transpile your JSSON files into 4 different formats:
+
+- **JSON** (Default)
+- **YAML** (`-f yaml`)
+- **TOML** (`-f toml`)
+- **TypeScript** (`-f typescript`)
+
+#### TypeScript Type Generation
+
+When transpiling to TypeScript, JSSON automatically generates:
+
+- `as const` assertions for immutability
+- Exported type definitions (`export type Config = typeof config`)
+- Fully typed objects ready for use in your frontend or backend
+
+### CLI Updates
+
+- Added `-f` / `--format` flag to specify output format.
+- Improved error messages for invalid formats.
+
+### Website & Playground
+
+- **New Playground:** Now supports tabs for JSON, YAML, TOML, and TypeScript outputs.
+- **Privacy & Terms:** Added legal pages to ensure transparency.
+- **Landing Page:** Updated to reflect JSSON's new universal capabilities.
+
+---
+
+## v0.0.3.1 2025-11-25
+
+### Bug Fixes
+
+- Fixed support negative numbers in expressions.
+- Added unary minus operator support for negative numbers.
+
+## v0.0.3 — Arrays in Objects & Real-World Examples (2025-11-25)
+
+### New Features
+
+#### Arrays as Object Property Values
+
+You can now use arrays directly as object property values!
+
+```jsson
+config {
+  methods = ["GET", "POST", "PUT", "DELETE"]
+  ports = [8080, 8081, 8082]
+  tags = ["api", "v1", "production"]
+}
+```
+
+This unlocks powerful new use cases:
+
+- API gateway configurations with allowed methods
+- Kubernetes configs with container ports
+- Feature flags with target user segments
+- And much more!
+
+#### Arrays in Map Clauses
+
+Map transformations can now include array properties:
+
+```jsson
+routes [
+  template { service }
+
+  map (r) = {
+    service = r.service
+    allowMethods = ["GET", "POST", "PUT"]
+    allowHeaders = ["Content-Type", "Authorization"]
+  }
+
+  "auth"
+  "payment"
+]
+```
+
+### Real-World Examples
+
+Added 6 comprehensive real-world examples demonstrating JSSON's power:
+
+1. **Geographic Data** — Generate millions of coordinate records
+2. **Kubernetes Configuration** — Multi-environment deployments
+3. **API Gateway** — Microservices routing with rate limiting
+4. **i18n Translations** — Multi-language translation management
+5. **Feature Flags** — Environment-specific configuration
+6. **Database Seeding** — Relational data with foreign keys
+
+Each example includes:
+
+- Complete JSSON code
+- JSON output samples
+- Explanation of techniques used
+- When to use the pattern
+
+### Parser Improvements
+
+- Enhanced `parseObjectLiteral` to support array literals as property values
+- Better error messages for syntax issues
+- Improved handling of nested structures
+
+### Documentation
+
+- New "Real-World Use Cases" section in docs
+- Overview page explaining production scenarios
+- Individual pages for each example with detailed explanations
+- Updated SEO keywords for better discoverability
+
+### Bug Fixes
+
+- Fixed parsing of complex nested objects with arrays
+- Improved transpiler handling of mixed data structures
+
+### Performance
+
+JSSON v0.0.3 can now handle even more complex scenarios:
+
+- ~500 lines of JSSON → 600+ JSON records
+- Ratios up to 50,000:1 for large-scale data generation
+
+---
+
+## v0.0.2 — Arithmetic & Conditional Logic (2025-11-24)
+
+### Features
+
+- **Arithmetic operators**: `+`, `-`, `*`, `/`, `%`
+- **Comparison operators**: `==`, `!=`, `>`, `<`, `>=`, `<=`
+- **Ternary operator**: `condition ? true : false`
+- **Map transformations** with conditional logic
+- **String concatenation** in expressions
+
+### Examples
+
+```jsson
+users [
+  template { name, age }
+
+  map (u) = {
+    name = u.name
+    age = u.age
+    isAdult = u.age >= 18
+    category = u.age >= 18 ? "adult" : "minor"
+  }
+
+  "João", 25
+  "Maria", 16
+]
+```
+
+---
+
+## v0.0.1 — Initial Release (2025-11-23)
+
+### Features
+
+- **Core parser** for JSSON syntax
+- **Template arrays** for structured data
+- **Range expressions** (`1..100`)
+- **Include statements** for file composition
+- **CLI tool** for transpilation
+- **Basic data types**: strings, numbers, booleans, objects, arrays
+
+### Examples
+
+```jsson
+users [
+  template { name, age }
+
+  "João", 19
+  "Maria", 25
+]
+
+ports = 8080..8085
+```
+
+---
+
+## What's Next?
+
+Future versions may include:
+
+- Variable declarations
+- Functions/macros
+- Array methods (filter, map, reduce)
+- More advanced control flow
+
+Stay tuned!

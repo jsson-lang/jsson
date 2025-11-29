@@ -1,0 +1,4 @@
+transactions [
+  template { id, value, timestamp }
+  1..10, 10..1000, "2025-01-" + (1..31)
+]

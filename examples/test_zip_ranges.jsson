@@ -1,0 +1,5 @@
+pairs [
+  template { a, b }
+
+  0..4, 10..14
+]

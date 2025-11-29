@@ -1,0 +1,372 @@
+---
+title: CLI Guide
+description: Master the JSSON command-line interface. Learn all the flags, options, and how to integrate JSSON into your workflow.
+---
+
+import { Code, Tabs, TabItem } from "@astrojs/starlight/components";
+
+The JSSON CLI is your gateway to transpiling JSSON files into JSON, YAML, TOML, or TypeScript. Let's master it! 🚀
+
+## Basic Usage
+
+The simplest way to use JSSON:
+
+```bash
+jsson -i input.jsson > output.json
+```
+
+This reads `input.jsson` and writes the transpiled JSON to `output.json` using shell redirection.
+
+## Command-Line Flags
+
+### Input/Output
+
+| Flag       | Short | Description                 | Example           |
+| ---------- | ----- | --------------------------- | ----------------- |
+| `--input`  | `-i`  | Input JSSON file (required) | `-i config.jsson` |
+| `--format` | `-f`  | Output format (optional, default: json)    | `-f yaml`         |
+
+**Note:** The CLI always prints to stdout (terminal). Use `>` to save to a file.
+
+```bash
+# Print to terminal
+jsson -i config.jsson
+
+# Save to file
+jsson -i config.jsson > config.json
+
+# Pipe to another command
+jsson -i config.jsson | jq '.app.name'
+```
+
+### Format Options
+
+| Flag       | Description                                           | Example         |
+| ---------- | ----------------------------------------------------- | --------------- |
+| `--format` | Output format: `json` (default), `yaml`, `toml`, `ts` | `--format yaml` |
+
+```bash
+# JSON (default)
+jsson -i config.jsson > config.json
+
+# YAML
+jsson -i config.jsson -f yaml > config.yaml
+
+# TOML
+jsson -i config.jsson -f toml > config.toml
+
+# TypeScript
+jsson -i config.jsson -f ts > config.ts
+```
+
+### Help & Version
+
+```bash
+# Show help
+jsson --help
+jsson -h
+
+# Show version
+jsson --version
+jsson -v
+```
+
+## Common Workflows
+
+### 1. Quick Transpilation
+
+```bash
+jsson -i config.jsson > config.json
+```
+
+### 2. Check Output Without Saving
+
+```bash
+jsson -i config.jsson
+```
+
+Perfect for testing your JSSON before committing!
+
+### 3. Pipe to Other Tools
+
+```bash
+# Use with jq
+jsson -i config.jsson | jq '.database.host'
+
+# Count lines
+jsson -i config.jsson | wc -l
+
+# Search for a value
+jsson -i config.jsson | grep "localhost"
+```
+
+### 4. Batch Processing
+
+**PowerShell:**
+
+```powershell
+# Convert all .jsson files in a directory
+Get-ChildItem *.jsson | ForEach-Object {
+    $output = $_.BaseName + ".json"
+    jsson -i $_.Name > $output
+}
+```
+
+**Bash:**
+
+```bash
+# Convert all .jsson files
+for file in *.jsson; do
+    jsson -i "$file" > "${file%.jsson}.json"
+done
+```
+
+### 5. Watch for Changes
+
+**PowerShell:**
+
+```powershell
+# Simple watch loop
+while ($true) {
+    jsson -i config.jsson > config.json
+    Start-Sleep -Seconds 2
+}
+```
+
+**Bash with `entr`:**
+
+```bash
+# Auto-transpile on file change
+ls *.jsson | entr -s 'jsson -i config.jsson > config.json'
+```
+
+## Integration Examples
+
+### NPM Scripts
+
+**package.json:**
+
+```json
+{
+  "scripts": {
+    "build:config": "jsson -i config.jsson > dist/config.json",
+    "watch:config": "nodemon --watch config.jsson --exec 'npm run build:config'"
+  }
+}
+```
+
+### Makefile
+
+```makefile
+# Makefile
+.PHONY: build clean
+
+build: config.json
+
+config.json: config.jsson
+	jsson -i config.jsson > config.json
+
+clean:
+	rm -f config.json
+```
+
+### GitHub Actions
+
+**.github/workflows/build.yml:**
+
+```yaml
+name: Build Config
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download JSSON
+        run: |
+          wget https://github.com/carlosedujs/jsson/releases/latest/download/jsson-linux
+          chmod +x jsson-linux
+
+      - name: Transpile JSSON
+        run: ./jsson-linux -i config.jsson > config.json
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: config
+          path: config.json
+```
+
+### Docker
+
+**Dockerfile:**
+
+```dockerfile
+FROM golang:1.21-alpine AS builder
+
+WORKDIR /build
+COPY . .
+RUN go build -o jsson cmd/jsson/main.go
+
+FROM alpine:latest
+COPY --from=builder /build/jsson /usr/local/bin/
+COPY config.jsson /app/
+
+WORKDIR /app
+RUN jsson -i config.jsson > config.json
+
+CMD ["cat", "config.json"]
+```
+
+## Error Handling
+
+### Exit Codes
+
+| Code | Meaning                                |
+| ---- | -------------------------------------- |
+| `0`  | Success                                |
+| `1`  | Error (lex, parse, or transpile error) |
+| `2`  | Invalid arguments                      |
+
+**Example:**
+
+```bash
+jsson -i config.jsson > config.json
+if [ $? -eq 0 ]; then
+    echo "Success!"
+else
+    echo "Error transpiling JSSON"
+    exit 1
+fi
+```
+
+### Capturing Errors
+
+**PowerShell:**
+
+```powershell
+try {
+    jsson -i config.jsson > config.json
+    if ($LASTEXITCODE -ne 0) {
+        throw "JSSON transpilation failed"
+    }
+} catch {
+    Write-Error $_
+    exit 1
+}
+```
+
+**Bash:**
+
+```bash
+if ! jsson -i config.jsson > config.json 2> errors.log; then
+    echo "Error: $(cat errors.log)"
+    exit 1
+fi
+```
+
+## Tips & Tricks
+
+### 1. Validate Without Output
+
+```bash
+# Just check if JSSON is valid
+jsson -i config.jsson > /dev/null
+echo $?  # 0 = valid, 1 = error
+```
+
+### 2. Compare Before/After
+
+```bash
+# See what changed
+jsson -i old.jsson > old.json
+jsson -i new.jsson > new.json
+diff old.json new.json
+```
+
+### 3. Format Existing JSON
+
+```bash
+# Re-format JSON using JSSON
+# (Note: JSSON doesn't parse JSON, but you can use jq for this)
+cat config.json | jq .
+```
+
+### 4. Environment-Specific Configs
+
+```bash
+# Development
+jsson -i config/dev.jsson > dist/config.json
+
+# Production
+jsson -i config/prod.jsson > dist/config.json
+```
+
+### 5. Pre-commit Hook
+
+**.git/hooks/pre-commit:**
+
+```bash
+#!/bin/bash
+# Transpile JSSON files before commit
+
+for file in $(git diff --cached --name-only | grep '\.jsson$'); do
+    output="${file%.jsson}.json"
+    jsson -i "$file" > "$output"
+    git add "$output"
+done
+```
+
+## Troubleshooting
+
+### Command Not Found
+
+```
+bash: jsson: command not found
+```
+
+**Solution:** Add JSSON to your PATH or use the full path:
+
+```bash
+# Use full path
+/path/to/jsson -i config.jsson
+
+# Or add to PATH
+export PATH=$PATH:/path/to/jsson
+```
+
+### Permission Denied
+
+```
+Permission denied: jsson
+```
+
+**Solution:** Make it executable:
+
+```bash
+chmod +x jsson
+```
+
+### File Not Found
+
+```
+Error: cannot read file: config.jsson
+```
+
+**Solution:** Check the file exists and path is correct:
+
+```bash
+ls -la config.jsson  # Verify file exists
+jsson -i ./config.jsson  # Try with ./
+```
+
+## What's Next?
+
+- **[Getting Started](/guides/getting-started/)** — New to JSSON? Start here
+- **[Syntax Reference](/reference/syntax/)** — Complete syntax guide
+- **[Errors & Debugging](/reference/errors/)** — Troubleshooting help
+
+Master the CLI and integrate JSSON into your workflow! 🎯

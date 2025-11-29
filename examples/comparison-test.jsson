@@ -1,0 +1,21 @@
+// Test comparison operators
+comp1 = 10 == 10   // true
+comp2 = 10 != 5    // true
+comp3 = 10 > 5     // true
+comp4 = 5 < 10     // true
+comp5 = 10 >= 10   // true
+comp6 = 5 <= 10    // true
+comp7 = 10 == 5    // false
+comp8 = "hello" == "hello"  // true
+comp9 = "a" < "b"  // true
+
+// Test ternary operator with literals
+status = 25 >= 18 ? "adult" : "minor"  // "adult"
+status2 = 15 >= 18 ? "adult" : "minor"  // "minor"
+
+score = 85
+grade = 85 >= 90 ? "A" : 85 >= 80 ? "B" : "C"  // "B"
+
+// Complex expressions
+isEligible = 25 >= 18  // true
+discount = isEligible ? 10 : 0  // 10

@@ -1,0 +1,8 @@
+// Test variables in maps
+products = (["S", "M"] map (size) = {
+  basePrice := 10
+  extra := size == "M" ? 5 : 0
+  
+  price = basePrice + extra
+  size = size
+})

@@ -1,0 +1,11 @@
+routes [
+  template { path, method }
+  
+  map (item) = {
+    path = "/api/" + item.path
+    method = item.method
+  }
+  
+  users, GET
+  posts, POST
+]

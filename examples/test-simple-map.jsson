@@ -1,0 +1,13 @@
+// Simple test with map clause
+test [
+  template { id, name }
+  
+  map (item) = {
+    id = item.id
+    name = item.name
+    extra = "value"
+  }
+  
+  1, "Alice"
+  2, "Bob"
+]

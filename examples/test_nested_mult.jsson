@@ -1,0 +1,8 @@
+// Test from user's original example
+data = (0..2 map (id) = {
+  id = id
+  profile = (0..2 map (i) = {
+    device = "dev_" + i
+    points = id * i
+  })
+})

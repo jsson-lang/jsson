@@ -1,0 +1,2 @@
+// Test file with unterminated string to trigger Lexer goblin error
+name = "test

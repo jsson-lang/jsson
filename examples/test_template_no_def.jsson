@@ -1,0 +1,9 @@
+// Test template array without template definition
+users [
+  map (u) = {
+    id = u
+    username = "user_" + u
+  }
+  
+  0..5
+]

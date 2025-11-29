@@ -1,0 +1,4 @@
+// Test file with missing closing brace to trigger Syntax wizard error
+obj = { 
+  name = "test"
+  value = 42

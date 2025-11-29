@@ -1,0 +1,108 @@
+---
+title: Go API Reference
+description: Use the JSSON transpiler directly in your Go applications.
+---
+
+import { Code } from "@astrojs/starlight/components";
+
+You can use JSSON as a library in your Go projects to transpile JSSON content programmatically.
+
+## Installation
+
+```bash
+go get github.com/carlosedujs/jsson
+```
+
+## Basic Usage
+
+The core package is `jsson/internal/transpiler`.
+
+```go
+package main
+
+import (
+    "fmt"
+    "jsson/internal/lexer"
+    "jsson/internal/parser"
+    "jsson/internal/transpiler"
+)
+
+func main() {
+    input := `
+    server {
+        port = 8080
+        debug = true
+    }
+    `
+
+    // 1. Lexer
+    l := lexer.New(input)
+
+    // 2. Parser
+    p := parser.New(l)
+    program := p.ParseProgram()
+
+    if len(p.Errors()) > 0 {
+        panic(p.Errors())
+    }
+
+    // 3. Transpiler
+    // New(program, workingDir, includeMode, sourceFile)
+    t := transpiler.New(program, ".", "keep", "main.jsson")
+
+    // Transpile to JSON (Default)
+    jsonOutput, _ := t.Transpile()
+    fmt.Println(string(jsonOutput))
+}
+```
+
+## Transpilation Methods
+
+The `Transpiler` struct provides methods for different output formats:
+
+### `Transpile()`
+
+Transpiles the AST to JSON.
+
+```go
+output, err := t.Transpile()
+// output is []byte containing JSON
+```
+
+### `TranspileToYAML()`
+
+Transpiles the AST to YAML.
+
+```go
+output, err := t.TranspileToYAML()
+// output is []byte containing YAML
+```
+
+### `TranspileToTOML()`
+
+Transpiles the AST to TOML.
+
+```go
+output, err := t.TranspileToTOML()
+// output is []byte containing TOML
+```
+
+### `TranspileToTypeScript()`
+
+Transpiles the AST to TypeScript with type definitions.
+
+```go
+output, err := t.TranspileToTypeScript()
+// output is []byte containing TypeScript code
+```
+
+## Error Handling
+
+All transpile methods return `([]byte, error)`. You should always check the error returned.
+
+```go
+output, err := t.Transpile()
+if err != nil {
+    log.Fatalf("Transpilation failed: %v", err)
+}
+```

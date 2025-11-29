@@ -1,0 +1,7 @@
+// Test parentheses with ||
+test1 = (true || false) ? "yes" : "no"
+test2 = (5 > 3 || 2 > 10) ? "yes" : "no"
+test3 = (size == "XL" || size == "XXL")
+
+size := "XL"
+test4 = (size == "XL" || size == "XXL") ? 5.00 : 0.00

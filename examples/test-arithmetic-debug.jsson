@@ -1,0 +1,16 @@
+// Test arithmetic in map
+test [
+  template { id }
+  
+  map (item) = {
+    id = item.id
+    divided = item.id / 10
+    modulo = item.id % 10
+    added = item.id + 100
+  }
+  
+  0
+  1
+  5
+  15
+]

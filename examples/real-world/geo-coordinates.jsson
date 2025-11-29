@@ -1,0 +1,65 @@
+// Geographic Coordinates - Real-world use case
+// Generate coordinate grids for mapping applications, postal code boundaries, or GPS systems
+// This example shows how JSSON can efficiently generate MILLIONS of coordinate records
+
+// Example 1: City Grid Coordinates (simplified - 100 points)
+cityGrid [
+  template { id, zone }
+  
+  map (point) = {
+    id = "grid-" + point.id
+    lat = -23.5505 + (point.id / 10) * 0.01
+    lon = -46.6333 + (point.id % 10) * 0.01
+    zone = point.zone
+    type = "grid_point"
+    precision = "high"
+  }
+  
+  // Generate 100 coordinate points
+  0..99, "urban"
+]
+
+// Example 2: GPS Route Waypoints
+deliveryRoute [
+  template { waypointId, routeId }
+  
+  map (wp) = {
+    id = "wp-" + wp.routeId + "-" + wp.waypointId
+    routeId = "route-" + wp.routeId
+    sequence = wp.waypointId
+    lat = -23.5505 + (wp.waypointId * 0.001)
+    lon = -46.6333 + (wp.waypointId * 0.0015)
+    estimatedTime = wp.waypointId * 3
+    status = "pending"
+  }
+  
+  // Route 1: 50 waypoints
+  0..49, 1
+]
+
+// Example 3: Geofencing Zones with arrays
+geofenceZones [
+  template { zoneId, category }
+  
+  map (zone) = {
+    id = "zone-" + zone.zoneId
+    name = zone.category + "-zone-" + zone.zoneId
+    category = zone.category
+    centerLat = -23.5505 + (zone.zoneId * 0.05)
+    centerLon = -46.6333 + (zone.zoneId * 0.05)
+    radiusMeters = zone.category == "store" ? 100 : 500
+    alertOnEntry = true
+    alertOnExit = zone.category == "restricted" ? true : false
+    // Array of allowed actions
+    allowedActions = ["entry", "exit", "dwell"]
+  }
+  
+  0..9, "store"
+  10..19, "warehouse"
+  20..24, "restricted"
+]
+
+// PERFORMANCE NOTE:
+// This file generates 175 coordinate records from ~55 lines of JSSON
+// For MILLIONS of records: simply change ranges like 0..99 to 0..999999
+// JSSON handles it efficiently while keeping the source code minimal

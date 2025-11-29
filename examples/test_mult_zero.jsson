@@ -1,0 +1,10 @@
+// Test multiplication by zero
+result1 = 5 * 0    // Should be 0
+result2 = 0 * 10   // Should be 0
+result3 = 3.5 * 0  // Should be 0.0
+
+// In a map context
+data = (0..2 map (id) = {
+  id = id
+  points = id * 0  // Should work
+})

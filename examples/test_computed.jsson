@@ -1,0 +1,10 @@
+// Test computed variables
+basePrice := 100
+discount := 0.2
+finalPrice := basePrice * (1 - discount)
+
+item {
+  basePrice = basePrice
+  discount = discount
+  finalPrice = finalPrice
+}

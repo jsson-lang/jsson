@@ -1,0 +1,133 @@
+---
+title: Feature Flags
+description: Environment-specific feature toggles and configuration management with JSSON conditional logic.
+---
+
+import { Code, Tabs, TabItem } from "@astrojs/starlight/components";
+
+Manage feature flags and service configurations across dev/staging/prod environments with conditional logic.
+
+## The Problem
+
+Managing configs across environments means:
+
+- **Separate files** — One config file per environment
+- **Duplication** — Same structure repeated 3+ times
+- **Sync issues** — Easy to miss updates in some environments
+
+## The JSSON Solution
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code
+      lang="javascript"
+      code={`featureFlags [
+  template { feature, env, enabled }
+  
+  map (flag) = {
+    name = flag.feature
+    environment = flag.env
+    enabled = flag.enabled
+    key = flag.feature + "_" + flag.env
+    rolloutPercentage = flag.enabled == true ? 100 : 0
+    rolloutStrategy = "gradual"
+  }
+  
+  // New features - off in prod
+  "new-dashboard", "prod", false
+  "new-dashboard", "staging", true
+  "new-dashboard", "dev", true
+  
+  // Stable features - on everywhere
+  "dark-mode", "prod", true
+  "dark-mode", "staging", true
+  "dark-mode", "dev", true
+]`}
+    />
+  </TabItem>
+  <TabItem label="JSON Output">
+    <Code
+      lang="json"
+      code={`{
+  "featureFlags": [
+    {
+      "name": "new-dashboard",
+      "environment": "prod",
+      "enabled": false,
+      "key": "new-dashboard_prod",
+      "rolloutPercentage": 0,
+      "rolloutStrategy": "gradual"
+    },
+    {
+      "name": "new-dashboard",
+      "environment": "staging",
+      "enabled": true,
+      "key": "new-dashboard_staging",
+      "rolloutPercentage": 100,
+      "rolloutStrategy": "gradual"
+    }
+    // ... more flags
+  ]
+}`}
+    />
+  </TabItem>
+</Tabs>
+
+## Service Configuration
+
+<Code
+  lang="javascript"
+  code={`serviceConfig [
+  template { service, env }
+  
+  map (cfg) = {
+    serviceName = cfg.service
+    environment = cfg.env
+    
+    // Database
+    databaseHost = "db-" + cfg.env + ".internal"
+    maxConnections = cfg.env == "prod" ? 100 : 20
+    sslEnabled = cfg.env == "prod" ? true : false
+    
+    // Cache
+    cacheHost = "redis-" + cfg.env + ".internal"
+    cacheTTL = cfg.env == "prod" ? 3600 : 300
+    
+    // Logging
+    logLevel = cfg.env == "prod" ? "error" : "debug"
+  }
+  
+  "api", "prod"
+  "api", "staging"
+  "api", "dev"
+]`}
+/>
+
+## Benefits
+
+**Single source** — One file for all environments  
+**Conditional logic** — Different values per environment  
+**Easy toggles** — Change `true` to `false`  
+**Consistency** — Same structure everywhere
+
+## When to Use
+
+**Perfect for:**
+
+- Feature flag management
+- Environment-specific configs
+- A/B testing setups
+- Rollout strategies
+
+## Try It!
+
+1. Save to `feature-flags.jsson`
+2. Run: `jsson -i feature-flags.jsson`
+3. Manage your features!
+
+## What's Next?
+
+- **[Kubernetes](/real-world/kubernetes/)** — Multi-env deployments
+- **[Overview](/real-world/overview/)** — All examples
+
+Toggle features with confidence! 🚀

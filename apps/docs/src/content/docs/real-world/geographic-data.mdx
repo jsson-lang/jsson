@@ -1,0 +1,198 @@
+---
+title: Geographic Data
+description: Generate millions of coordinate records efficiently with JSSON - perfect for mapping applications, postal codes, GPS systems, and geofencing.
+---
+
+import { Code, Tabs, TabItem } from "@astrojs/starlight/components";
+
+Generate **millions** of geographic coordinate records from minimal JSSON code. Perfect for legacy systems, mapping applications, and location-based services.
+
+## The Problem
+
+Imagine you're working with **millions of geographic coordinate records in JSON** for a legacy system. Writing and maintaining such files manually is:
+
+- **Impractical** — Can't write millions of records by hand
+- **Error-prone** — Easy to make mistakes in repetitive data
+- **Hard to maintain** — Changes require updating thousands of lines
+
+## The JSSON Solution
+
+With JSSON, you can generate **10,000+ coordinate records from ~20 lines of code**!
+
+<Tabs>
+  <TabItem label="JSSON">
+    <Code
+      lang="javascript"
+      code={`cityGrid [
+  template { id, zone }
+  
+  map (point) = {
+    id = "grid-" + point.id
+    lat = -23.5505 + (point.id / 10) * 0.01
+    lon = -46.6333 + (point.id % 10) * 0.01
+    zone = point.zone
+    type = "grid_point"
+    precision = "high"
+  }
+  
+  // Generate 10,000 coordinate points!
+  0..9999, "urban"
+]`}
+    />
+  </TabItem>
+  <TabItem label="JSON Output">
+    <Code
+      lang="json"
+      code={`{
+  "cityGrid": [
+    {
+      "id": "grid-0",
+      "lat": -23.5505,
+      "lon": -46.6333,
+      "zone": "urban",
+      "type": "grid_point",
+      "precision": "high"
+    },
+    {
+      "id": "grid-1",
+      "lat": -23.5505,
+      "lon": -46.6433,
+      "zone": "urban",
+      "type": "grid_point",
+      "precision": "high"
+    }
+    // ... 9,998 more records!
+  ]
+}`}
+    />
+  </TabItem>
+</Tabs>
+
+## Key Features Used
+
+### Ranges for Scale
+
+<Code lang="javascript" code={`// Generate 10,000 points
+0..9999, "urban"
+
+// For MILLIONS of records:
+0..999999, "urban"`} />
+
+Change one number to scale from thousands to millions!
+
+### Map Transformations
+
+<Code
+  lang="javascript"
+  code={`map (point) = {
+  id = "grid-" + point.id
+  lat = -23.5505 + (point.id / 10) * 0.01
+  lon = -46.6333 + (point.id % 10) * 0.01
+}`}
+/>
+
+Calculate coordinates dynamically based on ID.
+
+### Arithmetic Operations
+
+<Code
+  lang="javascript"
+  code={`// Grid calculation
+lat = -23.5505 + (point.id / 10) * 0.01
+lon = -46.6333 + (point.id % 10) * 0.01`}
+/>
+
+Use division and modulo to create coordinate grids.
+
+## More Examples
+
+### GPS Route Waypoints
+
+<Code
+  lang="javascript"
+  code={`deliveryRoute [
+  template { waypointId, routeId }
+  
+  map (wp) = {
+    id = "wp-" + wp.routeId + "-" + wp.waypointId
+    routeId = "route-" + wp.routeId
+    sequence = wp.waypointId
+    lat = -23.5505 + (wp.waypointId * 0.001)
+    lon = -46.6333 + (wp.waypointId * 0.0015)
+    estimatedTime = wp.waypointId * 3
+    status = "pending"
+  }
+  
+  // Route 1: 500 waypoints
+  0..499, 1
+]`}
+/>
+
+### Geofencing Zones
+
+<Code
+  lang="javascript"
+  code={`geofenceZones [
+  template { zoneId, category }
+  
+  map (zone) = {
+    id = "zone-" + zone.zoneId
+    name = zone.category + "-zone-" + zone.zoneId
+    category = zone.category
+    centerLat = -23.5505 + (zone.zoneId * 0.05)
+    centerLon = -46.6333 + (zone.zoneId * 0.05)
+    radiusMeters = zone.category == "store" ? 100 : 500
+    alertOnEntry = true
+    alertOnExit = zone.category == "restricted" ? true : false
+    allowedActions = ["entry", "exit", "dwell"]
+  }
+  
+  0..9, "store"
+  10..19, "warehouse"
+  20..24, "restricted"
+]`}
+/>
+
+Notice the **arrays in objects** (`allowedActions`) and **ternary operators** for conditional values!
+
+## Performance
+
+| Scale  | JSSON Lines | JSON Records | Ratio    |
+| ------ | ----------- | ------------ | -------- |
+| Small  | 20          | 100          | 5:1      |
+| Medium | 20          | 10,000       | 500:1    |
+| Large  | 20          | 1,000,000    | 50,000:1 |
+
+**The same 20 lines** can generate from hundreds to millions of records!
+
+## When to Use This Pattern
+
+**Perfect for:**
+
+- Mapping applications with grid-based coordinates
+- Postal code boundary data
+- GPS tracking systems
+- Geofencing applications
+- Location-based services
+- Legacy systems requiring large JSON files
+
+**Not ideal for:**
+
+- Unique, non-patterned coordinates
+- Real-time dynamic location data
+- Small datasets (< 100 records)
+
+## Try It Yourself!
+
+1. Save the city grid example to `geo.jsson`
+2. Run: `jsson -i geo.jsson -o geo.json`
+3. Open `geo.json` — you'll see 10,000 coordinate records!
+4. Want millions? Change `0..9999` to `0..999999`
+
+## What's Next?
+
+- **[Kubernetes Config](/real-world/kubernetes/)** — Multi-environment infrastructure
+- **[API Gateway](/real-world/api-gateway/)** — Microservices routing
+- **[Overview](/real-world/overview/)** — See all real-world examples
+
+Generate massive datasets with minimal code! 🗺️

@@ -1,0 +1,162 @@
+---
+title: Multi-Format Transpilation
+description: Learn how to transpile JSSON to JSON, YAML, TOML, and TypeScript.
+---
+
+import { Code, Tabs, TabItem } from "@astrojs/starlight/components";
+
+JSSON is a **universal meta-format**. This means you can write your configuration logic once in JSSON and output it to whatever format your tools require.
+
+## Supported Formats
+
+| Format         | CLI Flag  | Best For                                         |
+| -------------- | --------- | ------------------------------------------------ |
+| **JSON**       | Default   | APIs, Web Configs, Data Interchange              |
+| **YAML**       | `-f yaml` | Kubernetes, CI/CD, CloudFormation                |
+| **TOML**       | `-f toml` | Rust Configs, Python (pyproject.toml), Hugo      |
+| **TypeScript** | `-f ts`   | Frontend Constants, Design Systems, Shared Types |
+
+## How It Works
+
+The JSSON compiler takes your source code, evaluates all logic (templates, maps, ranges, expressions), and then serializes the resulting data structure into the target format.
+
+### Example
+
+Consider this JSSON file defining a server configuration:
+
+<Code
+  lang="javascript"
+  code={`// server.jsson
+server {
+  host = "localhost"
+  port = 8080
+  
+  // Dynamic environment
+  env = production
+  
+  // Computed timeout
+  timeout = 30 * 1000
+  
+  features = [ logging, metrics, tracing ]
+}`}
+/>
+
+### Output Comparison
+
+<Tabs>
+  <TabItem label="JSON">
+    Standard JSON output.
+    
+    <Code lang="json" code={`
+    {
+      "server": {
+        "host": "localhost",
+        "port": 8080,
+        "env": "production",
+        "timeout": 30000,
+        "features": [
+          "logging",
+          "metrics",
+          "tracing"
+        ]
+      }
+    }
+`} />
+  </TabItem>
+
+{" "}
+
+<TabItem label="YAML">
+  Clean YAML output, perfect for infrastructure.
+  <Code
+    lang="yaml"
+    code={`server:
+  env: production
+  features:
+    - logging
+    - metrics
+    - tracing
+  host: localhost
+  port: 8080
+  timeout: 30000`}
+  />
+</TabItem>
+
+{" "}
+
+<TabItem label="TOML">
+  Standard TOML output.
+  <Code
+    lang="toml"
+    code={`[server]
+  env = "production"
+  host = "localhost"
+  port = 8080
+  timeout = 30000
+  features = ["logging", "metrics", "tracing"]`}
+  />
+</TabItem>
+
+  <TabItem label="TypeScript">
+    Generates `as const` objects and type definitions.
+    
+    <Code lang="typescript" code={`export const server = {
+    host: "localhost",
+    port: 8080,
+    env: "production",
+    timeout: 30000,
+    features: [
+    "logging",
+    "metrics",
+    "tracing"
+    ]
+    } as const;
+    export type Server = typeof server;`} />
+  </TabItem>
+</Tabs>
+
+## TypeScript Generation
+
+The TypeScript transpiler is particularly powerful because it bridges the gap between your configuration and your application code.
+
+### Features
+
+1. **`as const` Assertions**: All objects are generated with `as const`, making them immutable and narrowing types to their literal values.
+2. **Type Inference**: JSSON automatically exports a TypeScript type for each top-level object (e.g., `export type Server = typeof server`).
+3. **Zero Runtime**: The output is pure TypeScript/JavaScript. No JSSON runtime is needed in your application.
+
+### Use Case: Design Systems
+
+You can define your design tokens in JSSON and generate typed TypeScript constants for your frontend:
+
+```jsson
+// tokens.jsson
+colors {
+  primary = "#0070f3"
+  secondary = "#ff4081"
+
+  gray [
+    template { shade, value }
+    map (i) = { shade = i * 100, value = "#" + i + i + i }
+    1..9
+  ]
+}
+```
+
+Generates:
+
+```typescript
+export const colors = {
+  primary: "#0070f3",
+  secondary: "#ff4081",
+  gray: [
+    { shade: 100, value: "#111" },
+    { shade: 200, value: "#222" },
+    // ...
+  ],
+} as const;
+
+export type Colors = typeof colors;
+```
+
+Now you have full autocompletion for your design tokens in your React/Vue/Svelte components!

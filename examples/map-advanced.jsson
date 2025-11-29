@@ -1,0 +1,19 @@
+products [
+  template { id, name, price, category }
+
+  map (p) = {
+    id = p.id
+    name = p.name
+    price = p.price
+    category = p.category
+    currency = "USD"
+    inStock = true
+    url = "/products/" + p.id
+  }
+
+  1, "Laptop Pro 15", 1299.99, electronics
+  2, "Wireless Mouse", 29.99, accessories
+  3, "USB-C Cable", 12.99, accessories
+  4, "Monitor 27", 399.99, electronics
+  5, "Keyboard Mechanical", 89.99, accessories
+]

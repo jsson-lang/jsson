@@ -1,0 +1,8 @@
+// Test logical operators
+x := 5
+y := 10
+
+test1 = x > 3 && y < 15  // Should be true
+test2 = x > 10 || y < 15  // Should be true
+test3 = x > 10 && y > 20  // Should be false
+test4 = x > 10 || y > 20  // Should be false

@@ -1,0 +1,61 @@
+// GLOBAL CONFIGS — O INFERNO COMEÇA AQUI
+universesCount := 20
+galaxiesPerUniverse := 25
+starsPerGalaxy := 180
+planetsPerStar := 12
+moonsPerPlanet := 10
+eventsPerMoon := 6
+historyDepth := 5
+
+multiverse = (0..(universesCount - 1) map (uid) = {
+  universeId = uid
+  name = "Universe_" + uid
+  age = 1000000 + (uid * 2000)
+
+  galaxies = (0..((uid % galaxiesPerUniverse)) map (gid) = {
+    galaxyId = gid
+    name = "Galaxy_" + uid + "_" + gid
+    blackHole = gid % 4 == 0
+
+    stars = (0..((gid % starsPerGalaxy)) map (sid) = {
+      starId = sid
+      name = "Star_" + uid + "_" + gid + "_" + sid
+      temp = 2000 + (sid * 12)
+      type = sid % 3 == 0 ? "red_dwarf"
+           : sid % 3 == 1 ? "yellow_star"
+           : "blue_giant"
+
+      planets = (0..((sid % planetsPerStar)) map (pid) = {
+        planetId = pid
+        name = "Planet_" + uid + "_" + gid + "_" + sid + "_" + pid
+        habitable = (pid % 5) == 0
+        gravity = 1.0 + ((pid * sid) % 7) * 0.1
+
+        moons = (0..((pid % moonsPerPlanet)) map (mid) = {
+          moonId = mid
+          temperature = -150 + ((mid * pid) % 200)
+          ice = (mid % 2) == 0
+
+          events = (0..((mid % eventsPerMoon)) map (eid) = {
+            eventId = eid
+            type = eid % 6 == 0 ? "quake"
+                 : eid % 6 == 1 ? "eruption"
+                 : eid % 6 == 2 ? "storm"
+                 : eid % 6 == 3 ? "fracture"
+                 : eid % 6 == 4 ? "shatter"
+                 : "shift"
+            intensity = (uid + gid + sid + pid + mid + eid) % 999
+          })
+
+          timeline = (0..historyDepth map (h) = {
+            year = 4000 + h + sid + uid
+            record = h % 3 == 0 ? "formation"
+                   : h % 3 == 1 ? "impact"
+                   : "orbit_change"
+            magnitude = (mid + h + pid) % 5000
+          })
+        })
+      })
+    })
+  })
+})

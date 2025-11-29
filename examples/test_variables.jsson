@@ -1,0 +1,17 @@
+// Declare variables
+api_key := "sk-1234567890"
+base_url := "https://api.example.com"
+timeout := 5000
+
+// Use them in configuration
+production {
+apiKey = api_key
+endpoint = base_url + "/v1"
+timeout = timeout
+}
+
+development {
+apiKey = api_key
+endpoint = base_url + "/dev"
+timeout = timeout
+}
