@@ -137,7 +137,10 @@ colors {
 
   gray [
     template { shade, value }
-    map (i) = { shade = i * 100, value = "#" + i + i + i }
+    map (item) = { 
+      shade = item.shade * 100
+      value = "#" + item.shade + item.shade + item.shade 
+    }
     1..9
   ]
 }
