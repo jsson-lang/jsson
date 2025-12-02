@@ -10,9 +10,9 @@ export default defineConfig({
     starlight({
       plugins: [starlightThemeRapide()],
 
-      title: "JSSON Docs",
+      title: "JSSON Documentation",
       description:
-        "JSSON - The human-friendly way to write JSON. A modern syntax that transpiles to 100% valid JSON.",
+        "Official JSSON documentation. Learn how to use JSSON, a powerful meta-language and transpiler for generating JSON, YAML, TOML, and TypeScript. Features templates, ranges, maps, and streaming support.",
       logo: {
         src: "./src/assets/logo.svg",
         alt: "JSSON Logo",
@@ -51,8 +51,27 @@ export default defineConfig({
           attrs: {
             name: "keywords",
             content:
-              "JSON, JSSON, JSON syntax, transpiler, configuration files, human-friendly JSON, JSON generator, JSON template, infrastructure as code, Kubernetes config, API gateway configuration, i18n translations, feature flags, database seeding, geographic data, coordinate generation, multi-environment config, DevOps tools, configuration management, JSON alternative, YAML alternative, data generation, map transformation, conditional logic, range syntax, template arrays",
+              "JSSON, JSSON language, JSSON documentation, JSSON transpiler, JSSON syntax, config generator, multi-format transpiler, YAML generator, TOML generator, TypeScript generator, template syntax, range expressions, map transformations, streaming support, configuration files, infrastructure as code, Kubernetes config, API gateway, i18n translations, feature flags, database seeding, DevOps tools, configuration management, data generation tool",
           },
+        },
+        {
+          tag: "script",
+          attrs: {
+            type: "application/ld+json",
+          },
+          content: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "TechArticle",
+            headline: "JSSON Documentation",
+            description:
+              "Complete documentation for JSSON - a meta-language and transpiler for generating JSON, YAML, TOML, and TypeScript",
+            url: "https://docs.jssonlang.tech",
+            author: {
+              "@type": "Organization",
+              name: "JSSON",
+            },
+            keywords: "JSSON, transpiler, documentation, config generator",
+          }),
         },
       ],
       social: [
@@ -117,6 +136,7 @@ export default defineConfig({
         { label: "FAQ", slug: "faq" },
         { label: "Changelog", slug: "changelog" },
         { label: "LLM Docs", link: "/llms.txt/index.txt" },
+        { label: "Playground", link: "https://jssonlang.tech/playground" },
       ],
       customCss: [
         // Relative path to your custom CSS file

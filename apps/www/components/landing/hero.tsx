@@ -22,7 +22,11 @@ export function Hero() {
       <Spotlight />
       <div className="container  relative z-10 mx-auto px-4 md:px-6">
         <div className="flex flex-col items-center text-center">
-          <Link href={"https://docs.jssonlang.tech/changelog/#v0052--variable-arithmetic-streaming-2025-12-02"}>
+          <Link
+            href={
+              "https://docs.jssonlang.tech/changelog/#v0052--variable-arithmetic-streaming-2025-12-02"
+            }
+          >
             <Announcement variant="outline" themed className="max-w-4xl">
               <AnnouncementTag>Latest Update</AnnouncementTag>
               <AnnouncementTitle>
@@ -38,8 +42,9 @@ export function Hero() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="mt-8 max-w-4xl text-5xl font-bold tracking-tight md:text-7xl lg:text-8xl bg-linear-to-b from-foreground to-foreground/70 bg-clip-text text-transparent"
           >
-            Universal Config Format <br />
-            <span className="text-primary">Supercharged</span>
+            <span className="text-primary">JSSON</span>: Universal Config Format{" "}
+            <br />
+            Supercharged
           </motion.h1>
 
           <motion.p
