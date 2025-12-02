@@ -39,7 +39,7 @@ export default function Logo({ size = "xl", variant = "default" }: LogoProps) {
       {variant === "default" && (
         <>
           <span className="text-primary">JSSON</span>
-          <Badge variant={"secondary"}>V0.0.5.1</Badge>
+          <Badge variant={"secondary"}>V0.0.5.2</Badge>
         </>
       )}
     </Link>
