@@ -1,4 +1,4 @@
-# JSSON - V0.0.5.1
+# JSSON - V0.0.5.2
 
 [![JSSON Banner](https://i.postimg.cc/yx4C3YqC/og.png)](https://postimg.cc/WFnHQVb5)
 
@@ -62,13 +62,13 @@ ports = 8080..8085
 
 ## Why JSSON?
 
-| Pain Point               | JSSON Solution                      |
-| ------------------------ | ----------------------------------- |
-| 😤 Quotes everywhere     | ✅ No quotes needed for keys        |
-| 🐛 Trailing comma errors | ✅ No commas required               |
-| 📋 Repetitive data       | ✅ Templates for arrays             |
-| 🔢 Manual ranges         | ✅ Built-in range syntax (`1..100`) |
-| 📁 Scattered configs     | ✅ File includes                    |
+| Pain Point               | JSSON Solution                       |
+| ------------------------ | ------------------------------------ |
+| 😤 Quotes everywhere     | ✅ No quotes needed for keys         |
+| 🐛 Trailing comma errors | ✅ No commas required                |
+| 📋 Repetitive data       | ✅ Templates for arrays              |
+| 🔢 Manual ranges         | ✅ Built-in range syntax (`1..100`)  |
+| 📁 Scattered configs     | ✅ File includes                     |
 | 🔄 Copy-paste errors     | ✅ Map transformations and variables |
 
 ---
@@ -269,6 +269,34 @@ include "api-config.jsson"
 - Operators: `+`, `-`, `*`, `/`, `%`
 - Comparisons: `==`, `!=`, `>`, `<`, `>=`, `<=`
 - Ternary: `condition ? true : false`
+
+### 🚀 Streaming Support
+
+Handle large datasets efficiently with streaming mode:
+
+```bash
+# Enable streaming for large data
+jsson -i large-data.jsson --stream > output.json
+
+# Auto-enable for ranges > 10,000 items (default)
+jsson -i data.jsson > output.json
+
+# Custom threshold
+jsson -i data.jsson --stream-threshold 5000 > output.json
+```
+
+**Benefits:**
+
+- **Memory efficient**: Reduces memory usage from ~500MB to <50MB for 100k items
+- **Scalable**: Process millions of items without OOM errors
+- **Automatic**: Smart threshold detection enables streaming when needed
+
+**Perfect for:**
+
+- Generating 100k+ records
+- Large matrix/grid data (100x100+)
+- Database seeding with millions of rows
+- Memory-constrained environments
 
 ### Arrays & Objects
 

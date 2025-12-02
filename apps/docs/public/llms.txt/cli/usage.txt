@@ -1,18 +1,21 @@
 # JSSON Documentation — LLM Mode
 Source: usage.mdx
 Version: 0.0.5
-Generated: 2025-11-30T01:30:29.806Z
+Generated: 2025-12-02T22:05:17.812Z
 
 ## Table of Contents
 - 0.1. Basic Usage
 - 0.2. Options
-- 0.3. Examples
-- 0.3.1. Transpile to JSON (Default)
-- 0.3.2. Transpile to YAML
-- 0.3.3. Transpile to TOML
-- 0.3.4. Transpile to TypeScript
-- 0.3.5. Output to Console
-- 0.4. Include Modes
+- 0.3. Streaming Mode
+- 1. ENABLE STREAMING EXPLICITLY
+- 2. AUTO-ENABLE FOR RANGES > 5000 ITEMS
+- 2.1. Examples
+- 2.1.1. Transpile to JSON (Default)
+- 2.1.2. Transpile to YAML
+- 2.1.3. Transpile to TOML
+- 2.1.4. Transpile to TypeScript
+- 2.1.5. Output to Console
+- 2.2. Include Modes
 
 ## Content
 
@@ -26,35 +29,55 @@ jsson -i input.jsson [options]
 
 0.2. Options
 
- •  Flag               •  Description                                           •  Default     • 
- •  -----------------  •  ----------------------------------------------------  •  ----------  • 
- •  -i, --input    •  Input JSSON file path                                 •  (Required)  • 
- •  -f, --format   •  Output format (json, yaml, toml, typescript)  •  json      • 
- •  -h, --help     •  Show help message                                     •  false     • 
+ •  Flag                  •  Description                                           •  Default     • 
+ •  --------------------  •  ----------------------------------------------------  •  ----------  • 
+ •  -i, --input       •  Input JSSON file path                                 •  (Required)  • 
+ •  -f, --format      •  Output format (json, yaml, toml, typescript)  •  json      • 
+ •  --stream            •  Enable streaming mode for large datasets              •  false     • 
+ •  --stream-threshold  •  Auto-enable streaming for ranges > N items            •  10000     • 
+ •  -h, --help        •  Show help message                                     •  false     • 
 
 > Note: The CLI outputs to standard output (stdout). Use shell redirection (>) to save to a file.
 
-0.3. Examples
+0.3. Streaming Mode
 
-0.3.1. Transpile to JSON (Default)
+For large datasets (100k+ items), JSSON supports streaming mode to reduce memory usage:
+
+`bash
+
+1. ENABLE STREAMING EXPLICITLY
+---------------------------
+jsson -i large-data.jsson --stream > output.json
+
+
+2. AUTO-ENABLE FOR RANGES > 5000 ITEMS
+-----------------------------------
+jsson -i data.jsson --stream-threshold 5000 > output.json
+`
+
+Benefits:• Reduces memory usage from ~500MB to < 50MB for 100k items• Handles millions of items efficiently• Automatic detection based on threshold
+
+2.1. Examples
+
+2.1.1. Transpile to JSON (Default)
 
 `bash
 jsson -i config.jsson > config.json
 `
 
-0.3.2. Transpile to YAML
+2.1.2. Transpile to YAML
 
 `bash
 jsson -i config.jsson -f yaml > config.yaml
 `
 
-0.3.3. Transpile to TOML
+2.1.3. Transpile to TOML
 
 `bash
 jsson -i config.jsson -f toml > config.toml
 `
 
-0.3.4. Transpile to TypeScript
+2.1.4. Transpile to TypeScript
 
 Generates TypeScript code with as const assertions and inferred types.
 
@@ -62,7 +85,7 @@ Generates TypeScript code with as const assertions and inferred types.
 jsson -i config.jsson -f ts > config.ts
 `
 
-0.3.5. Output to Console
+2.1.5. Output to Console
 
 Since JSSON prints to stdout by default, you can pipe the output to other tools like jq:
 
@@ -70,7 +93,7 @@ Since JSSON prints to stdout by default, you can pipe the output to other tools 
 jsson -i config.jsson | jq .
 `
 
-0.4. Include Modes
+2.2. Include Modes
 
 When using include` statements, JSSON merges the included files. The CLI handles this automatically based on the file paths relative to the input file.
 

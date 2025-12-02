@@ -32,6 +32,9 @@ type Transpiler struct {
 	sourceFile string
 	// symbolTable stores variable declarations (name := value)
 	symbolTable map[string]interface{}
+	// Streaming support
+	streamingEnabled bool
+	streamThreshold  int64 // Auto-enable streaming if range size > threshold
 }
 
 func New(program *ast.Program, baseDir string, mergeMode string, sourceFile string) *Transpiler {
@@ -39,13 +42,15 @@ func New(program *ast.Program, baseDir string, mergeMode string, sourceFile stri
 		mergeMode = "keep"
 	}
 	return &Transpiler{
-		program:      program,
-		baseDir:      baseDir,
-		includeCache: make(map[string]map[string]interface{}),
-		inProgress:   make(map[string]bool),
-		mergeMode:    mergeMode,
-		sourceFile:   sourceFile,
-		symbolTable:  make(map[string]interface{}),
+		program:          program,
+		baseDir:          baseDir,
+		includeCache:     make(map[string]map[string]interface{}),
+		inProgress:       make(map[string]bool),
+		mergeMode:        mergeMode,
+		sourceFile:       sourceFile,
+		symbolTable:      make(map[string]interface{}),
+		streamingEnabled: false,
+		streamThreshold:  10000, // Default: auto-enable streaming for ranges > 10k items
 	}
 }
 
@@ -67,6 +72,9 @@ func (t *Transpiler) Transpile() ([]byte, error) {
 			if err != nil {
 				return nil, err
 			}
+			// Store in symbol table so it can be referenced by other expressions
+			t.symbolTable[key] = val
+			// Also add to output
 			root[key] = val
 		case *ast.IncludeStatement:
 			// Read included file and merge its output into root (do not overwrite existing keys)
@@ -999,3 +1007,90 @@ func (t *Transpiler) evalStringRange(start, end string, stepV interface{}, node 
 }
 
 // wtf???
+
+// SetStreamingMode configures streaming behavior
+func (t *Transpiler) SetStreamingMode(enabled bool, threshold int64) {
+	t.streamingEnabled = enabled
+	if threshold > 0 {
+		t.streamThreshold = threshold
+	}
+}
+
+// estimateRangeSize calculates the size of a range expression
+func (t *Transpiler) estimateRangeSize(e *ast.RangeExpression) int64 {
+	// Try to evaluate start and end as constants
+	startV, err := t.evalExpression(e.Start, nil)
+	if err != nil {
+		return 0
+	}
+	endV, err := t.evalExpression(e.End, nil)
+	if err != nil {
+		return 0
+	}
+
+	startInt, ok1 := startV.(int64)
+	endInt, ok2 := endV.(int64)
+	if !ok1 || !ok2 {
+		return 0
+	}
+
+	step := int64(1)
+	if e.Step != nil {
+		stepV, err := t.evalExpression(e.Step, nil)
+		if err == nil {
+			if st, ok := stepV.(int64); ok {
+				step = st
+			}
+		}
+	} else {
+		if startInt > endInt {
+			step = -1
+		}
+	}
+
+	if step == 0 {
+		return 0
+	}
+
+	var size int64
+	if step > 0 {
+		size = (endInt-startInt)/step + 1
+	} else {
+		size = (startInt-endInt)/(-step) + 1
+	}
+
+	if size < 0 {
+		return 0
+	}
+	return size
+}
+
+// shouldUseStreaming determines if streaming should be used for an expression
+func (t *Transpiler) shouldUseStreaming(expr ast.Expression) bool {
+	if !t.streamingEnabled {
+		return false
+	}
+
+	switch e := expr.(type) {
+	case *ast.RangeExpression:
+		size := t.estimateRangeSize(e)
+		return size > t.streamThreshold
+	case *ast.MapExpression:
+		// Check if the map body is another map (nested maps)
+		if _, isMap := e.Body.(*ast.MapExpression); isMap {
+			return true
+		}
+		// Check if the source is a large range
+		return t.shouldUseStreaming(e.Left)
+	case *ast.ArrayTemplate:
+		// Check if any rows contain large ranges
+		for _, row := range e.Rows {
+			for _, expr := range row {
+				if t.shouldUseStreaming(expr) {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}

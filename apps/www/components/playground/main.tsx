@@ -38,7 +38,8 @@ users [
 ]`;
 
 export default function MainPlayground() {
-  const { code, setCode, output, error, runCode } = useTranspiler(DEFAULT_CODE);
+  const { code, setCode, output, error, compilationTime, runCode } =
+    useTranspiler(DEFAULT_CODE);
   const { setJssonCode, format } = usePlaygroundContext();
 
   useEffect(() => {
@@ -62,7 +63,11 @@ export default function MainPlayground() {
         />
       </div>
       <div className="flex-1 min-w-0">
-        <OutputViewer output={output} error={error} />
+        <OutputViewer
+          output={output}
+          error={error}
+          compilationTime={compilationTime}
+        />
       </div>
     </main>
   );

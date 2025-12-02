@@ -99,7 +99,7 @@ function processMDX(raw, fileName) {
   const meta = [
     `# JSSON Documentation — LLM Mode`,
     `Source: ${fileName}`,
-    `Version: 0.0.5`,
+    `Version: 0.0.5.2`,
     `Generated: ${new Date().toISOString()}`,
     "",
     `## Table of Contents`,

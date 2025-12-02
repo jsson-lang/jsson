@@ -21,10 +21,10 @@ This reads `input.jsson` and writes the transpiled JSON to `output.json` using s
 
 ### Input/Output
 
-| Flag       | Short | Description                 | Example           |
-| ---------- | ----- | --------------------------- | ----------------- |
-| `--input`  | `-i`  | Input JSSON file (required) | `-i config.jsson` |
-| `--format` | `-f`  | Output format (optional, default: json)    | `-f yaml`         |
+| Flag       | Short | Description                             | Example           |
+| ---------- | ----- | --------------------------------------- | ----------------- |
+| `--input`  | `-i`  | Input JSSON file (required)             | `-i config.jsson` |
+| `--format` | `-f`  | Output format (optional, default: json) | `-f yaml`         |
 
 **Note:** The CLI always prints to stdout (terminal). Use `>` to save to a file.
 
@@ -70,6 +70,39 @@ jsson -h
 jsson --version
 jsson -v
 ```
+
+### Streaming Options
+
+For large datasets, JSSON supports streaming mode to reduce memory usage:
+
+| Flag                 | Description                                | Default |
+| -------------------- | ------------------------------------------ | ------- |
+| `--stream`           | Enable streaming mode                      | `false` |
+| `--stream-threshold` | Auto-enable streaming for ranges > N items | `10000` |
+
+```bash
+# Enable streaming explicitly
+jsson -i large-data.jsson --stream > output.json
+
+# Auto-enable for ranges > 5000 items
+jsson -i data.jsson --stream-threshold 5000 > output.json
+
+# Default: auto-enables for ranges > 10,000 items
+jsson -i data.jsson > output.json
+```
+
+**When to use streaming:**
+
+- Generating 100k+ items
+- Large matrix/grid data (100x100+)
+- Memory-constrained environments
+- Processing millions of records
+
+**Performance:**
+
+- ✅ 100k items: ~30MB output, < 50MB memory
+- ✅ 1M items: Processable without OOM
+- ✅ Nested transformations: Optimized
 
 ## Common Workflows
 

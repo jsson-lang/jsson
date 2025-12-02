@@ -1,0 +1,11 @@
+// Bug: Arithmetic with variables fails -> Resolved
+price = 100
+tax = 15
+total = price + tax
+
+discount = 20
+final = total - discount
+
+quantity = 5
+itemPrice = 10
+subtotal = quantity * itemPrice

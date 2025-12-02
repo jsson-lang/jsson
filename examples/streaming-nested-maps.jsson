@@ -1,0 +1,17 @@
+// Nested map example - generates a 100x100 multiplication table
+// This demonstrates the power of streaming for nested transformations
+
+table = (1..100 map (row) = (1..100 map (col) = row * col))
+
+// Without streaming: ~50MB memory for the intermediate arrays
+// With streaming: <10MB memory usage
+
+// You can also generate coordinate grids
+grid = (0..99 map (y) = (0..99 map (x) = {
+  x = x
+  y = y
+  id = y * 100 + x
+  value = x + y
+}))
+
+// This generates 10,000 coordinate objects

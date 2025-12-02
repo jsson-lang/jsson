@@ -15,13 +15,33 @@ jsson -i input.jsson [options]
 
 ## Options
 
-| Flag              | Description                                          | Default    |
-| ----------------- | ---------------------------------------------------- | ---------- |
-| `-i`, `--input`   | Input JSSON file path                                | (Required) |
-| `-f`, `--format`  | Output format (`json`, `yaml`, `toml`, `typescript`) | `json`     |
-| `-h`, `--help`    | Show help message                                    | `false`    |
+| Flag                 | Description                                          | Default    |
+| -------------------- | ---------------------------------------------------- | ---------- |
+| `-i`, `--input`      | Input JSSON file path                                | (Required) |
+| `-f`, `--format`     | Output format (`json`, `yaml`, `toml`, `typescript`) | `json`     |
+| `--stream`           | Enable streaming mode for large datasets             | `false`    |
+| `--stream-threshold` | Auto-enable streaming for ranges > N items           | `10000`    |
+| `-h`, `--help`       | Show help message                                    | `false`    |
 
 > **Note:** The CLI outputs to standard output (stdout). Use shell redirection (`>`) to save to a file.
+
+## Streaming Mode
+
+For large datasets (100k+ items), JSSON supports streaming mode to reduce memory usage:
+
+```bash
+# Enable streaming explicitly
+jsson -i large-data.jsson --stream > output.json
+
+# Auto-enable for ranges > 5000 items
+jsson -i data.jsson --stream-threshold 5000 > output.json
+```
+
+**Benefits:**
+
+- Reduces memory usage from ~500MB to < 50MB for 100k items
+- Handles millions of items efficiently
+- Automatic detection based on threshold
 
 ## Examples
 

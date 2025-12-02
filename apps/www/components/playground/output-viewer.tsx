@@ -21,6 +21,7 @@ import { usePlaygroundContext } from "@/contexts/playground-context";
 interface OutputViewerProps {
   output: string;
   error?: string | null;
+  compilationTime?: number | null;
 }
 
 const structuredFormats = [
@@ -44,7 +45,11 @@ const typedFormats = [
   },
 ];
 
-export function OutputViewer({ output, error }: OutputViewerProps) {
+export function OutputViewer({
+  output,
+  error,
+  compilationTime,
+}: OutputViewerProps) {
   const {
     format,
     setFormat,
@@ -123,6 +128,12 @@ export function OutputViewer({ output, error }: OutputViewerProps) {
       title: "Copied!",
       description: "Output copied to clipboard.",
     });
+  }
+
+  function formatTime(ms: number): string {
+    if (ms < 1) return `${(ms * 1000).toFixed(0)}µs`;
+    if (ms < 1000) return `${ms.toFixed(2)}ms`;
+    return `${(ms / 1000).toFixed(2)}s`;
   }
 
   return (
@@ -209,13 +220,18 @@ export function OutputViewer({ output, error }: OutputViewerProps) {
         )}
       </div>
 
-      <div className="flex items-center justify-end px-6 py-2 border-t border-border bg-muted/30">
+      <div className="flex items-center justify-between px-6 py-2 border-t border-border bg-muted/30">
         <div className="text-muted-foreground text-xs">
           <span className="font-semibold">{metrics.lines}</span> lines |
           <span className="font-semibold"> {metrics.chars}</span> chars |
           <span className="font-semibold"> ~ {approxTokens(output)}</span>{" "}
           tokens
         </div>
+        {compilationTime !== null && (
+          <div className="text-xs text-green-400 font-medium">
+            ✓ Compiled in {formatTime(compilationTime!)}
+          </div>
+        )}
       </div>
     </div>
   );

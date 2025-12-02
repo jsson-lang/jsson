@@ -10,12 +10,16 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 func main() {
 	inputPtr := flag.String("i", "", "Input JSSON file")
 	formatPtr := flag.String("f", "json", "Output format: json|yaml|toml")
 	mergeMode := flag.String("include-merge", "keep", "Include merge strategy: keep|overwrite|error")
+	// Streaming flags
+	streamingPtr := flag.Bool("stream", false, "Enable streaming mode for large datasets (reduces memory usage)")
+	streamThreshold := flag.Int64("stream-threshold", 10000, "Auto-enable streaming for ranges larger than N items")
 	flag.Parse()
 
 	if *inputPtr == "" {
@@ -68,6 +72,11 @@ func main() {
 	}
 
 	t := transpiler.New(program, baseDir, *mergeMode, absInput)
+	// Configure streaming mode
+	t.SetStreamingMode(*streamingPtr, *streamThreshold)
+
+	// Start timing
+	startTime := time.Now()
 
 	var output []byte
 	switch format {
@@ -82,10 +91,15 @@ func main() {
 
 	}
 
+	// Calculate elapsed time
+	elapsed := time.Since(startTime)
+
 	if err != nil {
 		fmt.Printf("Transpilation error: %v\n", err)
 		os.Exit(1)
 	}
 
 	fmt.Println(string(output))
+
+	fmt.Fprintf(os.Stderr, "✓ Compiled in %v\n", elapsed)
 }

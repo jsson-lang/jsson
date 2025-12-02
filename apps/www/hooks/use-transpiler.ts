@@ -16,6 +16,7 @@ export function useTranspiler(initialCode: string = "") {
     const [error, setError] = useState<string | null>(null);
     const [isTranspiling, setIsTranspiling] = useState(false);
     const [isWasmLoaded, setIsWasmLoaded] = useState(false);
+    const [compilationTime, setCompilationTime] = useState<number | null>(null);
     const goRef = useRef<any>(null);
 
     // Load WASM
@@ -67,7 +68,13 @@ export function useTranspiler(initialCode: string = "") {
         try {
             setTimeout(() => {
                 if (window.transpileJSSON) {
+                    const startTime = performance.now();
                     const result = window.transpileJSSON(sourceCode, format);
+                    const endTime = performance.now();
+                    const elapsed = endTime - startTime;
+
+                    setCompilationTime(elapsed);
+
                     if (result.error) {
                         setError(result.error);
                     } else {
@@ -94,6 +101,7 @@ export function useTranspiler(initialCode: string = "") {
         error,
         isTranspiling,
         isWasmLoaded,
+        compilationTime,
         runCode,
     };
 }

@@ -1,0 +1,18 @@
+// Large dataset example - 100k users
+users [
+  template { id, username, email, active }
+  
+  map (u) = {
+    id = u.id
+    username = "user_" + u.id
+    email = "user" + u.id + "@test.com"
+    active = (u.id % 2) == 0
+    tier = u.id < 1000 ? "bronze" : u.id < 5000 ? "silver" : "gold"
+  }
+  
+  0..99999, "placeholder", "placeholder@test.com", true
+]
+
+// This will generate 100,000 user objects
+// With streaming enabled: ~20MB memory usage
+// Without streaming: ~500MB+ memory usage

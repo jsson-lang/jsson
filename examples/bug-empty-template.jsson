@@ -1,0 +1,6 @@
+// Test case to reproduce infinite loop bug
+data [
+  template {}
+  
+  1, 2, 3
+]
