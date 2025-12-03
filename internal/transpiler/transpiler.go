@@ -174,7 +174,39 @@ func (t *Transpiler) Transpile() ([]byte, error) {
 		}
 	}
 
+	// Convert any RangeResult to plain slices before JSON marshaling
+	root = t.convertRangeResults(root).(map[string]interface{})
+
 	return json.MarshalIndent(root, "", "  ")
+}
+
+// convertRangeResults recursively converts RangeResult to plain []interface{}
+func (t *Transpiler) convertRangeResults(v interface{}) interface{} {
+	switch val := v.(type) {
+	case RangeResult:
+		// Convert RangeResult to plain slice
+		result := make([]interface{}, len(val.Values))
+		for i, item := range val.Values {
+			result[i] = t.convertRangeResults(item)
+		}
+		return result
+	case map[string]interface{}:
+		// Recursively convert map values
+		result := make(map[string]interface{})
+		for k, item := range val {
+			result[k] = t.convertRangeResults(item)
+		}
+		return result
+	case []interface{}:
+		// Recursively convert array elements
+		result := make([]interface{}, len(val))
+		for i, item := range val {
+			result[i] = t.convertRangeResults(item)
+		}
+		return result
+	default:
+		return v
+	}
 }
 
 func (t *Transpiler) errf(format string, args ...interface{}) error {

@@ -115,6 +115,9 @@ func (t *Transpiler) TranspileToYAML() ([]byte, error) {
 		}
 	}
 
+	// Convert any RangeResult to plain arrays
+	root = t.convertRangeResults(root).(map[string]interface{})
+
 	// Marshal to YAML
 	return yaml.Marshal(root)
 }

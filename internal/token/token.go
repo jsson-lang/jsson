@@ -60,6 +60,7 @@ const (
 	INCLUDE  = "INCLUDE"
 	STEP     = "STEP"
 	PRESET   = "PRESET" // @preset directive
+	USE      = "USE"    // @use directive
 )
 
 var keywords = map[string]TokenType{
@@ -70,6 +71,7 @@ var keywords = map[string]TokenType{
 	"include":  INCLUDE,
 	"step":     STEP,
 	"preset":   PRESET,
+	"use":      USE,
 }
 
 func LookupIdent(ident string) TokenType {

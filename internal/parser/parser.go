@@ -121,7 +121,12 @@ func (p *Parser) parseStatement() ast.Statement {
 			return nil
 		}
 	case token.AT:
-		return p.parsePresetStatement()
+		// Check if it's @preset (definition) - peek at next token
+		if p.peekToken.Type == token.PRESET {
+			return p.parsePresetStatement()
+		}
+		// Otherwise it's invalid at statement level (@ expressions are values)
+		return nil
 	case token.INCLUDE:
 		return p.parseIncludeStatement()
 	default:
@@ -183,15 +188,21 @@ func (p *Parser) parsePresetStatement() ast.Statement {
 	return stmt
 }
 
-// parsePresetReference parses: @"name" or @"name" { overrides }
+// parsePresetReference parses: @use "name" or @use "name" { overrides }
+// Also supports legacy syntax: @"name" or @"name" { overrides }
 func (p *Parser) parsePresetReference() ast.Expression {
 	ref := &ast.PresetReference{Token: p.curToken}
 
 	p.nextToken() // consume @
 
+	// Check for @use syntax
+	if p.curToken.Type == token.USE {
+		p.nextToken() // consume 'use'
+	}
+
 	// Expect string literal for preset name
 	if p.curToken.Type != token.STRING && p.curToken.Type != token.RAWSTRING {
-		p.addError("expected preset name as string after @")
+		p.addError("expected preset name as string after @use")
 		return nil
 	}
 	ref.Name = &ast.StringLiteral{Token: p.curToken, Value: p.curToken.Literal}
