@@ -1,8 +1,8 @@
 package transpiler
 
 import (
-	"jsson/pkg/lexer"
-	"jsson/pkg/parser"
+	"jsson/internal/lexer"
+	"jsson/internal/parser"
 	"strings"
 	"testing"
 )
@@ -67,7 +67,7 @@ func TestEdgeCase_ZeroStep(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 	_, err := tr.Transpile()
-	
+
 	// Should error with step zero
 	if err == nil {
 		t.Error("Expected error for step=0, got nil")
@@ -136,7 +136,7 @@ func TestEdgeCase_DivisionByZero(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 	_, err := tr.Transpile()
-	
+
 	// Should error
 	if err == nil {
 		t.Error("Expected error for division by zero, got nil")
@@ -158,7 +158,7 @@ func TestEdgeCase_ModuloByZero(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 	_, err := tr.Transpile()
-	
+
 	// Should error
 	if err == nil {
 		t.Error("Expected error for modulo by zero, got nil")
@@ -362,7 +362,7 @@ func TestEdgeCase_UndefinedVariable(t *testing.T) {
 
 	tr := New(prog, "", "keep", "")
 	output, err := tr.Transpile()
-	
+
 	// Currently JSSON treats undefined vars as identifiers (strings)
 	// This might be the expected behavior
 	if err != nil {
@@ -482,7 +482,7 @@ func TestStress_ManyProperties(t *testing.T) {
 		props = append(props, "  prop"+string(rune('0'+i%10))+" = "+string(rune('0'+i%10)))
 	}
 	input := "data = {\n" + strings.Join(props, "\n") + "\n}"
-	
+
 	l := lexer.New(input)
 	p := parser.New(l)
 	prog := p.ParseProgram()

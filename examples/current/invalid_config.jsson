@@ -1,0 +1,7 @@
+// Invalid configuration - missing required field and wrong type
+// This should FAIL validation
+
+// Missing 'name' field (required)
+port = "not-a-number"  // Should be integer
+enabled = "yes"        // Should be boolean
+tags = "not-an-array"  // Should be array

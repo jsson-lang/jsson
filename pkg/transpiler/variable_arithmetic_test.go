@@ -1,8 +1,8 @@
 package transpiler
 
 import (
-	"jsson/pkg/lexer"
-	"jsson/pkg/parser"
+	"jsson/internal/lexer"
+	"jsson/internal/parser"
 	"strings"
 	"testing"
 )

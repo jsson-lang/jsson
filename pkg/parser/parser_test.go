@@ -1,9 +1,9 @@
 package parser
 
 import (
-	"jsson/pkg/ast"
-	"jsson/pkg/lexer"
-	"jsson/pkg/token"
+	"jsson/internal/ast"
+	"jsson/internal/lexer"
+	"jsson/internal/token"
 	"testing"
 )
 

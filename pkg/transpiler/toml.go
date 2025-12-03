@@ -3,10 +3,10 @@ package transpiler
 import (
 	"bytes"
 	"encoding/json"
-	"jsson/pkg/ast"
-	ie "jsson/pkg/errors"
-	"jsson/pkg/lexer"
-	"jsson/pkg/parser"
+	"jsson/internal/ast"
+	ie "jsson/internal/errors"
+	"jsson/internal/lexer"
+	"jsson/internal/parser"
 	"os"
 	"path/filepath"
 

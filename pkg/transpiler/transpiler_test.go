@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"jsson/pkg/lexer"
-	"jsson/pkg/parser"
+	"jsson/internal/lexer"
+	"jsson/internal/parser"
 )
 
 func TestTranspileRangeAndFlatten(t *testing.T) {

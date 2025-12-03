@@ -5,15 +5,17 @@ This directory contains examples demonstrating JSSON features and use cases.
 ## Core vs Optional Features
 
 **Core Features** (always available):
+
 - Transpilation to JSON, YAML, TOML, TypeScript
 - Variables and expressions
-- Ranges and map expressions  
+- Ranges and map expressions
 - Array templates
 - String interpolation
 - Conditionals
 - Includes
 
 **Optional Features** (opt-in):
+
 - **Presets** - Use `@preset` syntax in your JSSON files when you need reusable configurations
 - **Schema Validation** - Use `-schema` flag when you need to validate output against a JSON/YAML schema
 
@@ -21,53 +23,57 @@ This directory contains examples demonstrating JSSON features and use cases.
 
 ```
 examples/
+├── current/                 # ✅ Working examples (current version)
+│   ├── simple_config.jsson
+│   ├── invalid_config.jsson
+│   └── README.md
+├── planned/                 # 🚧 Roadmap examples (future syntax)
+│   ├── database_config.jsson
+│   ├── api_config.jsson
+│   └── README.md
 ├── schemas/                 # Generic validation schemas
 │   ├── api-config.schema.json
 │   └── database.schema.yaml
-├── validation/              # Examples with schema validation
-│   ├── api_config.jsson
-│   └── database_config.jsson
-├── use-cases/               # Domain-specific use cases
-│   └── chaos-factory/       # Gaming macro configuration example
-│       ├── chaos_macros.jsson
-│       └── chaos_macro.schema.json
+├── real-world/              # Real-world use cases
+├── use-cases/               # Domain-specific examples
 └── *.jsson                  # General feature examples
 ```
 
+> **⚠️ Important**: Examples in `planned/` use **unimplemented syntax** from the roadmap.
+> They will **not compile** with the current version. See `ROADMAP.md` for details.
+
 ## Running Examples
 
-### Basic Transpilation
+### Current Features (Working Now)
 
 ```bash
-# Transpile to JSON (default)
-jsson -i demo.jsson
+# Simple configuration example
+jsson -i current/simple_config.jsson
 
-# Transpile to YAML
-jsson -i demo.jsson -f yaml
-
-# Transpile to TOML
-jsson -i demo.jsson -f toml
-
-# Transpile to TypeScript types
-jsson -i demo.jsson -f typescript
+# Different output formats
+jsson -i current/simple_config.jsson -f yaml
+jsson -i current/simple_config.jsson -f toml
+jsson -i current/simple_config.jsson -f ts
 ```
 
-### With Schema Validation
+### Planned Features (Roadmap)
+
+⚠️ **These will NOT work** - they use unimplemented syntax:
 
 ```bash
-# Validate output against a JSON Schema
-jsson -i validation/api_config.jsson -schema schemas/api-config.schema.json
+# ❌ Will fail - uses list comprehension and @use
+jsson -i planned/database_config.jsson
 
-# Validate YAML output against YAML Schema
-jsson -i validation/database_config.jsson -f yaml -schema schemas/database.schema.yaml
-
-# Validate only (don't output result)
-jsson -i validation/api_config.jsson -schema schemas/api-config.schema.json -validate-only
+# ❌ Will fail - uses list comprehension and flatten
+jsson -i planned/api_config.jsson
 ```
+
+See `planned/README.md` and `ROADMAP.md` for details on planned features.
 
 ## Features Demonstrated
 
 ### 1. Presets (`presets_example.jsson`)
+
 Reusable configuration blocks that can be referenced and overridden.
 
 ```jsson
@@ -82,6 +88,7 @@ config = @use "defaults" {
 ```
 
 ### 2. Ranges and Generation (`ranges.jsson`)
+
 Generate arrays from numeric or string ranges.
 
 ```jsson
@@ -96,6 +103,7 @@ servers = ["server-01".."server-10"]
 ```
 
 ### 3. Map Expressions (`map.jsson`)
+
 Transform arrays with map expressions.
 
 ```jsson
@@ -107,6 +115,7 @@ users = [1..5] -> (id) {
 ```
 
 ### 4. Array Templates (`template.jsson`)
+
 Generate structured data from tabular input.
 
 ```jsson
@@ -118,6 +127,7 @@ servers = [| (name, ip, port)
 ```
 
 ### 5. Conditionals (`comparison-test.jsson`)
+
 Ternary expressions for conditional values.
 
 ```jsson
@@ -126,6 +136,7 @@ debug = env == "development" ? true : false
 ```
 
 ### 6. String Interpolation
+
 Template strings with variable substitution.
 
 ```jsson
@@ -139,6 +150,7 @@ template = `Hello, ${name}!`      // Template string style
 JSSON supports validating transpiled output against JSON Schema (draft-07) or YAML Schema.
 
 ### Supported Validations
+
 - Type checking (string, number, integer, boolean, array, object, null)
 - Required properties
 - Enum values
@@ -153,6 +165,7 @@ JSSON supports validating transpiled output against JSON Schema (draft-07) or YA
 - $ref references
 
 ### Custom JSSON Formats
+
 JSSON extends JSON Schema with additional format validators:
 
 - `identifier` - Valid identifier (starts with letter, alphanumeric + underscore)
@@ -167,9 +180,10 @@ JSSON extends JSON Schema with additional format validators:
 - `env-var` - Environment variable name format
 
 Example in schema:
+
 ```json
 {
-    "type": "string",
-    "$jsson_format": "semver"
+  "type": "string",
+  "$jsson_format": "semver"
 }
 ```

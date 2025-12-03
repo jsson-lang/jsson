@@ -2,7 +2,7 @@ package transpiler
 
 import (
 	"bytes"
-	"jsson/pkg/ast"
+	"jsson/internal/ast"
 	"testing"
 )
 
