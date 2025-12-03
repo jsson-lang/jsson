@@ -1,0 +1,99 @@
+// ==============================================
+// JSSON Presets for Game Macros
+// ==============================================
+// Presets allow you to define reusable configurations
+// that can be referenced and customized throughout
+// your macro definitions.
+
+// --------------------------
+// Key Action Presets
+// --------------------------
+
+// Common key hold action preset
+@preset "hold" {
+    type = "hold"
+    delay = 0
+}
+
+// Common key tap action preset
+@preset "tap" {
+    type = "tap"
+    delay = 50
+}
+
+// Common key release action preset
+@preset "release" {
+    type = "release"
+    delay = 0
+}
+
+// Delayed action preset
+@preset "delayed-tap" {
+    type = "tap"
+    delay = 100
+}
+
+// --------------------------
+// Game-Specific Presets
+// --------------------------
+
+@preset "helldivers-base" {
+    game = "Helldivers 2"
+    category = "Strategem"
+    enabled = true
+}
+
+@preset "tarkov-base" {
+    game = "Escape from Tarkov"
+    category = "Quick Actions"
+    enabled = true
+}
+
+// --------------------------
+// Example Macros Using Presets
+// --------------------------
+
+macros {
+    // Eagle Airstrike macro for Helldivers 2
+    eagle_airstrike = @"helldivers-base" {
+        name = "Eagle Airstrike"
+        hotkey = "ctrl+1"
+        actions = [
+            @"hold" { key = "ctrl" }
+            @"delayed-tap" { key = "up" }
+            @"delayed-tap" { key = "right" }
+            @"delayed-tap" { key = "down" }
+            @"release" { key = "ctrl" }
+        ]
+    }
+    
+    // Orbital Strike macro
+    orbital_strike = @"helldivers-base" {
+        name = "Orbital Strike"
+        hotkey = "ctrl+2"
+        actions = [
+            @"hold" { key = "ctrl" }
+            @"delayed-tap" { key = "right" }
+            @"delayed-tap" { key = "right" }
+            @"delayed-tap" { key = "up" }
+            @"release" { key = "ctrl" }
+        ]
+    }
+    
+    // Tarkov quick meds
+    quick_heal = @"tarkov-base" {
+        name = "Quick Heal"
+        hotkey = "f1"
+        actions = [
+            @"tap" { key = "4", delay = 0 }
+            @"tap" { key = "mouse1", delay = 200 }
+        ]
+    }
+}
+
+// Output configuration for the macro system
+output {
+    format = "json"
+    validate = true
+    minify = false
+}

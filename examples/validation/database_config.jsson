@@ -1,0 +1,76 @@
+// Example: Database Configuration Generator
+// Generates configurations for multiple database environments
+//
+// Run: jsson -i database_config.jsson -f yaml -schema ../schemas/database.schema.yaml
+
+// Environment-specific settings
+environments := ["development", "staging", "production"]
+
+// Database connection presets
+@preset "postgres_defaults" {
+    type = "postgres"
+    port = 5432
+    ssl = false
+    pool = {
+        min = 2
+        max = 10
+        idleTimeoutMs = 30000
+        acquireTimeoutMs = 10000
+    }
+}
+
+@preset "redis_defaults" {
+    type = "redis"
+    port = 6379
+    ssl = false
+    pool = {
+        min = 1
+        max = 5
+        idleTimeoutMs = 60000
+    }
+}
+
+// Generate database configurations for each environment
+databases = [| (env)
+    environments
+|] -> (e) [
+    // Primary PostgreSQL database
+    {
+        name = "{e}_primary"
+        @use "postgres_defaults"
+        host = e == "production" ? "db.prod.internal" : "{e}-db.local"
+        database = "app_{e}"
+        username = "app_user"
+        password = "${DB_PASSWORD_{e | uppercase}}"
+        ssl = e == "production"
+        pool = e == "production" ? {
+            min = 5
+            max = 50
+            idleTimeoutMs = 30000
+            acquireTimeoutMs = 5000
+        } : @use "postgres_defaults".pool
+    },
+    // Redis cache
+    {
+        name = "{e}_cache"
+        @use "redis_defaults"
+        host = e == "production" ? "redis.prod.internal" : "{e}-redis.local"
+        database = "0"
+        ssl = e == "production"
+    }
+] | flatten
+
+// Replication settings (production only)
+replication = {
+    enabled = true
+    primary = "production_primary"
+    replicas = ["production_replica_1", "production_replica_2"]
+    strategy = "round-robin"
+}
+
+// Migration settings
+migrations = {
+    enabled = true
+    directory = "./migrations"
+    tableName = "schema_migrations"
+}

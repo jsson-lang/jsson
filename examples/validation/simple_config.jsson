@@ -1,0 +1,7 @@
+// Simple configuration example
+// Run: jsson -i simple_config.jsson -schema ../schemas/simple.schema.json
+
+name = "my-service"
+port = 8080
+enabled = true
+tags = ["api", "production", "v1"]

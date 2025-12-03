@@ -1,0 +1,86 @@
+// Example: API Configuration Generator with Validation
+// This example demonstrates generating API configurations
+// and validating them against a JSON Schema
+//
+// Run: jsson -i api_config.jsson -f json -schema ../schemas/api-config.schema.json
+
+// Variables for configuration
+api_version := "1.0.0"
+base_port := 3000
+
+// Server definitions using ranges
+servers = [| (env)
+    "development", "staging", "production"
+|] -> (e) {
+    name = "{e}-server"
+    host = e == "production" ? "api.example.com" : "{e}.example.com"
+    port = e == "development" ? base_port : (e == "staging" ? base_port + 1000 : 443)
+    protocol = e == "production" ? "https" : "http"
+    env = e
+}
+
+// Generate CRUD endpoints for multiple resources
+endpoints = [| (resource)
+    "users", "products", "orders", "categories"
+|] -> (r) [
+    {
+        path = "/{r}"
+        method = "GET"
+        handler = "{r}Controller.list"
+        middleware = ["auth", "rateLimit"]
+        auth = true
+        cache = {
+            enabled = true
+            ttl = 300
+        }
+    },
+    {
+        path = "/{r}/{id}"
+        method = "GET"
+        handler = "{r}Controller.get"
+        middleware = ["auth"]
+        auth = true
+        cache = {
+            enabled = true
+            ttl = 60
+        }
+    },
+    {
+        path = "/{r}"
+        method = "POST"
+        handler = "{r}Controller.create"
+        middleware = ["auth", "validate"]
+        auth = true
+    },
+    {
+        path = "/{r}/{id}"
+        method = "PUT"
+        handler = "{r}Controller.update"
+        middleware = ["auth", "validate"]
+        auth = true
+    },
+    {
+        path = "/{r}/{id}"
+        method = "DELETE"
+        handler = "{r}Controller.delete"
+        middleware = ["auth", "admin"]
+        auth = true
+    }
+] | flatten
+
+// Authentication configuration
+auth = {
+    type = "jwt"
+    secret = "${JWT_SECRET}"
+    expiresIn = "7d"
+    issuer = "api.example.com"
+}
+
+// Rate limiting
+rateLimit = {
+    windowMs = 60000
+    maxRequests = 100
+    message = "Too many requests, please try again later"
+}
+
+version = api_version

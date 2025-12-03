@@ -1,0 +1,77 @@
+// ============================================================================
+// Chaos Factory Macro Generator - Example Use Case
+// ============================================================================
+// This is an example of how JSSON can be used to generate macro configurations
+// for the Chaos Factory gaming platform.
+//
+// This file demonstrates:
+// - Using presets for reusable configurations
+// - Generating multiple similar items with ranges
+// - Template-based generation
+// - Schema validation
+//
+// Run: jsson -i chaos_macros.jsson -schema ./chaos_macro.schema.json
+
+// ============================================================================
+// Presets - Reusable configurations
+// ============================================================================
+
+@preset "quick_click" {
+    type = "click"
+    duration = 50
+    delay = 0
+}
+
+@preset "hold_action" {
+    type = "hold"
+    duration = 500
+}
+
+@preset "standard_cooldown" {
+    duration = 1000
+    shared = false
+}
+
+@preset "shared_cooldown" {
+    duration = 2000
+    shared = true
+    group = "combat"
+}
+
+// ============================================================================
+// Configuration
+// ============================================================================
+
+config = {
+    version = "1.0.0"
+    author = "Chaos Factory Community"
+    defaultCooldown = 500
+    safeMode = true
+}
+
+// ============================================================================
+// Macros - Generated using ranges and templates
+// ============================================================================
+
+// Generate function key macros (F1-F12)
+macros = [| (num)
+    1..12
+|] -> (n) {
+    id = "hotkey_f{n}"
+    name = "F{n} Hotkey"
+    description = "Quick action bound to F{n}"
+    enabled = true
+    trigger = {
+        type = "key"
+        key = "KEY_F{n}"
+        modifiers = []
+        mode = "press"
+    }
+    actions = [
+        @use "quick_click" {
+            target = "SLOT_{n}"
+        }
+    ]
+    cooldown = @use "standard_cooldown"
+    tags = ["hotkeys", "function_keys"]
+}

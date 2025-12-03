@@ -1,4 +1,4 @@
-# JSSON - V0.0.5.2
+# JSSON - V0.0.6
 
 [![JSSON Banner](https://i.postimg.cc/yx4C3YqC/og.png)](https://postimg.cc/WFnHQVb5)
 
@@ -15,8 +15,10 @@
 - [Why JSSON?](#why-jsson)
 - [Quick Start](#quick-start)
 - [Features](#features)
+- [What's New in v0.0.6](#whats-new-in-v006)
 - [Multi-Format Output](#multi-format-output)
 - [Examples](#examples)
+- [HTTP Server](#http-server)
 - [Installation](#installation)
 - [Documentation](#documentation)
 - [LLM-Optimized Documentation](#llm-optimized-documentation)
@@ -98,6 +100,9 @@ app {
 
 ```bash
 jsson -i config.jsson > config.json
+
+# Or start HTTP server for API access
+jsson serve
 ```
 
 **Output:**
@@ -344,6 +349,154 @@ jsson -i config.jsson -f ts > config.ts
 
 ---
 
+## 🆕 What's New in v0.0.6
+
+### Presets (Optional)
+
+Define reusable configuration blocks with `@preset` and use them with `@use`:
+
+```jsson
+// Define reusable presets
+@preset "api-defaults" {
+    timeout = 30
+    retries = 3
+    cache = true
+}
+
+@preset "logging" {
+    level = "info"
+    format = "json"
+}
+
+// Use preset as-is
+dev_api = @use "api-defaults"
+
+// Use preset with overrides
+prod_api = @use "api-defaults" {
+    timeout = 60
+    retries = 5
+}
+
+// Combine in nested structures
+service {
+    name = "my-service"
+    api = @use "api-defaults"
+    logging = @use "logging" {
+        level = "debug"
+    }
+}
+```
+
+**Output:**
+```json
+{
+  "dev_api": { "timeout": 30, "retries": 3, "cache": true },
+  "prod_api": { "timeout": 60, "retries": 5, "cache": true },
+  "service": {
+    "name": "my-service",
+    "api": { "timeout": 30, "retries": 3, "cache": true },
+    "logging": { "level": "debug", "format": "json" }
+  }
+}
+```
+
+### Schema Validation (Optional)
+
+Validate transpiled output against JSON Schema or YAML Schema:
+
+```bash
+# Validate output against a schema
+jsson -i config.jsson -schema schema.json
+
+# Validate only (don't output result)
+jsson -i config.jsson -schema schema.json -validate-only
+
+# Works with any output format
+jsson -i config.jsson -f yaml -schema schema.yaml
+```
+
+**Example Schema (`schema.json`):**
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "name": { "type": "string", "minLength": 1 },
+    "port": { "type": "integer", "minimum": 1, "maximum": 65535 }
+  },
+  "required": ["name", "port"]
+}
+```
+
+**Validation Output:**
+```
+✓ Validation passed against schema
+{ "name": "my-app", "port": 8080 }
+✓ Compiled in 0.5ms
+```
+
+**On Error:**
+```
+❌ Validation failed against schema (json format):
+  • $.port: Value must be >= 1, got -1
+  • $.name: Missing required property
+```
+
+### HTTP Server (Unified Binary)
+
+Run JSSON as a microservice using the `serve` subcommand:
+
+```bash
+# Start server (default port 8090)
+jsson serve
+
+# Custom port
+jsson serve -port 3000
+
+# Endpoints:
+# POST /transpile        - Transpile JSSON
+# POST /validate         - Validate syntax
+# POST /validate-schema  - Validate against schema
+# GET  /health          - Health check
+# GET  /version         - Version info
+```
+
+**Example Request:**
+```bash
+curl -X POST http://localhost:8090/transpile \
+  -H "Content-Type: application/json" \
+  -d '{"source": "name = \"test\"\nport = 8080", "format": "json"}'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "output": { "name": "test", "port": 8080 },
+  "format": "json",
+  "transpile_time_ms": 0.05
+}
+```
+
+### Custom Format Validators
+
+JSSON extends JSON Schema with additional format validators via `$jsson_format`:
+
+| Format | Description | Example |
+|--------|-------------|---------|
+| `identifier` | Valid identifier | `myVar_123` |
+| `kebab-case` | Lowercase with hyphens | `my-component` |
+| `snake_case` | Lowercase with underscores | `my_variable` |
+| `camelCase` | Camel case | `myVariable` |
+| `PascalCase` | Pascal case | `MyClass` |
+| `semver` | Semantic version | `1.0.0`, `2.1.3-beta` |
+| `duration` | Duration string | `500ms`, `2h`, `1d` |
+| `hex-color` | Hex color | `#fff`, `#ffffff` |
+| `port` | Valid port (1-65535) | `8080` |
+| `env-var` | Environment variable | `MY_VAR` |
+
+---
+
 ## 📚 Examples
 
 ### Matrix Generation (v0.0.5)
@@ -435,7 +588,77 @@ deployments [
 ]
 ```
 
-**More examples** in [`examples/real-world/`](./examples/real-world/)
+**More examples** in [`examples/`](./examples/)
+
+---
+
+## 🌐 HTTP Server
+
+JSSON includes a built-in HTTP server via the `serve` subcommand:
+
+### Starting the Server
+
+```bash
+# Build JSSON (single binary includes CLI + Server)
+go build -o jsson ./cmd/jsson
+
+# Start on default port (8090)
+jsson serve
+
+# Start on custom port
+jsson serve -port 3000
+
+# With CORS disabled
+jsson serve -port 8090 -cors=false
+```
+
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/transpile` | POST | Transpile JSSON to JSON/YAML/TOML/TypeScript |
+| `/validate` | POST | Validate JSSON syntax |
+| `/validate-schema` | POST | Validate output against schema (optional) |
+| `/health` | GET | Health check |
+| `/version` | GET | Version info |
+
+### Example: Transpile
+
+```bash
+curl -X POST http://localhost:8090/transpile \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source": "name = \"my-app\"\nport = 8080\nenabled = true",
+    "format": "json"
+  }'
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "output": {
+    "name": "my-app",
+    "port": 8080,
+    "enabled": true
+  },
+  "format": "json",
+  "transpile_time_ms": 0.05
+}
+```
+
+### Example: Validate with Schema
+
+```bash
+curl -X POST http://localhost:8090/validate-schema \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source": "name = \"test\"\nport = 8080",
+    "schema": "{\"type\":\"object\",\"required\":[\"name\",\"port\"]}",
+    "output_format": "json"
+  }'
+```
 
 ---
 
@@ -451,12 +674,31 @@ cd jsson
 go build -o jsson ./cmd/jsson
 ```
 
-**Usage:**
+**CLI Usage:**
 
 ```bash
-jsson -i input.jsson > output.json     # JSON (default)
-jsson -i input.jsson -f yaml > out.yaml # YAML
-jsson -i input.jsson -f ts > out.ts     # TypeScript
+# Basic transpilation
+jsson -i input.jsson                    # JSON (default)
+jsson -i input.jsson -f yaml            # YAML
+jsson -i input.jsson -f toml            # TOML
+jsson -i input.jsson -f ts              # TypeScript
+
+# With schema validation (optional)
+jsson -i input.jsson -schema schema.json
+
+# Validate only
+jsson -i input.jsson -schema schema.json -validate-only
+
+# Streaming for large datasets
+jsson -i large.jsson --stream
+
+# Start HTTP server
+jsson serve                             # Port 8090 (default)
+jsson serve -port 3000                  # Custom port
+
+# Help
+jsson help
+jsson version
 ```
 
 ### VS Code Extension
