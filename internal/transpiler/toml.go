@@ -116,6 +116,9 @@ func (t *Transpiler) TranspileToTOML() ([]byte, error) {
 		}
 	}
 
+	// Convert any RangeResult to plain arrays
+	root = t.convertRangeResults(root).(map[string]interface{})
+
 	// Marshal to TOML
 	var buf bytes.Buffer
 	encoder := toml.NewEncoder(&buf)

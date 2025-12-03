@@ -1,8 +1,8 @@
 module jsson
 
-go 1.25.4
+go 1.22
 
 require (
-	github.com/BurntSushi/toml v1.5.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
+	github.com/BurntSushi/toml v1.5.0
+	gopkg.in/yaml.v3 v3.0.1
 )

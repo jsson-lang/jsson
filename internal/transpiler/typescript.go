@@ -115,6 +115,9 @@ func (t *Transpiler) TranspileToTypeScript() ([]byte, error) {
 		}
 	}
 
+	// Convert any RangeResult to plain arrays
+	root = t.convertRangeResults(root).(map[string]interface{})
+
 	// Generate TypeScript code
 	var buf bytes.Buffer
 
