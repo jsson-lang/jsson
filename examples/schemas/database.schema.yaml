@@ -1,0 +1,112 @@
+# Database Configuration Schema
+# Generic schema for database configurations
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Database Configuration
+description: Schema for validating database connection and pool configurations
+
+type: object
+properties:
+  databases:
+    type: array
+    items:
+      $ref: "#/$defs/database"
+    minItems: 1
+  
+  replication:
+    $ref: "#/$defs/replicationConfig"
+  
+  migrations:
+    $ref: "#/$defs/migrationsConfig"
+
+required:
+  - databases
+
+$defs:
+  database:
+    type: object
+    properties:
+      name:
+        type: string
+        description: Identifier for this database connection
+      
+      type:
+        type: string
+        enum: [postgres, mysql, sqlite, mongodb, redis, elasticsearch]
+      
+      host:
+        type: string
+      
+      port:
+        type: integer
+        minimum: 1
+        maximum: 65535
+      
+      database:
+        type: string
+      
+      username:
+        type: string
+      
+      password:
+        type: string
+      
+      ssl:
+        type: boolean
+        default: false
+      
+      pool:
+        $ref: "#/$defs/poolConfig"
+      
+      options:
+        type: object
+        additionalProperties: true
+    
+    required:
+      - name
+      - type
+      - host
+
+  poolConfig:
+    type: object
+    properties:
+      min:
+        type: integer
+        minimum: 0
+        default: 2
+      max:
+        type: integer
+        minimum: 1
+        default: 10
+      idleTimeoutMs:
+        type: integer
+        minimum: 0
+      acquireTimeoutMs:
+        type: integer
+        minimum: 0
+
+  replicationConfig:
+    type: object
+    properties:
+      enabled:
+        type: boolean
+      primary:
+        type: string
+      replicas:
+        type: array
+        items:
+          type: string
+      strategy:
+        type: string
+        enum: [round-robin, random, least-connections]
+
+  migrationsConfig:
+    type: object
+    properties:
+      enabled:
+        type: boolean
+      directory:
+        type: string
+      tableName:
+        type: string
+        default: migrations

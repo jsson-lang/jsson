@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://jsson.dev/schemas/api-config.json",
+  "title": "API Configuration Schema",
+  "description": "Generic schema for validating API configuration files",
+  "type": "object",
+  "properties": {
+    "endpoints": {
+      "type": "array",
+      "description": "List of API endpoints",
+      "items": {
+        "$ref": "#/$defs/endpoint"
+      }
+    },
+    "servers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/server"
+      }
+    },
+    "auth": {
+      "$ref": "#/$defs/authConfig"
+    },
+    "rateLimit": {
+      "$ref": "#/$defs/rateLimitConfig"
+    },
+    "version": {
+      "type": "string"
+    }
+  },
+  "$defs": {
+    "endpoint": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string",
+          "pattern": "^/.*"
+        },
+        "method": {
+          "type": "string",
+          "enum": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS", "HEAD"]
+        },
+        "handler": {
+          "type": "string"
+        },
+        "middleware": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "rateLimit": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "auth": {
+          "type": "boolean"
+        },
+        "cache": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "ttl": { "type": "integer", "minimum": 0 }
+          }
+        }
+      },
+      "required": ["path", "method"]
+    },
+    "server": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "host": { "type": "string" },
+        "port": { "type": "integer", "minimum": 1, "maximum": 65535 },
+        "protocol": { "type": "string", "enum": ["http", "https", "ws", "wss"] },
+        "env": { "type": "string", "enum": ["development", "staging", "production"] }
+      },
+      "required": ["host", "port"]
+    },
+    "authConfig": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["jwt", "oauth2", "apikey", "basic"] },
+        "secret": { "type": "string" },
+        "expiresIn": { "type": "string" },
+        "issuer": { "type": "string" }
+      }
+    },
+    "rateLimitConfig": {
+      "type": "object",
+      "properties": {
+        "windowMs": { "type": "integer" },
+        "maxRequests": { "type": "integer" },
+        "message": { "type": "string" }
+      }
+    }
+  }
+}

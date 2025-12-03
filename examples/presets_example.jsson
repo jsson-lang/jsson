@@ -1,0 +1,39 @@
+// Define a preset for common server configuration
+@preset "server-defaults" {
+    port = 8080
+    host = "localhost"
+    timeout = 30
+    maxConnections = 100
+}
+
+// Define a preset for logging configuration
+@preset "logging" {
+    level = "info"
+    format = "json"
+    output = "stdout"
+}
+
+// Use the server preset as-is
+dev_server = @"server-defaults"
+
+// Use the server preset with overrides
+prod_server = @"server-defaults" {
+    port = 443
+    host = "0.0.0.0"
+    timeout = 60
+    maxConnections = 10000
+}
+
+// Use logging preset
+logging = @"logging"
+
+// Combine presets in a nested structure
+api_service {
+    name = "my-api"
+    server = @"server-defaults" {
+        port = 3000
+    }
+    logging = @"logging" {
+        level = "debug"
+    }
+}
