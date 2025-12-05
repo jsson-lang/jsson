@@ -1,0 +1,42 @@
+# ============================================================================
+# JSSON Transpiler Service
+# Container isolado para transpilação JSSON → JSON/YAML/TOML/TypeScript
+# ============================================================================
+FROM golang:1.22-alpine AS builder
+
+WORKDIR /app
+
+# Copiar go.mod e go.sum, baixar dependências
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copiar código fonte
+COPY cmd/ ./cmd/
+COPY internal/ ./internal/
+COPY pkg/ ./pkg/
+
+# Build do binário
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o jsson ./cmd/jsson
+
+# ============================================================================
+# Runtime image (minimal)
+# ============================================================================
+FROM alpine:3.19
+
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /app
+
+# Copiar binário do builder
+COPY --from=builder /app/jsson /app/jsson
+
+# Porta padrão do servidor HTTP
+EXPOSE 8090
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8090/health || exit 1
+
+# Rodar servidor
+ENTRYPOINT ["/app/jsson"]
+CMD ["serve", "-port", "8090"]

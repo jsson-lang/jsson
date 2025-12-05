@@ -564,6 +564,9 @@ func validateWithSchemaHandler(w http.ResponseWriter, r *http.Request) {
 	} else if schemaFormat == "yaml" {
 		schema, err = v.LoadSchemaFromYAML(req.Schema)
 		schemaType = "yaml-schema"
+	} else if schemaFormat == "toml" {
+		schema, err = v.LoadSchemaFromTOML(req.Schema)
+		schemaType = "toml-schema"
 	} else {
 		schema, err = v.LoadSchemaFromJSON(req.Schema)
 		schemaType = "json-schema"

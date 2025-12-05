@@ -19,6 +19,9 @@ func (t *Transpiler) TranspileToYAML() ([]byte, error) {
 
 	for _, stmt := range t.program.Statements {
 		switch s := stmt.(type) {
+		case *ast.PresetStatement:
+			// Preset definitions are stored in preset table but not added to output
+			t.presetTable[s.Name.Value] = s.Body
 		case *ast.VariableDeclaration:
 			// Variable declarations are stored in symbol table but not added to output
 			val, err := t.evalExpression(s.Value, nil)

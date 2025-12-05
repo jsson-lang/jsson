@@ -27,6 +27,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/BurntSushi/toml"
 	"gopkg.in/yaml.v3"
 )
 
@@ -128,6 +129,15 @@ func (v *Validator) LoadSchemaFromYAML(schemaYAML string) (*Schema, error) {
 	return &schema, nil
 }
 
+// LoadSchemaFromTOML loads a schema from TOML string
+func (v *Validator) LoadSchemaFromTOML(schemaTOML string) (*Schema, error) {
+	var schema Schema
+	if _, err := toml.Decode(schemaTOML, &schema); err != nil {
+		return nil, fmt.Errorf("failed to parse TOML schema: %w", err)
+	}
+	return &schema, nil
+}
+
 // LoadSchemaAuto automatically detects format and loads schema
 func (v *Validator) LoadSchemaAuto(schemaContent string) (*Schema, string, error) {
 	// Try JSON first
@@ -139,13 +149,22 @@ func (v *Validator) LoadSchemaAuto(schemaContent string) (*Schema, string, error
 		}
 	}
 
-	// Try YAML
+	// Try TOML (check for typical TOML patterns: [section] or key = value without colon)
+	if strings.Contains(schemaContent, "[") && strings.Contains(schemaContent, "]") &&
+		!strings.Contains(schemaContent, ": ") {
+		schema, err := v.LoadSchemaFromTOML(schemaContent)
+		if err == nil {
+			return schema, "toml", nil
+		}
+	}
+
+	// Try YAML (default fallback since YAML is a superset of JSON)
 	schema, err := v.LoadSchemaFromYAML(schemaContent)
 	if err == nil {
 		return schema, "yaml", nil
 	}
 
-	return nil, "", fmt.Errorf("could not parse schema as JSON or YAML")
+	return nil, "", fmt.Errorf("could not parse schema as JSON, YAML, or TOML")
 }
 
 // RegisterSchema registers a named schema for reuse
