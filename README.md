@@ -353,7 +353,7 @@ jsson -i config.jsson -f ts > config.ts
 
 ### Presets (Optional)
 
-Define reusable configuration blocks with `@preset` and use them with `@use`:
+Define reusable configuration blocks with `@preset` and use them with `@use`. **Presets work with ALL output formats** (JSON, YAML, TOML, TypeScript):
 
 ```jsson
 // Define reusable presets
@@ -387,7 +387,7 @@ service {
 }
 ```
 
-**Output:**
+**JSON Output:**
 ```json
 {
   "dev_api": { "timeout": 30, "retries": 3, "cache": true },
@@ -400,22 +400,84 @@ service {
 }
 ```
 
+**YAML Output (`-f yaml`):**
+```yaml
+dev_api:
+  timeout: 30
+  retries: 3
+  cache: true
+prod_api:
+  timeout: 60
+  retries: 5
+  cache: true
+service:
+  name: my-service
+  api:
+    timeout: 30
+    retries: 3
+    cache: true
+  logging:
+    level: debug
+    format: json
+```
+
+**TOML Output (`-f toml`):**
+```toml
+[dev_api]
+timeout = 30
+retries = 3
+cache = true
+
+[prod_api]
+timeout = 60
+retries = 5
+cache = true
+
+[service]
+name = "my-service"
+
+[service.api]
+timeout = 30
+retries = 3
+cache = true
+
+[service.logging]
+level = "debug"
+format = "json"
+```
+```
+
 ### Schema Validation (Optional)
 
-Validate transpiled output against JSON Schema or YAML Schema:
+Validate transpiled output against JSON Schema, YAML Schema, or TOML Schema:
 
 ```bash
-# Validate output against a schema
+# Validate output against a JSON schema
 jsson -i config.jsson -schema schema.json
+
+# Validate against YAML schema
+jsson -i config.jsson -schema schema.yaml
+
+# Validate against TOML schema
+jsson -i config.jsson -schema schema.toml
 
 # Validate only (don't output result)
 jsson -i config.jsson -schema schema.json -validate-only
 
-# Works with any output format
+# Works with any output format + any schema format
 jsson -i config.jsson -f yaml -schema schema.yaml
+jsson -i config.jsson -f toml -schema schema.toml
 ```
 
-**Example Schema (`schema.json`):**
+**Supported Schema Formats:**
+
+| Schema Format | File Extension | Description |
+|---------------|----------------|-------------|
+| JSON Schema | `.json` | Standard JSON Schema Draft 7 |
+| YAML Schema | `.yaml`, `.yml` | YAML-formatted schema (same structure as JSON Schema) |
+| TOML Schema | `.toml` | TOML-formatted schema (same structure as JSON Schema) |
+
+**Example JSON Schema (`schema.json`):**
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -426,6 +488,37 @@ jsson -i config.jsson -f yaml -schema schema.yaml
   },
   "required": ["name", "port"]
 }
+```
+
+**Example YAML Schema (`schema.yaml`):**
+```yaml
+type: object
+properties:
+  name:
+    type: string
+    minLength: 1
+  port:
+    type: integer
+    minimum: 1
+    maximum: 65535
+required:
+  - name
+  - port
+```
+
+**Example TOML Schema (`schema.toml`):**
+```toml
+type = "object"
+required = ["name", "port"]
+
+[properties.name]
+type = "string"
+minLength = 1
+
+[properties.port]
+type = "integer"
+minimum = 1
+maximum = 65535
 ```
 
 **Validation Output:**
