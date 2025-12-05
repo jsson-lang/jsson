@@ -138,6 +138,58 @@ func (v *Validator) LoadSchemaFromTOML(schemaTOML string) (*Schema, error) {
 	return &schema, nil
 }
 
+// LoadSchemaFromTypeScript extracts schema from TypeScript object
+func (v *Validator) LoadSchemaFromTypeScript(schemaTSContent string) (*Schema, error) {
+	// Extract JSON-like object from TypeScript file
+	// Pattern: extract content between first { and last }
+	content := strings.TrimSpace(schemaTSContent)
+	
+	// Remove export statements, type annotations, type definitions
+	content = regexp.MustCompile(`export\s+const\s+\w+\s*[=:]\s*`).ReplaceAllString(content, "")
+	content = regexp.MustCompile(`as\s+const\s*;?`).ReplaceAllString(content, "")
+	content = regexp.MustCompile(`export\s+type\s+.*?;`).ReplaceAllString(content, "")
+	
+	// Find the main object
+	openBrace := strings.Index(content, "{")
+	if openBrace == -1 {
+		return nil, fmt.Errorf("no object found in TypeScript schema")
+	}
+	
+	// Find matching closing brace
+	braceCount := 0
+	closeBrace := -1
+	for i := openBrace; i < len(content); i++ {
+		if content[i] == '{' {
+			braceCount++
+		} else if content[i] == '}' {
+			braceCount--
+			if braceCount == 0 {
+				closeBrace = i
+				break
+			}
+		}
+	}
+	
+	if closeBrace == -1 {
+		return nil, fmt.Errorf("unmatched braces in TypeScript schema")
+	}
+	
+	jsonStr := content[openBrace : closeBrace+1]
+	
+	// Convert TypeScript object notation to valid JSON
+	// Replace unquoted keys with quoted keys
+	jsonStr = regexp.MustCompile(`(\w+)(\s*):`).ReplaceAllString(jsonStr, `"$1"$2:`)
+	// Replace trailing commas
+	jsonStr = regexp.MustCompile(`,(\s*[}\]])`).ReplaceAllString(jsonStr, "$1")
+	
+	// Parse as JSON
+	var schema Schema
+	if err := json.Unmarshal([]byte(jsonStr), &schema); err != nil {
+		return nil, fmt.Errorf("failed to parse TypeScript schema as JSON: %w (input: %s)", err, jsonStr)
+	}
+	return &schema, nil
+}
+
 // LoadSchemaAuto automatically detects format and loads schema
 func (v *Validator) LoadSchemaAuto(schemaContent string) (*Schema, string, error) {
 	// Try JSON first
@@ -146,6 +198,14 @@ func (v *Validator) LoadSchemaAuto(schemaContent string) (*Schema, string, error
 		schema, err := v.LoadSchemaFromJSON(schemaContent)
 		if err == nil {
 			return schema, "json", nil
+		}
+	}
+
+	// Try TypeScript (check for export keyword)
+	if strings.Contains(schemaContent, "export") && strings.Contains(schemaContent, "const") {
+		schema, err := v.LoadSchemaFromTypeScript(schemaContent)
+		if err == nil {
+			return schema, "typescript", nil
 		}
 	}
 
@@ -164,7 +224,7 @@ func (v *Validator) LoadSchemaAuto(schemaContent string) (*Schema, string, error
 		return schema, "yaml", nil
 	}
 
-	return nil, "", fmt.Errorf("could not parse schema as JSON, YAML, or TOML")
+	return nil, "", fmt.Errorf("could not parse schema as JSON, YAML, TOML, or TypeScript")
 }
 
 // RegisterSchema registers a named schema for reuse
@@ -204,7 +264,23 @@ func (v *Validator) Validate(data []byte, schema *Schema, dataFormat string) *Va
 		parsedData, err = v.parseTOML(data)
 	case "typescript", "ts":
 		// TypeScript - extract the type definition and validate structure
-		parsedData, err = v.parseTypeScript(data)
+		tsResult, tsErr := v.parseTypeScript(data)
+		if tsErr != nil {
+			err = tsErr
+		} else {
+			// For TypeScript, extract the first exported object's value for validation
+			// The parseTypeScript returns {"varName": {...}, ...}
+			// We want to validate the object content, not the wrapper
+			if tsMap, ok := tsResult.(map[string]interface{}); ok && len(tsMap) > 0 {
+				// Get the first (or only) exported object
+				for _, val := range tsMap {
+					parsedData = val
+					break
+				}
+			} else {
+				parsedData = tsResult
+			}
+		}
 	default:
 		// Try JSON as default
 		err = json.Unmarshal(data, &parsedData)
@@ -992,40 +1068,110 @@ func (v *Validator) parseTOMLValue(value string) interface{} {
 	return value
 }
 
-// parseTypeScript extracts structure from TypeScript type definitions
+// parseTypeScript extracts and validates TypeScript object declarations
 func (v *Validator) parseTypeScript(data []byte) (interface{}, error) {
-	// For TypeScript validation, we extract the structure from type definitions
-	// This is a simplified parser that handles common patterns
 	content := string(data)
 	result := make(map[string]interface{})
 
-	// Look for exported const declarations
-	// export const name: Type = { ... }
-	constRegex := regexp.MustCompile(`export\s+const\s+(\w+)\s*[:\s=]`)
-	matches := constRegex.FindAllStringSubmatch(content, -1)
-
-	for _, match := range matches {
-		if len(match) >= 2 {
-			result[match[1]] = "exported_const"
+	// Find all export const declarations and extract complete objects
+	// Pattern: export const name = { ... } as const;
+	lines := strings.Split(content, "\n")
+	
+	var currentVar string
+	var objectContent strings.Builder
+	braceCount := 0
+	inObject := false
+	
+	for _, line := range lines {
+		// Skip type definitions and comments
+		trimmed := strings.TrimSpace(line)
+		if strings.HasPrefix(trimmed, "export type") || 
+		   strings.HasPrefix(trimmed, "//") ||
+		   strings.HasPrefix(trimmed, "/*") {
+			continue
+		}
+		
+		// Check for start of export const
+		if !inObject && strings.Contains(line, "export const") {
+			// Extract variable name
+			re := regexp.MustCompile(`export\s+const\s+(\w+)\s*=`)
+			match := re.FindStringSubmatch(line)
+			if len(match) >= 2 {
+				currentVar = match[1]
+			}
+		}
+		
+		// Count braces
+		for _, ch := range line {
+			if ch == '{' {
+				if !inObject {
+					inObject = true
+				}
+				braceCount++
+			} else if ch == '}' {
+				braceCount--
+			}
+		}
+		
+		// Collect object content
+		if inObject {
+			objectContent.WriteString(line)
+			objectContent.WriteString("\n")
+			
+			// Object complete when braces are balanced
+			if braceCount == 0 {
+				objStr := objectContent.String()
+				
+				// Clean up TypeScript syntax to make valid JSON
+				objStr = v.tsToJSON(objStr)
+				
+				var obj interface{}
+				if err := json.Unmarshal([]byte(objStr), &obj); err == nil {
+					if currentVar != "" {
+						result[currentVar] = obj
+					} else {
+						result["_default"] = obj
+					}
+				}
+				
+				// Reset for next object
+				objectContent.Reset()
+				inObject = false
+				currentVar = ""
+			}
 		}
 	}
 
-	// Look for type/interface definitions
-	typeRegex := regexp.MustCompile(`(?:export\s+)?(?:type|interface)\s+(\w+)`)
-	typeMatches := typeRegex.FindAllStringSubmatch(content, -1)
-
-	typesDefined := make([]string, 0)
-	for _, match := range typeMatches {
-		if len(match) >= 2 {
-			typesDefined = append(typesDefined, match[1])
-		}
-	}
-
-	if len(typesDefined) > 0 {
-		result["_types"] = typesDefined
+	if len(result) == 0 {
+		return nil, fmt.Errorf("no valid JavaScript objects found in TypeScript file")
 	}
 
 	return result, nil
+}
+
+// tsToJSON converts TypeScript object notation to valid JSON
+func (v *Validator) tsToJSON(ts string) string {
+	// Remove "as const" suffix
+	ts = regexp.MustCompile(`\s*as\s+const\s*;?\s*`).ReplaceAllString(ts, "")
+	
+	// Find the object part (between first { and last })
+	openIdx := strings.Index(ts, "{")
+	closeIdx := strings.LastIndex(ts, "}")
+	if openIdx == -1 || closeIdx == -1 || closeIdx <= openIdx {
+		return ts
+	}
+	
+	jsonStr := ts[openIdx : closeIdx+1]
+	
+	// Quote unquoted keys: word: -> "word":
+	// But don't quote already quoted keys or values
+	jsonStr = regexp.MustCompile(`(?m)^(\s*)(\w+)(\s*):`).ReplaceAllString(jsonStr, `$1"$2"$3:`)
+	jsonStr = regexp.MustCompile(`([,{\[])\s*(\w+)(\s*):`).ReplaceAllString(jsonStr, `$1"$2"$3:`)
+	
+	// Remove trailing commas before } or ]
+	jsonStr = regexp.MustCompile(`,(\s*[}\]])`).ReplaceAllString(jsonStr, "$1")
+	
+	return jsonStr
 }
 
 // ============================================================================
