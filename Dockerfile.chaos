@@ -13,7 +13,6 @@ RUN go mod download
 # Copiar código fonte
 COPY cmd/ ./cmd/
 COPY internal/ ./internal/
-COPY pkg/ ./pkg/
 
 # Build do binário
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o jsson ./cmd/jsson
