@@ -2,6 +2,8 @@
 node_modules/
 npm-debug.log
 
+jsson.exe
+
 # VS Code
 .vscode/
 
@@ -20,5 +22,3 @@ out/
 *.bin
 *.dat
 
-*.exe
-*.vsix

@@ -1,35 +1,13 @@
-# JSSON - V0.0.5.2
+# JSSON
 
-[![JSSON Banner](https://i.postimg.cc/yx4C3YqC/og.png)](https://postimg.cc/WFnHQVb5)
-
-**JavaScript Simplified Object Notation** - A human-friendly syntax that transpiles to JSON, YAML, TOML, and TypeScript.
+JavaScript Simplified Object Notation - A human-friendly syntax that transpiles to JSON, YAML, TOML, and TypeScript.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![VS Code Extension](https://img.shields.io/badge/VS%20Code-Extension-blue)](https://marketplace.visualstudio.com/items?itemName=carlosedujs.jsson)
 
----
+## Overview
 
-## 📑 Table of Contents
-
-- [What is JSSON?](#what-is-jsson)
-- [Why JSSON?](#why-jsson)
-- [Quick Start](#quick-start)
-- [Features](#features)
-- [Multi-Format Output](#multi-format-output)
-- [Examples](#examples)
-- [Installation](#installation)
-- [Documentation](#documentation)
-- [LLM-Optimized Documentation](#llm-optimized-documentation)
-- [Real-World Use Cases](#real-world-use-cases)
-- [VS Code Extension](#vs-code-extension)
-- [Contributing](#contributing)
-- [License](#license)
-
----
-
-## 🎯 What is JSSON?
-
-JSSON is a **transpiler** that converts human-friendly syntax into standard configuration formats. It eliminates the pain points of writing JSON manually while maintaining full compatibility.
+JSSON is a transpiler that converts human-friendly syntax into standard configuration formats. It eliminates the verbosity of JSON while maintaining full compatibility with existing tools and workflows.
 
 **JSSON Input:**
 
@@ -58,24 +36,20 @@ ports = 8080..8085
 }
 ```
 
----
-
 ## Why JSSON?
 
-| Pain Point               | JSSON Solution                       |
+| Problem                  | Solution                             |
 | ------------------------ | ------------------------------------ |
-| 😤 Quotes everywhere     | ✅ No quotes needed for keys         |
-| 🐛 Trailing comma errors | ✅ No commas required                |
-| 📋 Repetitive data       | ✅ Templates for arrays              |
-| 🔢 Manual ranges         | ✅ Built-in range syntax (`1..100`)  |
-| 📁 Scattered configs     | ✅ File includes                     |
-| 🔄 Copy-paste errors     | ✅ Map transformations and variables |
-
----
+| Quotes everywhere        | No quotes needed for keys            |
+| Trailing comma errors    | No commas required                   |
+| Repetitive data          | Templates for arrays                 |
+| Manual ranges            | Built-in range syntax (`1..100`)     |
+| Scattered configs        | File includes                        |
+| Copy-paste errors        | Map transformations and variables    |
 
 ## Quick Start
 
-### 1. Install the CLI
+### Install the CLI
 
 ```bash
 # Download from releases
@@ -83,7 +57,7 @@ ports = 8080..8085
 go build -o jsson ./cmd/jsson
 ```
 
-### 2. Create a `.jsson` file
+### Create a `.jsson` file
 
 ```jsson
 // config.jsson
@@ -94,7 +68,7 @@ app {
 }
 ```
 
-### 3. Transpile to JSON
+### Transpile to JSON
 
 ```bash
 jsson -i config.jsson > config.json
@@ -112,11 +86,9 @@ jsson -i config.jsson > config.json
 }
 ```
 
----
-
 ## Features
 
-#### Variable Declarations 🔧
+### Variable Declarations
 
 Declare reusable variables with `:=` to avoid repetition and keep your configs DRY:
 
@@ -146,9 +118,9 @@ Variables support:
 - **Shadowing**: Inner scopes can override outer variables
 - **Not in output**: Variables are internal-only, never appear in final JSON
 
-#### Nested Map Transformations 🔄
+### Nested Map Transformations
 
-Map transformations can now be nested inside other maps for multi-level data pipelines:
+Map transformations can be nested inside other maps for multi-level data pipelines:
 
 ```jsson
 // Generate a multiplication table
@@ -163,7 +135,7 @@ products = (["S", "M", "L"] map (size) = (
 ))
 ```
 
-#### Nested Arrays 📦
+### Nested Arrays
 
 Full support for multi-dimensional arrays:
 
@@ -179,9 +151,9 @@ matrix = [
 grid = (0..2 map (y) = (0..2 map (x) = [x, y]))
 ```
 
-#### Universal Ranges 🔢
+### Universal Ranges
 
-Ranges now work **everywhere** expressions are allowed:
+Ranges work everywhere expressions are allowed:
 
 ```jsson
 // Inside arrays
@@ -194,16 +166,16 @@ data = (0..999 map (x) = { id = x, value = x * 2 })
 bigData = 0..9999  // 10,000 items!
 ```
 
-#### Stable Arithmetic ➗
+### Arithmetic Operations
 
-Division (`/`) and modulo (`%`) now work everywhere:
+Division (`/`) and modulo (`%`) work everywhere:
+
+Division (`/`) and modulo (`%`) work everywhere:
 
 ```jsson
 hash = "uid-" + (user.id * 91 % 17)
 halves = (0..10 map (x) = x / 2)
 ```
-
----
 
 ### Clean Syntax
 
@@ -255,7 +227,7 @@ users [
 ]
 ```
 
-### 📁 File Includes
+### File Includes
 
 Modularize your configurations:
 
@@ -264,13 +236,13 @@ include "database.jsson"
 include "api-config.jsson"
 ```
 
-### Arithmetic & Logic
+### Arithmetic and Logic
 
 - Operators: `+`, `-`, `*`, `/`, `%`
 - Comparisons: `==`, `!=`, `>`, `<`, `>=`, `<=`
 - Ternary: `condition ? true : false`
 
-### 🚀 Streaming Support
+### Streaming Support
 
 Handle large datasets efficiently with streaming mode:
 
@@ -298,7 +270,7 @@ jsson -i data.jsson --stream-threshold 5000 > output.json
 - Database seeding with millions of rows
 - Memory-constrained environments
 
-### Arrays & Objects
+### Arrays and Objects
 
 Full support for nested structures:
 
@@ -308,7 +280,7 @@ config {
   nested {
     items = [ 1, 2, 3 ]
   }
-  // Nested arrays (v0.0.5+)
+  // Nested arrays
   matrix = [
     [ 1, 2 ],
     [ 3, 4 ]
@@ -316,37 +288,33 @@ config {
 }
 ```
 
----
-
 ## Multi-Format Output
 
-JSSON isn't just for JSON anymore. Transpile to your favorite format:
+JSSON transpiles to multiple formats:
 
-### YAML (Infrastructure)
+### YAML
 
 ```bash
 jsson -i config.jsson -f yaml > config.yaml
 ```
 
-### TOML (Configuration)
+### TOML
 
 ```bash
 jsson -i config.jsson -f toml > config.toml
 ```
 
-### TypeScript (Frontend)
+### TypeScript
 
-Generates `as const` objects and type definitions!
+Generates `as const` objects and type definitions:
 
 ```bash
 jsson -i config.jsson -f ts > config.ts
 ```
 
----
+## Examples
 
-## 📚 Examples
-
-### Matrix Generation (v0.0.5)
+### Matrix Generation
 
 Generate 2D matrices using nested maps:
 
@@ -363,7 +331,7 @@ grid = (0..99 map (y) = (0..99 map (x) = {
 // Generates 10,000 coordinates!
 ```
 
-### Product Variants (v0.0.5)
+### Product Variants
 
 Generate all combinations for e-commerce:
 
@@ -380,7 +348,7 @@ products = (["S", "M", "L", "XL"] map (size) = (
 // Generates 16 product variants automatically!
 ```
 
-### Large-Scale Test Data (v0.0.5)
+### Large-Scale Test Data
 
 Generate thousands of records effortlessly:
 
@@ -394,6 +362,8 @@ testUsers = (0..9999 map (id) = {
 })
 // 10,000 users generated!
 ```
+
+### Geographic Coordinates
 
 ### Geographic Coordinates
 
@@ -435,9 +405,7 @@ deployments [
 ]
 ```
 
-**More examples** in [`examples/real-world/`](./examples/real-world/)
-
----
+More examples in [`examples/real-world/`](./examples/real-world/)
 
 ## Installation
 
@@ -446,7 +414,7 @@ deployments [
 **From Source:**
 
 ```bash
-git clone https://github.com/carlosedujs/jsson
+git clone https://github.com/jssonlang/jsson
 cd jsson
 go build -o jsson ./cmd/jsson
 ```
@@ -470,11 +438,9 @@ Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/item
 
 Or search for "JSSON" in the Extensions view (`Ctrl+Shift+X`).
 
----
+## Documentation
 
-## 📖 Documentation
-
-**Full documentation available at:** [JSSON Docs](https://docs.jssonlang.tech/)
+Full documentation available at [docs.jssonlang.tech](https://docs.jssonlang.tech/)
 
 - [Getting Started](https://docs.jssonlang.tech/guides/getting-started/)
 - [Syntax Reference](https://docs.jssonlang.tech/reference/syntax/)
@@ -482,7 +448,7 @@ Or search for "JSSON" in the Extensions view (`Ctrl+Shift+X`).
 - [Advanced Patterns](https://docs.jssonlang.tech/guides/advanced-patterns/)
 - [CLI Usage](https://docs.jssonlang.tech/cli/usage/)
 
-### 🤖 LLM-Optimized Documentation
+### LLM-Optimized Documentation
 
 JSSON provides LLM-friendly documentation at `/llms.txt/` for AI assistants and language models:
 
@@ -495,30 +461,23 @@ JSSON provides LLM-friendly documentation at `/llms.txt/` for AI assistants and 
 - Index: [https://docs.jssonlang.tech/llms.txt/index.txt](https://docs.jssonlang.tech/llms.txt/index.txt)
 - Example: [https://docs.jssonlang.tech/llms.txt/guides/getting-started.txt](https://docs.jssonlang.tech/llms.txt/guides/getting-started.txt)
 
-Perfect for:
+Perfect for AI coding assistants (Copilot, Cursor, Claude), LLM context injection, automated documentation queries, and RAG (Retrieval-Augmented Generation) systems.
 
-- AI coding assistants (Copilot, Cursor, Claude)
-- LLM context injection
-- Automated documentation queries
-- RAG (Retrieval-Augmented Generation) systems
-
----
-
-## Real-World Use Cases
+## Use Cases
 
 JSSON excels at:
 
-- **🔢 Matrix Generation**: 2D/3D grids, multiplication tables, coordinate systems (v0.0.5)
-- **🛍️ E-commerce**: Product variants, SKU generation, pricing matrices (v0.0.5)
-- **🧪 Test Data**: Generate thousands of realistic records with patterns (v0.0.5)
-- **🗺️ Geographic Data**: Generate millions of coordinate records efficiently
-- **☸️ Infrastructure as Code**: Kubernetes configs, Terraform, CloudFormation
-- **🌐 API Configurations**: Gateway routes, rate limiting, CORS policies
-- **🌍 Internationalization**: Multi-language translation files
-- **🚀 Feature Flags**: Environment-specific configuration management
-- **💾 Database Seeding**: Generate realistic test data with relationships
+- **Matrix Generation**: 2D/3D grids, multiplication tables, coordinate systems
+- **E-commerce**: Product variants, SKU generation, pricing matrices
+- **Test Data**: Generate thousands of realistic records with patterns
+- **Geographic Data**: Generate millions of coordinate records efficiently
+- **Infrastructure as Code**: Kubernetes configs, Terraform, CloudFormation
+- **API Configurations**: Gateway routes, rate limiting, CORS policies
+- **Internationalization**: Multi-language translation files
+- **Feature Flags**: Environment-specific configuration management
+- **Database Seeding**: Generate realistic test data with relationships
 
-**See real examples** in [`examples/real-world/`](./examples/real-world/):
+See real examples in [`examples/real-world/`](./examples/real-world/):
 
 - Geographic coordinates (10,000+ points)
 - Kubernetes deployments (multi-environment)
@@ -527,23 +486,9 @@ JSSON excels at:
 - Feature flags (prod/staging/dev)
 - Database seed data (200+ records)
 
----
+## Contributing
 
-## VS Code Extension
-
-The JSSON VS Code extension provides:
-
-- ✨ **Syntax Highlighting** for all JSSON keywords
-- 🎯 **Auto-closing** brackets and braces
-- 💬 **Comment support** (`//`)
-- 🎨 **Color coding** for strings, numbers, operators
-- 📝 **Language configuration** for better editing
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome. Please feel free to submit a Pull Request.
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
@@ -551,27 +496,17 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
----
-
 ## License
 
 MIT License - see the [LICENSE](LICENSE) file for details.
-
----
 
 ## Links
 
 - **Documentation**: https://docs.jssonlang.tech/
 - **VS Code Extension**: https://marketplace.visualstudio.com/items?itemName=carlosedujs.jsson
-- **GitHub**: https://github.com/carlosedujs/jsson
-- **Issues**: https://github.com/carlosedujs/jsson/issues
+- **GitHub Repos**: 
+  - https://github.com/jssonlang/jsson
+  - https://github.com/jssonlang/jsson-apps
+  - https://github.com/jssonlang/jsson-sintaxe
+- **Issues**: https://github.com/jssonlang/jsson/issues
 
----
-
-<div align="center">
-
-**Made with ❤️ by [Carlos Eduardo](https://github.com/carlosedujs)**
-
-**Enjoy coding with JSSON!** 🚀
-
-</div>
