@@ -1,306 +1,0 @@
-# JSSON Documentation — LLM Mode
-Source: faq.mdx
-Version: 0.0.5
-Generated: 2025-12-02T22:05:17.831Z
-
-## Table of Contents
-- 0.1. Getting Started
-- 0.1.1. What is JSSON?
-- 0.1.2. Why use JSSON instead of JSON?
-- 0.1.3. How do I install JSSON?
-- 0.1.4. Is JSSON production-ready?
-- 0.2. Syntax Questions
-- 0.2.1. When do I need quotes?
-- 0.2.2. Can I use comments?
-- 0.2.3. Do I need commas between fields?
-- 0.2.4. Can I reuse values?
-- 0.2.5. How do I create nested objects?
-- 0.2.6. Can I mix JSSON and JSON syntax?
-- 0.3. Features
-- 0.3.1. What are template arrays?
-- 0.3.2. What is the map clause?
-- 0.3.3. What are ranges?
-- 0.3.4. Can I nest map transformations?
-- 0.3.5. Can I use nested arrays?
-- 0.3.6. How do includes work?
-- 0.4. Use Cases
-- 0.4.1. What is JSSON good for?• Configuration files (app configs, server settings)• Seed data (database fixtures, test data)• Mock APIs (fake data for development)• Structured lists (products, users, routes)• Data templates (CSV-like data → JSON)• Matrix generation (grids, coordinates, combinatorial data) — New in v0.0.5!
-- 0.4.2. When should I use nested maps?
-- 0.4.3. How do I generate large datasets?
-- 0.4.4. Can I use JSSON for large files?
-- 0.4.5. Can I use JSSON with my build tool?
-- 0.4.6. Is JSSON faster than JSON?
-- 0.4.7. Can I validate JSSON files?
-- 0.4.8. My template has the wrong number of values
-- 0.4.9. Include file not found
-- 1. The file exists
-- 2. The path is correct (relative to the including file)
-- 3. The extension is .jsson
-- 0.4.10. Can't apply operator to range literal
-- 0.4.11. Nested maps not working as expected
-- 0.4.12. Where can I get help?• [Errors & Debugging](/reference/errors/) — Common errors and solutions• [GitHub Issues](https://github.com/carlosedujs/jsson/issues) — Report bugs or ask questions• [Syntax Reference](/reference/syntax/) — Complete syntax guide
-- 0.5. Contributing
-- 0.5.1. Can I contribute to JSSON?
-- 0.5.2. How do I report a bug?
-- 0.5.3. Can I request a feature?
-- 0.6. More Questions?
-
-## Content
-
-0.1. Getting Started
-
-0.1.1. What is JSSON?
-
-JSSON (JavaScript Simplified Object Notation) is a human-friendly syntax that transpiles to JSON. It removes the ceremony of JSON while maintaining 100% compatibility.
-
-Think of it as: You write JSSON → Transpiler outputs JSON
-
-0.1.2. Why use JSSON instead of JSON?
-
-JSON:
-
-``json
-{
-  "user": {
-    "name": "João",
-    "age": 25,
-    "admin": true
-  }
-}
-`
-
-JSSON:
-
-`jsson
-user {
-  name = João
-  age = 25
-  admin = true
-}
-`
-
-JSSON is cleaner, more readable, and supports comments!
-
-0.1.3. How do I install JSSON?
-
-Download the binary from [GitHub Releases](https://github.com/carlosedujs/jsson/releases) or build from source:
-
-`bash
-git clone https://github.com/carlosedujs/jsson
-cd jsson
-go build -o jsson cmd/jsson/main.go
-`
-
-See the [Getting Started guide](/guides/getting-started/) for details.
-
-0.1.4. Is JSSON production-ready?
-
-Yes! JSSON transpiles to standard JSON, so the output is always valid and safe to use in production.
-
-0.2. Syntax Questions
-
-0.2.1. When do I need quotes?
-
-Use quotes when:• Values have spaces: title = "Software Engineer"• Values have special characters: email = "user@example.com"• You want to force a string: version = "1.0.0"
-
-Skip quotes when:• Simple identifiers: name = João• Numbers: age = 25• Booleans: active = true
-
-Rule of thumb: When in doubt, use quotes!
-
-0.2.2. Can I use comments?
-
-Yes! Single-line comments with //:
-
-
-
-0.2.3. Do I need commas between fields?
-
-No! JSSON doesn't use commas between object fields:
-
-
-
-0.2.4. Can I reuse values?
-
-Yes! Use variables (:=) to define values once and reuse them. Variables are not included in the output JSON.
-
-
-
-0.2.5. How do I create nested objects?
-
-Just nest them naturally:
-
-
-
-0.2.6. Can I mix JSSON and JSON syntax?
-
-No. Choose one or the other. JSSON files should use JSSON syntax throughout.
-
-0.3. Features
-
-0.3.1. What are template arrays?
-
-Template arrays let you define structure once, then list data rows:
-
-
-
-See the [Templates Guide](/guides/templates/) for details!
-
-0.3.2. What is the map clause?
-
-The map clause transforms template data:
-
-
-
-It adds computed fields and transforms values!
-
-0.3.3. What are ranges?
-
-Ranges generate numeric sequences using the .. operator.
-
-Since v0.0.5, ranges work everywhere expressions are allowed!
-
-
-
-> Pro Tip: Ranges + map transformations = powerful data generation!
-
-0.3.4. Can I nest map transformations?
-
-Yes! Since v0.0.5, you can nest map() inside other map() transformations:
-
-
-
-This enables multi-level pipelines and complex data generation!
-
-0.3.5. Can I use nested arrays?
-
-Absolutely! Since v0.0.5, JSSON fully supports nested arrays:
-
-
-
-Nested arrays work in templates, maps, objects, and as direct values!
-
-0.3.6. How do includes work?
-
-Use include to split large configs:
-
-database.jsson:
-
-
-
-main.jsson:
-
-
-
-0.4. Use Cases
-
-0.4.1. What is JSSON good for?• Configuration files (app configs, server settings)• Seed data (database fixtures, test data)• Mock APIs (fake data for development)• Structured lists (products, users, routes)• Data templates (CSV-like data → JSON)• Matrix generation (grids, coordinates, combinatorial data) — New in v0.0.5!
-
-0.4.2. When should I use nested maps?
-
-Use nested maps when you need:• Matrix-like structures — Grids, coordinate systems, 2D/3D data• Combinatorial data — All combinations of product variants (sizes × colors)• Multi-level pipelines — Transform data at multiple nested levels• Large-scale generation — Create thousands of records with patterns
-
-
-
-Rule of thumb: Use nested maps for generated patterns, templates for explicit data.
-
-0.4.3. How do I generate large datasets?
-
-JSSON v0.0.5 makes large-scale data generation trivial:
-
-
-
-> Performance: JSSON can handle millions of records. The transpiler is fast!
-
-0.4.4. Can I use JSSON for large files?
-
-Yes! Use include to split large configs into modules:
-
-`
-config/
-├── main.jsson
-├── database.jsson
-├── api.jsson
-└── cache.jsson
-`
-
-0.4.5. Can I use JSSON with my build tool?
-
-Yes! Integrate with npm scripts, Makefiles, or CI/CD:
-
-package.json:
-
-`json
-{
-  "scripts": {
-    "build:config": "jsson -i config.jsson -o dist/config.json"
-  }
-}
-`
-
-See the [CLI Guide](/guides/cli/) for integration examples!
-
-0.4.6. Is JSSON faster than JSON?
-
-JSSON adds a transpilation step, so it's slightly slower than parsing JSON directly. However:• Development: JSSON is faster to write and maintain• Production: Use transpiled JSON (no runtime overhead)
-
-0.4.7. Can I validate JSSON files?
-
-Yes! Run the transpiler to check for errors:
-
-`bash
-jsson -i config.jsson
-`
-
-
-
-0.4.8. My template has the wrong number of values
-
-Each row must match the template:
-
-
-
-0.4.9. Include file not found
-
-Check that:
-
-1. The file exists
-2. The path is correct (relative to the including file)
-3. The extension is .jsson
-
-0.4.10. Can't apply operator to range literal
-
-Invalid operations on range literals produce errors:
-
-
-
-Rule: Operations on ranges must be done inside map transformations.
-
-0.4.11. Nested maps not working as expected
-
-Make sure you're using parentheses correctly:
-
-
-
-Tip: Each map` expression needs its own parentheses when nested!
-
-0.4.12. Where can I get help?• [Errors & Debugging](/reference/errors/) — Common errors and solutions• [GitHub Issues](https://github.com/carlosedujs/jsson/issues) — Report bugs or ask questions• [Syntax Reference](/reference/syntax/) — Complete syntax guide
-
-0.5. Contributing
-
-0.5.1. Can I contribute to JSSON?
-
-Yes! JSSON is open source. See the [Contributing Guide](/contributing/) for details.
-
-0.5.2. How do I report a bug?
-
-Open an issue on [GitHub](https://github.com/carlosedujs/jsson/issues) with:• Your JSSON code• The error message• Expected vs actual behavior
-
-0.5.3. Can I request a feature?
-
-Absolutely! Open a feature request on [GitHub Issues](https://github.com/carlosedujs/jsson/issues).
-
-0.6. More Questions?
-
-Check out:• [Getting Started](/guides/getting-started/) — Complete beginner's guide• [Syntax Reference](/reference/syntax/) — Full syntax documentation• [Examples](/examples/demo/) — Real-world examples
-
-Still stuck? Ask on [GitHub Discussions](https://github.com/carlosedujs/jsson/discussions)! 🚀

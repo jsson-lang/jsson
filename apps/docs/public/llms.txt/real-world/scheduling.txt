@@ -1,161 +1,0 @@
-# JSSON Documentation — LLM Mode
-Source: scheduling.mdx
-Version: 0.0.5
-Generated: 2025-12-02T22:05:18.198Z
-
-## Table of Contents
-- 0.1. The Problem
-- 0.2. The JSSON Solution
-- 0.3. Output
-- 0.4. Advanced: Full Week with Weekends
-- 0.5. Multi-Room Scheduling
-- 0.6. Appointment Slots with Intervals
-- 0.7. Blocked Time Slots
-- 0.8. Key Features Used• Nested Maps — Days × Hours for complete schedule grid• Universal Ranges — 9..17` for time slots• Conditional Logic — Dynamic pricing and availability• Computed Fields — Generate slot IDs, calculate prices
-- 0.9. Real-World Applications
-- 0.10. Benefits
-- 0.11. Next Steps• [Nested Maps Reference](/reference/syntax/#nested-map-transformations)• [Universal Ranges](/reference/syntax/#ranges)• [E-commerce Variants Example](/real-world/ecommerce-variants/)
-
-## Content
-
-Scheduling systems need to manage availability across days and time slots. Creating these grids manually is time-consuming and prone to errors.
-
-0.1. The Problem
-
-A medical clinic needs to manage appointments:• 5 weekdays: Monday through Friday• 9 time slots: 9 AM to 5 PM (hourly)• Different pricing: Peak hours cost more
-
-That's 45 time slots to configure. Traditional JSON requires manual entry:
-
-``json
-{
-  "schedule": [
-    {
-      "day": "Mon",
-      "hour": 9,
-      "slot": "Mon-9h",
-      "available": true,
-      "price": 100
-    },
-    {
-      "day": "Mon",
-      "hour": 10,
-      "slot": "Mon-10h",
-      "available": true,
-      "price": 100
-    },
-    {
-      "day": "Mon",
-      "hour": 11,
-      "slot": "Mon-11h",
-      "available": true,
-      "price": 100
-    }
-    // ... 42 more slots 😰
-  ]
-}
-`
-
-Problems:• ❌ Repetitive and boring• ❌ Easy to miss slots• ❌ Hard to update pricing rules• ❌ Difficult to add/remove days
-
-0.2. The JSSON Solution
-
-With nested maps (v0.0.5), generate the entire schedule automatically:
-
-<Code
-  lang="javascript"
-  code={schedule = (["Mon", "Tue", "Wed", "Thu", "Fri"] map (day) = (
-  9..17 map (hour) = {
-    day = day
-    hour = hour
-    slot = day + "-" + hour + "h"
-    available = true
-    price = hour >= 12 && hour <= 14 ? 150 : 100
-  }
-))}
-/>
-
-That's it! 7 lines generate all 45 time slots with dynamic pricing.
-
-0.3. Output
-
-
-
-0.4. Advanced: Full Week with Weekends
-
-Include weekends with different availability and pricing:
-
-<Code
-  lang="javascript"
-  code={schedule = (["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] map (day) = (
-  9..17 map (hour) = {
-    day = day
-    hour = hour
-    slot = day + "-" + hour + "h"
-    
-    // Weekends have limited availability
-    isWeekend := day == "Sat" || day == "Sun"
-    available = isWeekend ? hour >= 10 && hour <= 16 : true
-    
-    // Dynamic pricing
-    isPeakHour := hour >= 12 && hour <= 14
-    weekendSurcharge := isWeekend ? 50 : 0
-    peakSurcharge := isPeakHour ? 50 : 0
-    
-    price = 100 + weekendSurcharge + peakSurcharge
-  }
-))
-
-// Generates 63 slots (7 days × 9 hours)}
-/>
-
-0.5. Multi-Room Scheduling
-
-Generate schedules for multiple rooms or providers:
-
-
-
-0.6. Appointment Slots with Intervals
-
-Generate 30-minute intervals instead of hourly:
-
-
-
-0.7. Blocked Time Slots
-
-Mark certain slots as unavailable:
-
-<Code
-  lang="javascript"
-  code={schedule = (["Mon", "Tue", "Wed", "Thu", "Fri"] map (day) = (
-  9..17 map (hour) = {
-    day = day
-    hour = hour
-    slot = day + "-" + hour + "h"
-    
-    // Lunch break: 12-13h unavailable
-    isLunchBreak := hour == 12
-    
-    // Wednesday afternoons: staff meeting
-    isStaffMeeting := day == "Wed" && hour >= 14
-    
-    available = !isLunchBreak && !isStaffMeeting
-    price = 100
-  }
-))}
-/>
-
-0.8. Key Features Used• Nested Maps — Days × Hours for complete schedule grid• Universal Ranges — 9..17` for time slots• Conditional Logic — Dynamic pricing and availability• Computed Fields — Generate slot IDs, calculate prices
-
-0.9. Real-World Applications
-
-This pattern is perfect for:• Medical Clinics — Doctor appointments and room scheduling• Fitness Studios — Class schedules across days and times• Meeting Rooms — Corporate booking systems• Service Businesses — Barber shops, salons, repair services• Event Venues — Availability grids for bookings• Tutoring Platforms — Teacher availability matrices
-
-0.10. Benefits
-
-95% less code — 7 lines vs 150+ lines of JSON  
-Consistent logic — Pricing rules in one place  
-Easy updates — Change hours/days instantly  
-No gaps — Automatic generation prevents missing slots  
-Flexible — Add rooms, days, or intervals easily
-
-0.11. Next Steps• [Nested Maps Reference](/reference/syntax/#nested-map-transformations)• [Universal Ranges](/reference/syntax/#ranges)• [E-commerce Variants Example](/real-world/ecommerce-variants/)

@@ -1,163 +1,0 @@
-# JSSON Documentation — LLM Mode
-Source: getting-started.mdx
-Version: 0.0.5
-Generated: 2025-12-02T22:05:17.969Z
-
-## Table of Contents
-- 0.1. Why JSSON? ✨
-- 0.2. What You'll Learn
-- 0.3. Installation
-- 0.4. Your First JSSON File
-- 0.4.1. 2. Objects Are Clean
-- 0.4.2. 3. Arrays Are Simple
-- 0.4.3. 4. Comments Work!
-- 0.4.4. 5. Variables for Reuse
-- 0.5. Common First-Time Mistakes
-- 0.5.1. ❌ Forgetting Quotes for Multi-Word Values
-- 0.5.2. ❌ Using Commas Between Fields
-- 0.5.3. ❌ Mixing Syntax Styles
-- 0.6. Quick Reference
-- 0.7. Try It Yourself!
-- 0.8. What's Next?
-
-## Content
-
-Welcome to JSSON! Let's get you writing cleaner, more readable JSON in just a few minutes. 🚀
-
-0.1. Why JSSON? ✨
-
-JSSON makes writing JSON feel natural. No more wrestling with quotes, commas, and brackets. Write configuration files the way you think about them — clean, readable, and human-friendly.
-
-What makes JSSON special:• No quotes needed for simple values• Variables:• Global scope: Declared at root level, accessible everywhere• Local scope: Declared inside objects, scoped to that object• Shadowing: Inner scopes can override outer variables• Not in output: Variables are internal-only, never appear in final JSON• Template arrays turn spreadsheet-like data into structured JSON• Nested Arrays Map transformations can now be nested inside other maps for multi-level data pipelines• Map transformations for powerful data manipulation• Ranges generate sequences automatically• Includes split large configs into manageable files• Expressions compute values on the fly• Multi-Format Output (JSON, YAML, TOML, TypeScript)
-
-0.2. What You'll Learn
-
-By the end of this guide, you'll:• Install the JSSON CLI• Write your first JSSON file• Transpile it to JSON• Understand the basics of JSSON syntax
-
-0.3. Installation
-
-
-
-> Building from source? If you have Go installed, you can build JSSON yourself:
->
-> ``bash
-> git clone https://github.com/carlosedujs/jsson
-> cd jsson
-> go build -o jsson cmd/jsson/main.go
-> `
-
-0.4. Your First JSSON File
-
-Let's create a simple configuration file. Create a new file called config.jsson:
-
-
-  
-</Tabs>
-
-Rule of thumb: Use quotes when your value has spaces or special characters. Otherwise, skip them!
-
-0.4.1. 2. Objects Are Clean
-
-
-  
-</Tabs>
-
-0.4.2. 3. Arrays Are Simple
-
-
-  
-</Tabs>
-
-0.4.3. 4. Comments Work!
-
-`jsson
-// This is a comment
-name = João  // Inline comments too!
-age = 25
-`
-
-Comments are ignored during transpilation — use them to document your configs!
-
-0.4.4. 5. Variables for Reuse
-
-Declare variables with := to avoid repetition. Variables don't appear in the final JSON:
-
-
-  
-</Tabs>
-
-> Pro Tip: Variables are perfect for configuration constants that you use in multiple places!
-
-0.5. Common First-Time Mistakes
-
-0.5.1. ❌ Forgetting Quotes for Multi-Word Values
-
-`jsson
-// Wrong
-title = Software Engineer
-
-// Right
-title = "Software Engineer"
-`
-
-0.5.2. ❌ Using Commas Between Fields
-
-`jsson
-// Wrong
-name = João,
-age = 25,
-
-// Right
-name = João
-age = 25
-`
-
-JSSON doesn't need commas! Just put each field on a new line.
-
-0.5.3. ❌ Mixing Syntax Styles
-
-`jsson
-// Wrong - mixing object styles
-user {
-  name = João
-  config = { theme: "dark" }  // Don't use JSON syntax inside JSSON
-}
-
-// Right
-user {
-  name = João
-  config {
-    theme = dark
-  }
-}
-`
-
-0.6. Quick Reference
-
- •  Feature       •  JSSON               •  JSON               • 
- •  ------------  •  ------------------  •  -----------------  • 
- •  Keys      •  name = value      •  "name": value    • 
- •  Strings   •  João or "João"  •  "João"           • 
- •  Objects   •  obj { ... }       •  "obj": { ... }   • 
- •  Arrays    •  [ a, b, c ]       •  ["a", "b", "c"]  • 
- •  Comments  •  // comment        •  ❌ Not supported   • 
-
-0.7. Try It Yourself!
-
-Create a file called practice.jsson and try this:
-
-
-
-Then transpile it:
-
-`bash
-jsson -i practice.jsson > practice.json
-`
-
-Open practice.json` and see the beautiful JSON output!
-
-0.8. What's Next?
-
-Now that you've got the basics down, here's where to go:• [Basic Syntax Guide](/guides/basic-syntax/) — Learn all the syntax features in detail• [Templates Guide](/guides/templates/) — Discover the power of template arrays for structured data• [Multi-Format Guide](/guides/multi-format/) — Learn how to output YAML, TOML, and TypeScript• [Syntax Reference](/reference/syntax/) — Complete reference with all features and examples
-
-Ready to dive deeper? Let's go! 🎯

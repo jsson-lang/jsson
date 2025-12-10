@@ -1,142 +1,0 @@
-operators and functional features
-
-2.2.3. Summary
-
-JSSON v0.0.5 turns the language into a true data-generation powerhouse:• Unlimited nesting• Unlimited ranges• Stable math• Cleaner semantics• Smarter expansion rules
-
-Large-scale data creation is now faster, safer, and easier than ever.
-
----
-
-2.3. v0.0.4 — Universal Meta-Format (2025-11-26)
-
-2.3.1. New Features
-
-#### Multi-Format Transpilation 🚀
-
-JSSON is no longer just for JSON. You can now transpile your JSSON files into 4 different formats:• JSON (Default)• YAML (-f yaml)• TOML (-f toml)• TypeScript (-f typescript)
-
-#### TypeScript Type Generation
-
-When transpiling to TypeScript, JSSON automatically generates:• as const assertions for immutability• Exported type definitions (export type Config = typeof config)• Fully typed objects ready for use in your frontend or backend
-
-2.3.2. CLI Updates• Added -f / --format flag to specify output format.• Improved error messages for invalid formats.
-
-2.3.3. Website & Playground• New Playground: Now supports tabs for JSON, YAML, TOML, and TypeScript outputs.• Privacy & Terms: Added legal pages to ensure transparency.• Landing Page: Updated to reflect JSSON's new universal capabilities.
-
----
-
-2.4. v0.0.3.1 2025-11-25
-
-2.4.1. Bug Fixes• Fixed support negative numbers in expressions.• Added unary minus operator support for negative numbers.
-
-2.5. v0.0.3 — Arrays in Objects & Real-World Examples (2025-11-25)
-
-2.5.1. New Features
-
-#### Arrays as Object Property Values
-
-You can now use arrays directly as object property values!
-
-`jsson
-config {
-  methods = ["GET", "POST", "PUT", "DELETE"]
-  ports = [8080, 8081, 8082]
-  tags = ["api", "v1", "production"]
-}
-`
-
-This unlocks powerful new use cases:• API gateway configurations with allowed methods• Kubernetes configs with container ports• Feature flags with target user segments• And much more!
-
-#### Arrays in Map Clauses
-
-Map transformations can now include array properties:
-
-`jsson
-routes [
-  template { service }
-
-  map (r) = {
-    service = r.service
-    allowMethods = ["GET", "POST", "PUT"]
-    allowHeaders = ["Content-Type", "Authorization"]
-  }
-
-  "auth"
-  "payment"
-]
-`
-
-2.5.2. Real-World Examples
-
-Added 6 comprehensive real-world examples demonstrating JSSON's power:
-
-1. Geographic Data — Generate millions of coordinate records
-2. Kubernetes Configuration — Multi-environment deployments
-3. API Gateway — Microservices routing with rate limiting
-4. i18n Translations — Multi-language translation management
-5. Feature Flags — Environment-specific configuration
-6. Database Seeding — Relational data with foreign keys
-
-Each example includes:• Complete JSSON code• JSON output samples• Explanation of techniques used• When to use the pattern
-
-2.5.3. Parser Improvements• Enhanced parseObjectLiteral to support array literals as property values• Better error messages for syntax issues• Improved handling of nested structures
-
-2.5.4. Documentation• New "Real-World Use Cases" section in docs• Overview page explaining production scenarios• Individual pages for each example with detailed explanations• Updated SEO keywords for better discoverability
-
-2.5.5. Bug Fixes• Fixed parsing of complex nested objects with arrays• Improved transpiler handling of mixed data structures
-
-2.5.6. Performance
-
-JSSON v0.0.3 can now handle even more complex scenarios:• ~500 lines of JSSON → 600+ JSON records• Ratios up to 50,000:1 for large-scale data generation
-
----
-
-2.6. v0.0.2 — Arithmetic & Conditional Logic (2025-11-24)
-
-2.6.1. Features• Arithmetic operators: +, -, *, /, %• Comparison operators: ==, !=, >, <, >=, <=• Ternary operator: condition ? true : false• Map transformations with conditional logic• String concatenation in expressions
-
-2.6.2. Examples
-
-`jsson
-users [
-  template { name, age }
-
-  map (u) = {
-    name = u.name
-    age = u.age
-    isAdult = u.age >= 18
-    category = u.age >= 18 ? "adult" : "minor"
-  }
-
-  "João", 25
-  "Maria", 16
-]
-`
-
----
-
-2.7. v0.0.1 — Initial Release (2025-11-23)
-
-2.7.1. Features• Core parser for JSSON syntax• Template arrays for structured data• Range expressions (1..100)• Include statements for file composition• CLI tool for transpilation• Basic data types: strings, numbers, booleans, objects, arrays
-
-2.7.2. Examples
-
-`jsson
-users [
-  template { name, age }
-
-  "João", 19
-  "Maria", 25
-]
-
-ports = 8080..8085
-``
-
----
-
-2.8. What's Next?
-
-Future versions may include:• Functions/macros• Array methods (filter, map, reduce)• More advanced control flow
-
-Stay tuned!

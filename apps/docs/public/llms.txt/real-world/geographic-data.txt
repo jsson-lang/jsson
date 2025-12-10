@@ -1,98 +1,0 @@
-# JSSON Documentation — LLM Mode
-Source: geographic-data.mdx
-Version: 0.0.5
-Generated: 2025-12-02T22:05:18.158Z
-
-## Table of Contents
-- 0.1. The Problem
-- 0.2. The JSSON Solution
-- 0.3. Key Features Used
-- 0.3.1. Ranges for Scale
-- 0.3.2. Map Transformations
-- 0.3.3. Arithmetic Operations
-- 0.4. More Examples
-- 0.4.1. GPS Route Waypoints
-- 0.4.2. Geofencing Zones
-- 0.5. Performance
-- 0.6. When to Use This Pattern
-- 0.7. Try It Yourself!
-- 1. Save the city grid example to geo.jsson
-- 2. Run: jsson -i geo.jsson -o geo.json
-- 3. Open geo.json — you'll see 10,000 coordinate records!
-- 4. Want millions? Change 0..9999 to 0..999999
-- 0.8. What's Next?• [Kubernetes Config](/real-world/kubernetes/) — Multi-environment infrastructure• [API Gateway](/real-world/api-gateway/) — Microservices routing• [Overview](/real-world/overview/) — See all real-world examples
-
-## Content
-
-Generate millions of geographic coordinate records from minimal JSSON code. Perfect for legacy systems, mapping applications, and location-based services.
-
-0.1. The Problem
-
-Imagine you're working with millions of geographic coordinate records in JSON for a legacy system. Writing and maintaining such files manually is:• Impractical — Can't write millions of records by hand• Error-prone — Easy to make mistakes in repetitive data• Hard to maintain — Changes require updating thousands of lines
-
-0.2. The JSSON Solution
-
-With JSSON, you can generate 10,000+ coordinate records from ~20 lines of code!
-
-
-  
-</Tabs>
-
-0.3. Key Features Used
-
-0.3.1. Ranges for Scale
-
-
-
-Change one number to scale from thousands to millions!
-
-0.3.2. Map Transformations
-
-
-
-Calculate coordinates dynamically based on ID.
-
-0.3.3. Arithmetic Operations
-
-
-
-Use division and modulo to create coordinate grids.
-
-0.4. More Examples
-
-0.4.1. GPS Route Waypoints
-
-
-
-0.4.2. Geofencing Zones
-
-
-
-Notice the arrays in objects (allowedActions) and ternary operators for conditional values!
-
-0.5. Performance
-
- •  Scale   •  JSSON Lines  •  JSON Records  •  Ratio     • 
- •  ------  •  -----------  •  ------------  •  --------  • 
- •  Small   •  20           •  100           •  5:1       • 
- •  Medium  •  20           •  10,000        •  500:1     • 
- •  Large   •  20           •  1,000,000     •  50,000:1 |
-
-The same 20 lines can generate from hundreds to millions of records!
-
-0.6. When to Use This Pattern
-
-Perfect for:• Mapping applications with grid-based coordinates• Postal code boundary data• GPS tracking systems• Geofencing applications• Location-based services• Legacy systems requiring large JSON files
-
-Not ideal for:• Unique, non-patterned coordinates• Real-time dynamic location data• Small datasets (< 100 records)
-
-0.7. Try It Yourself!
-
-1. Save the city grid example to geo.jsson
-2. Run: jsson -i geo.jsson -o geo.json
-3. Open geo.json — you'll see 10,000 coordinate records!
-4. Want millions? Change 0..9999 to 0..999999
-
-0.8. What's Next?• [Kubernetes Config](/real-world/kubernetes/) — Multi-environment infrastructure• [API Gateway](/real-world/api-gateway/) — Microservices routing• [Overview](/real-world/overview/) — See all real-world examples
-
-Generate massive datasets with minimal code! 🗺️

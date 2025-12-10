@@ -1,57 +1,0 @@
-# JSSON Documentation — LLM Mode
-Source: api-gateway.mdx
-Version: 0.0.5
-Generated: 2025-12-02T22:05:18.098Z
-
-## Table of Contents
-- 0.1. The Problem
-- 0.2. The JSSON Solution
-- 0.3. Key Features
-- 0.3.1. Arrays in Objects
-- 0.3.2. Nested Ternary Logic
-- 0.4. When to Use
-- 0.5. Try It!
-- 1. Save to api-gateway.jsson
-- 2. Run: jsson -i api-gateway.jsson
-- 3. Configure your gateway!
-- 0.6. What's Next?• [Feature Flags](/real-world/feature-flags/) — Environment configs• [i18n](/real-world/i18n/) — Multi-language support
-
-## Content
-
-Centralize API gateway configuration for microservices with service-specific rate limiting, authentication strategies, and CORS policies.
-
-0.1. The Problem
-
-API gateways require dozens of similar route definitions with slight variations:• Repetitive configs — Copy-pasting route definitions• Inconsistent settings — Easy to miss rate limits or auth rules• Hard to maintain — Adding a service requires updating multiple places
-
-0.2. The JSSON Solution
-
-
-  
-</Tabs>
-
-0.3. Key Features
-
-0.3.1. Arrays in Objects
-
-
-
-0.3.2. Nested Ternary Logic
-
-
-
-Different rate limits per service type!
-
-0.4. When to Use
-
-✅ Perfect for:• API gateway configurations• Microservices routing• Rate limiting policies• CORS management
-
-0.5. Try It!
-
-1. Save to api-gateway.jsson
-2. Run: jsson -i api-gateway.jsson
-3. Configure your gateway!
-
-0.6. What's Next?• [Feature Flags](/real-world/feature-flags/) — Environment configs• [i18n](/real-world/i18n/) — Multi-language support
-
-Centralize your API config! 🌐

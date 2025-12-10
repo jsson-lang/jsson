@@ -1,13 +1,0 @@
-# JSSON Documentation — LLM Mode
-Source: ast.mdx
-Version: 0.0.5
-Generated: 2025-12-02T22:05:18.223Z
-
-## Table of Contents
-
-
-## Content
-
-Common nodes:• Program — root node containing statements• AssignmentStatement — name = value or name { ... }• IncludeStatement — include "path"• ObjectLiteral — object with keys and nested expressions• ArrayLiteral / ArrayTemplate — arrays and template-based rows• BinaryExpression, MemberExpression, RangeExpression — expressions used in transforms
-
-If you're building tooling that consumes JSSON, inspect internal/ast for Go structs and field names.

@@ -1,83 +1,0 @@
-# JSSON Documentation — LLM Mode
-Source: kubernetes.mdx
-Version: 0.0.5
-Generated: 2025-12-02T22:05:18.168Z
-
-## Table of Contents
-- 0.1. The Problem
-- 0.2. The JSSON Solution
-- 0.3. Key Features Used
-- 0.3.1. Conditional Logic
-- 0.3.2. String Concatenation
-- 0.3.3. Templates for Structure
-- 0.4. Services Configuration
-- 0.5. ConfigMaps
-- 0.6. Benefits
-- 0.7. When to Use This Pattern
-- 0.8. Try It Yourself!
-- 1. Save the deployments example to k8s.jsson
-- 2. Run: jsson -i k8s.jsson -o k8s.json
-- 3. Use the JSON to generate Kubernetes manifests!
-- 0.9. What's Next?• [API Gateway](/real-world/api-gateway/) — Microservices routing• [Feature Flags](/real-world/feature-flags/) — Environment configs• [Overview](/real-world/overview/) — See all examples
-
-## Content
-
-Generate Kubernetes manifests for multiple environments (prod/staging/dev) from a single JSSON template with environment-specific configurations.
-
-0.1. The Problem
-
-Managing Kubernetes configs across environments means:• Duplicate manifests — Separate YAML/JSON files for each environment• Inconsistent naming — Easy to make mistakes in resource names• Hard to update — Changes require editing multiple files• Error-prone — Copy-paste errors in similar configs
-
-0.2. The JSSON Solution
-
-One template generates configs for all environments with conditional logic!
-
-
-  
-</Tabs>
-
-0.3. Key Features Used
-
-0.3.1. Conditional Logic
-
-
-
-0.3.2. String Concatenation
-
-
-
-0.3.3. Templates for Structure
-
-
-
-0.4. Services Configuration
-
-
-
-0.5. ConfigMaps
-
-
-
-0.6. Benefits
-
-Consistency — Same naming conventions across all resources  
-DRY — Define once, generate for all environments  
-Type Safety — Templates ensure all required fields are present  
-Easy Updates — Change one template, update all environments  
-Less Error-Prone — No copy-paste mistakes
-
-0.7. When to Use This Pattern
-
-Perfect for:• Multi-environment Kubernetes deployments• Microservices with similar configs• Infrastructure as code• Helm chart alternatives• GitOps workflows
-
-Not ideal for:• Extremely different configs per environment• One-off, unique resources• Complex Helm chart replacements
-
-0.8. Try It Yourself!
-
-1. Save the deployments example to k8s.jsson
-2. Run: jsson -i k8s.jsson -o k8s.json
-3. Use the JSON to generate Kubernetes manifests!
-
-0.9. What's Next?• [API Gateway](/real-world/api-gateway/) — Microservices routing• [Feature Flags](/real-world/feature-flags/) — Environment configs• [Overview](/real-world/overview/) — See all examples
-
-One template, all environments! ☸️

@@ -1,24 +1,0 @@
-# JSSON Documentation — LLM Mode
-Source: how-to-contribute.mdx
-Version: 0.0.5
-Generated: 2025-12-02T22:05:17.822Z
-
-## Table of Contents
-- 0.1. Running tests
-- 0.2. Local docs
-
-## Content
-
-• Run existing tests before opening a PR. Tests live under internal/ and use Go's test tooling.• Follow existing code style in Go files.• Add small, focused PRs — it's easier to review.
-
-0.1. Running tests
-
-``powershell
-go test ./... 
-`
-
-0.2. Local docs
-
-To preview the docs locally, run the dev server in apps/docs (see project README or apps/docs/package.json).
-
-We love small, well-documented contributions — add examples to examples/` if you add syntax.

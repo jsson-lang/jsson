@@ -1,55 +1,0 @@
-# JSSON Documentation — LLM Mode
-Source: feature-flags.mdx
-Version: 0.0.5
-Generated: 2025-12-02T22:05:18.154Z
-
-## Table of Contents
-- 0.1. The Problem
-- 0.2. The JSSON Solution
-- 0.3. Service Configuration
-- 0.4. Benefits
-- 0.5. When to Use
-- 0.6. Try It!
-- 1. Save to feature-flags.jsson
-- 2. Run: jsson -i feature-flags.jsson
-- 3. Manage your features!
-- 0.7. What's Next?• [Kubernetes](/real-world/kubernetes/) — Multi-env deployments• [Overview](/real-world/overview/) — All examples
-
-## Content
-
-Manage feature flags and service configurations across dev/staging/prod environments with conditional logic.
-
-0.1. The Problem
-
-Managing configs across environments means:• Separate files — One config file per environment• Duplication — Same structure repeated 3+ times• Sync issues — Easy to miss updates in some environments
-
-0.2. The JSSON Solution
-
-
-  
-</Tabs>
-
-0.3. Service Configuration
-
-
-
-0.4. Benefits
-
-Single source — One file for all environments  
-Conditional logic — Different values per environment  
-Easy toggles — Change true to false  
-Consistency — Same structure everywhere
-
-0.5. When to Use
-
-Perfect for:• Feature flag management• Environment-specific configs• A/B testing setups• Rollout strategies
-
-0.6. Try It!
-
-1. Save to feature-flags.jsson
-2. Run: jsson -i feature-flags.jsson
-3. Manage your features!
-
-0.7. What's Next?• [Kubernetes](/real-world/kubernetes/) — Multi-env deployments• [Overview](/real-world/overview/) — All examples
-
-Toggle features with confidence! 🚀

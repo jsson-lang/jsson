@@ -1,81 +1,0 @@
-# JSSON Documentation — LLM Mode
-Source: database-seed.mdx
-Version: 0.0.5
-Generated: 2025-12-02T22:05:18.100Z
-
-## Table of Contents
-- 0.1. The Problem
-- 0.2. The JSSON Solution
-- 0.3. Products with Categories
-- 0.4. Orders with Relationships
-- 0.5. Key Features
-- 0.5.1. Ranges for Scale
-- 0.5.2. Foreign Keys
-- 0.5.3. Variety with Modulo
-- 0.6. Benefits
-- 0.7. When to Use
-- 0.8. Try It!
-- 1. Save to database-seed.jsson
-- 2. Run: jsson -i database-seed.jsson
-- 3. Import into your database!
-- 0.9. What's Next?• [Geographic Data](/real-world/geographic-data/) — Millions of coordinates• [Overview](/real-world/overview/) — All examples
-
-## Content
-
-Generate hundreds of related database records for development and testing with proper foreign key relationships.
-
-0.1. The Problem
-
-Creating seed data for development requires:• Manual work — Writing hundreds of INSERT statements• Relationships — Maintaining foreign key consistency• Realistic data — Making it look like real production data• Variety — Different values, not just copy-paste
-
-0.2. The JSSON Solution
-
-
-  
-</Tabs>
-
-0.3. Products with Categories
-
-
-
-0.4. Orders with Relationships
-
-
-
-0.5. Key Features
-
-0.5.1. Ranges for Scale
-
-
-
-0.5.2. Foreign Keys
-
-
-
-0.5.3. Variety with Modulo
-
-
-
-0.6. Benefits
-
-Realistic — Varied, production-like data  
-Relationships — Proper foreign keys  
-Scalable — Generate thousands of records  
-Consistent — Templates ensure structure  
-Fast — 100 lines → 200+ records
-
-0.7. When to Use
-
-Perfect for:• Development database seeding• Testing with realistic data• Demo environments• Load testing data
-
-Not ideal for:• Production data• Extremely unique records• Complex business logic
-
-0.8. Try It!
-
-1. Save to database-seed.jsson
-2. Run: jsson -i database-seed.jsson
-3. Import into your database!
-
-0.9. What's Next?• [Geographic Data](/real-world/geographic-data/) — Millions of coordinates• [Overview](/real-world/overview/) — All examples
-
-Seed your database with ease! 💾
