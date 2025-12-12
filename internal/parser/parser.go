@@ -107,7 +107,10 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
-	case token.IDENT:
+	case token.IDENT,
+		token.UUID, token.EMAIL, token.URL,
+		token.IPV4, token.IPV6, token.FILEPATH,
+		token.DATE, token.DATETIME, token.REGEX:
 		// Could be Assignment (key = val), VariableDeclaration (key := val), Object (key { ... }) or ArrayTemplate (key [ ... ])
 		if p.peekToken.Type == token.DECLARE {
 			return p.parseVariableDeclaration()
@@ -219,6 +222,91 @@ func (p *Parser) parsePresetReference() ast.Expression {
 	return ref
 }
 
+func (p *Parser) parseAtExpression() ast.Expression {
+	p.nextToken() // consume @
+
+	// Check what follows @
+	switch p.curToken.Type {
+	case token.STRING, token.RAWSTRING:
+		// @"preset" - preset reference
+		return p.parsePresetReferenceAfterAt()
+	case token.USE:
+		// @use "preset"
+		p.nextToken()
+		return p.parsePresetReferenceAfterAt()
+	case token.UUID, token.EMAIL, token.URL, token.IPV4, token.IPV6,
+		token.FILEPATH, token.DATE, token.DATETIME, token.REGEX,
+		token.VINT, token.VFLOAT, token.VBOOL:
+		// @uuid, @email, @int(min, max), etc - validators
+		return p.parseValidator()
+	default:
+		p.addError(fmt.Sprintf("unexpected token after @: %s", p.curToken.Literal))
+		return nil
+	}
+}
+
+func (p *Parser) parsePresetReferenceAfterAt() ast.Expression {
+	ref := &ast.PresetReference{Token: p.curToken}
+	ref.Name = &ast.StringLiteral{Token: p.curToken, Value: p.curToken.Literal}
+
+	// Check for optional overrides
+	if p.peekToken.Type == token.LBRACE {
+		p.nextToken() // move to {
+		overridesExpr := p.parseObjectLiteral()
+		if obj, ok := overridesExpr.(*ast.ObjectLiteral); ok {
+			ref.Overrides = obj
+		}
+	}
+
+	return ref
+}
+
+func (p *Parser) parseValidator() ast.Expression {
+	validator := &ast.ValidatorExpression{
+		Token: p.curToken,
+		Type:  strings.ToLower(p.curToken.Literal),
+	}
+
+	// Check if validator has arguments: @int(10, 100) or @regex("pattern")
+	if p.peekToken.Type == token.LPAREN {
+		p.nextToken() // consume validator name
+		p.nextToken() // consume (
+
+		// Parse arguments
+		args := []interface{}{}
+		for p.curToken.Type != token.RPAREN && p.curToken.Type != token.EOF {
+			// Handle string arguments (for @regex)
+			if p.curToken.Type == token.STRING || p.curToken.Type == token.RAWSTRING {
+				validator.Pattern = p.curToken.Literal
+				args = append(args, p.curToken.Literal)
+			} else if p.curToken.Type == token.INT {
+				// Parse integer argument
+				val, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
+				if err == nil {
+					args = append(args, val)
+				}
+			} else if p.curToken.Type == token.FLOAT {
+				// Parse float argument
+				val, err := strconv.ParseFloat(p.curToken.Literal, 64)
+				if err == nil {
+					args = append(args, val)
+				}
+			}
+
+			p.nextToken()
+
+			// Handle comma between arguments
+			if p.curToken.Type == token.COMMA {
+				p.nextToken()
+			}
+		}
+
+		validator.Args = args
+	}
+
+	return validator
+}
+
 func (p *Parser) parseAssignment() *ast.AssignmentStatement {
 	stmt := &ast.AssignmentStatement{Token: p.curToken}
 	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
@@ -288,7 +376,7 @@ func (p *Parser) parsePrefix() ast.Expression {
 		return p.parseFloatLiteral()
 	case token.STRING, token.RAWSTRING, token.TEMPLATESTR:
 		return p.parseStringLiteral()
-	case token.TRUE, token.FALSE:
+	case token.TRUE, token.FALSE, token.YES, token.NO, token.ON, token.OFF:
 		return p.parseBooleanLiteral()
 	case token.LPAREN:
 		return p.parseGroupedExpression()
@@ -300,8 +388,8 @@ func (p *Parser) parsePrefix() ast.Expression {
 		// Unary minus for negative numbers
 		return p.parsePrefixExpression()
 	case token.AT:
-		// Preset reference: @"name" or @"name" { overrides }
-		return p.parsePresetReference()
+		// Can be: @"preset", @uuid, @email, etc
+		return p.parseAtExpression()
 	default:
 		return nil
 	}
@@ -712,7 +800,10 @@ func (p *Parser) parseInterpolatedString(content string) ast.Expression {
 }
 
 func (p *Parser) parseBooleanLiteral() ast.Expression {
-	return &ast.BooleanLiteral{Token: p.curToken, Value: p.curToken.Type == token.TRUE}
+	value := p.curToken.Type == token.TRUE ||
+		p.curToken.Type == token.YES ||
+		p.curToken.Type == token.ON
+	return &ast.BooleanLiteral{Token: p.curToken, Value: value}
 }
 
 func (p *Parser) parseObjectLiteral() ast.Expression {
@@ -724,7 +815,8 @@ func (p *Parser) parseObjectLiteral() ast.Expression {
 	p.nextToken() // consume {
 
 	for p.curToken.Type != token.RBRACE && p.curToken.Type != token.EOF {
-		if p.curToken.Type != token.IDENT {
+		// Accept IDENT or keywords as property names
+		if !p.isValidPropertyName() {
 			p.nextToken()
 			continue
 		}
@@ -842,4 +934,21 @@ func (p *Parser) parseMapExpression(left ast.Expression) ast.Expression {
 	expression.Body = p.parseExpression(LOWEST)
 
 	return expression
+}
+
+func (p *Parser) isValidPropertyName() bool {
+	// Allow IDENT and keywords as property names
+	switch p.curToken.Type {
+	case token.IDENT,
+		token.TRUE, token.FALSE,
+		token.YES, token.NO, token.ON, token.OFF,
+		token.TEMPLATE, token.MAP, token.INCLUDE, token.STEP,
+		token.PRESET, token.USE,
+		token.UUID, token.EMAIL, token.URL,
+		token.IPV4, token.IPV6, token.FILEPATH,
+		token.DATE, token.DATETIME, token.REGEX:
+		return true
+	default:
+		return false
+	}
 }

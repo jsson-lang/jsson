@@ -5,39 +5,44 @@ JSSON - JavaScript Simplified Object Notation
 A human-friendly syntax that transpiles to JSON, YAML, TOML, and TypeScript.
 
 Usage:
-  jsson [command] [flags]
+
+	jsson [command] [flags]
 
 Commands:
-  (default)    Transpile JSSON file to output format
-  serve        Start HTTP server for API access
+
+	(default)    Transpile JSSON file to output format
+	serve        Start HTTP server for API access
 
 Transpile Flags:
-  -i string    Input JSSON file (required)
-  -f string    Output format: json|yaml|toml|typescript (default "json")
-  -schema      Schema file to validate output against (optional)
-  -validate-only  Only validate, don't output result
-  -stream      Enable streaming mode for large datasets
-  -stream-threshold  Auto-enable streaming threshold (default 10000)
+
+	-i string    Input JSSON file (required)
+	-f string    Output format: json|yaml|toml|typescript (default "json")
+	-schema      Schema file to validate output against (optional)
+	-validate-only  Only validate, don't output result
+	-stream      Enable streaming mode for large datasets
+	-stream-threshold  Auto-enable streaming threshold (default 10000)
 
 Server Flags:
-  -port int    Port to listen on (default 8090)
-  -cors        Enable CORS (default true)
+
+	-port int    Port to listen on (default 8090)
+	-cors        Enable CORS (default true)
 
 Examples:
-  # Transpile to JSON
-  jsson -i config.jsson
 
-  # Transpile to YAML
-  jsson -i config.jsson -f yaml
+	# Transpile to JSON
+	jsson -i config.jsson
 
-  # Validate against schema
-  jsson -i config.jsson -schema schema.json
+	# Transpile to YAML
+	jsson -i config.jsson -f yaml
 
-  # Start HTTP server
-  jsson serve
+	# Validate against schema
+	jsson -i config.jsson -schema schema.json
 
-  # Start server on custom port
-  jsson serve -port 3000
+	# Start HTTP server
+	jsson serve
+
+	# Start server on custom port
+	jsson serve -port 3000
 */
 package main
 
@@ -222,8 +227,8 @@ func runTranspiler() {
 			fmt.Fprintf(os.Stderr, "\n❌ Validation failed against schema (%s format):\n", schemaFormat)
 			for _, verr := range result.Errors {
 				fmt.Fprintf(os.Stderr, "  • %s: %s\n", verr.Path, verr.Message)
-				if verr.Value != "" {
-					fmt.Fprintf(os.Stderr, "    Got: %s\n", verr.Value)
+				if verr.Value != nil {
+					fmt.Fprintf(os.Stderr, "    Got: %v\n", verr.Value)
 				}
 				if verr.Expected != "" {
 					fmt.Fprintf(os.Stderr, "    Expected: %s\n", verr.Expected)
@@ -584,11 +589,15 @@ func validateWithSchemaHandler(w http.ResponseWriter, r *http.Request) {
 
 	var validationErrors []ValidationError
 	for _, e := range result.Errors {
+		var valueStr string
+		if e.Value != nil {
+			valueStr = fmt.Sprintf("%v", e.Value)
+		}
 		validationErrors = append(validationErrors, ValidationError{
 			Path:       e.Path,
 			Message:    e.Message,
 			SchemaPath: e.SchemaPath,
-			Value:      e.Value,
+			Value:      valueStr,
 			Expected:   e.Expected,
 		})
 	}

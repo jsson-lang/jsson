@@ -1,0 +1,257 @@
+// Multi-Region Infrastructure Configuration Example
+// Tests: complex nested ternary, nested maps, range maps, complex objects
+
+regions [
+  template { region, isPrimary, instanceType }
+  
+  map (r) = {
+    region = r.region
+    primary = r.isPrimary
+    
+    vpc = {
+      cidr = (r.region == "us-east-1" ? "10.0.0.0/16" : (r.region == "us-west-2" ? "10.1.0.0/16" : (r.region == "eu-west-1" ? "10.2.0.0/16" : "10.3.0.0/16")))
+      
+      enableDnsHostnames = true
+      enableDnsSupport = true
+      
+      tags = {
+        Name = "vpc-" + r.region
+        Environment = production
+        Primary = r.isPrimary
+      }
+    }
+    
+    subnets = ([a, b, c] map (zone) = {
+      availabilityZone = r.region + zone
+      cidr = (r.region == "us-east-1" ? "10.0." + zone + ".0/24" : (r.region == "us-west-2" ? "10.1." + zone + ".0/24" : (r.region == "eu-west-1" ? "10.2." + zone + ".0/24" : "10.3." + zone + ".0/24")))
+      
+      mapPublicIpOnLaunch = true
+      
+      tags = {
+        Name = "subnet-" + r.region + "-" + zone
+        Type = public
+      }
+    })
+    
+    instances = {
+      web = {
+        instanceType = r.instanceType
+        count = (r.isPrimary ? 3 : 2)
+        ami = (r.region == "us-east-1" ? "ami-0c55b159cbfafe1f0" : (r.region == "us-west-2" ? "ami-0d1cd67c26f5fca19" : (r.region == "eu-west-1" ? "ami-0dad359ff462124ca" : "ami-default")))
+        
+        securityGroups = ["web-sg"]
+        
+        tags = {
+          Name = "web-" + r.region
+          Role = webserver
+        }
+      }
+      
+      database = {
+        instanceType = (r.isPrimary ? "db.r5.large" : "db.r5.medium")
+        engine = postgres
+        engineVersion = "14.7"
+        allocatedStorage = (r.isPrimary ? 100 : 50)
+        multiAZ = r.isPrimary
+        
+        replicaOf = (r.isPrimary ? null : "db-us-east-1")
+        
+        tags = {
+          Name = "db-" + r.region
+          Role = database
+        }
+      }
+    }
+    
+    loadBalancer = {
+      name = "alb-" + r.region
+      type = application
+      scheme = "internet-facing"
+      
+      listeners = [
+        {
+          port = 80
+          protocol = HTTP
+          redirect = {
+            port = 443
+            protocol = HTTPS
+            statusCode = HTTP_301
+          }
+        },
+        {
+          port = 443
+          protocol = HTTPS
+          certificateArn = "arn:aws:acm:" + r.region + ":123456789:certificate/abc123"
+        }
+      ]
+    }
+  }
+  
+  // Primary region (US East)
+  "us-east-1", true, "t3.large"
+  
+  // Secondary regions
+  "us-west-2", false, "t3.medium"
+  "eu-west-1", false, "t3.medium"
+  "ap-southeast-1", false, "t3.small"
+]
+
+// CDN Configuration
+cdnEndpoints [
+  template { region, continent }
+  
+  map (e) = {
+    region = e.region
+    continent = e.continent
+    
+    endpoint = e.region + ".cdn.example.com"
+    
+    origin = {
+      domainName = "origin-" + e.region + ".s3.amazonaws.com"
+      originPath = "/assets"
+      
+      customHeaders = [
+        {
+          headerName = "X-Origin-Region"
+          headerValue = e.region
+        }
+      ]
+    }
+    
+    caching = {
+      ttl = (e.continent == NA ? 3600 : 7200)
+      queryStringCaching = UseQueryString
+      
+      compress = true
+      
+      allowedMethods = [GET, HEAD, OPTIONS]
+      cachedMethods = [GET, HEAD]
+    }
+    
+    geoRestriction = {
+      restrictionType = none
+      locations = []
+    }
+    
+    priceClass = (e.continent == NA ? PriceClass_100 : PriceClass_All)
+  }
+  
+  // North America
+  "us-east", NA
+  "us-west", NA
+  "ca-central", NA
+  
+  // Europe
+  "eu-west", EU
+  "eu-central", EU
+  
+  // Asia Pacific
+  "ap-southeast", APAC
+  "ap-northeast", APAC
+]
+
+// Disaster Recovery Setup
+drConfiguration {
+  primary = {
+    region = "us-east-1"
+    availabilityZones = ["us-east-1a", "us-east-1b", "us-east-1c"]
+    
+    backups = {
+      enabled = true
+      retentionDays = 30
+      window = "03:00-04:00"
+      
+      destinations = [
+        "s3://backups-us-east-1/",
+        "s3://backups-us-west-2/"
+      ]
+    }
+    
+    monitoring = {
+      enabled = true
+      alarms = [
+        {
+          metric = HealthCheckStatus
+          threshold = 1
+          evaluationPeriods = 2
+          action = failover
+        }
+      ]
+    }
+  }
+  
+  secondary [
+    template { region, priority }
+    
+    map (s) = {
+      region = s.region
+      priority = s.priority
+      
+      standbyMode = (s.priority == 1 ? hot : warm)
+      
+      replication = {
+        source = "us-east-1"
+        lag = (s.priority == 1 ? "< 1min" : "< 5min")
+        async = true
+      }
+      
+      failover = {
+        automatic = (s.priority == 1)
+        healthCheckInterval = (s.priority == 1 ? 30 : 60)
+        unhealthyThreshold = 3
+        
+        dnsFailover = {
+          type = (s.priority == 1 ? primary : secondary)
+          ttl = 60
+        }
+      }
+    }
+    
+    "us-west-2", 1
+    "eu-west-1", 2
+    "ap-southeast-1", 3
+  ]
+  
+  rpo = "< 1 minute"
+  rto = "< 5 minutes"
+}
+
+// Global Traffic Routing
+trafficPolicies [
+  template { policyName, routingType }
+  
+  map (t) = {
+    name = t.policyName
+    type = t.routingType
+    
+    endpoints [
+      template { region, weight, priority }
+      
+      map (e) = {
+        region = e.region
+        endpoint = e.region + ".api.example.com"
+        
+        weight = (t.routingType == weighted ? e.weight : null)
+        priority = (t.routingType == failover ? e.priority : null)
+        
+        healthCheck = {
+          protocol = HTTPS
+          path = "/health"
+          interval = 30
+          timeout = 5
+          healthyThreshold = 2
+          unhealthyThreshold = 3
+        }
+        
+        location = (e.region == "us-east-1" ? Virginia : (e.region == "us-west-2" ? Oregon : (e.region == "eu-west-1" ? Ireland : Singapore)))
+      }
+      
+      "us-east-1", 70, 1
+      "us-west-2", 20, 2
+      "eu-west-1", 10, 3
+    ]
+  }
+  
+  "production-api", weighted
+  "production-api-failover", failover
+]

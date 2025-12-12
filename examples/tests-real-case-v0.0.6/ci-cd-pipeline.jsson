@@ -1,0 +1,152 @@
+// CI/CD Pipeline Configuration Example
+// Tests: templates, maps, nested objects, ternary, string concatenation
+
+name = "CI/CD Pipeline"
+
+on {
+  push {
+    branches = [main, develop]
+  }
+  pull_request {
+    branches = [main]
+  }
+}
+
+jobs [
+  template { name, environment, nodeVersion }
+  
+  map (job) = {
+    name = job.name + "-" + job.environment
+    runs-on = "ubuntu-latest"
+    
+    environment = job.environment
+    
+    steps = [
+      {
+        name = "Checkout code"
+        uses = "actions/checkout@v3"
+      },
+      {
+        name = "Setup Node.js"
+        uses = "actions/setup-node@v3"
+        with = {
+          node-version = job.nodeVersion
+        }
+      },
+      {
+        name = "Install dependencies"
+        run = "npm ci"
+      },
+      {
+        name = "Run tests"
+        run = "npm test"
+      },
+      {
+        name = "Build"
+        run = "npm run build"
+      },
+      {
+        name = "Deploy"
+        run = "npm run deploy:" + job.environment
+        if = job.environment != "test"
+      }
+    ]
+  }
+  
+  build, dev, "18.x"
+  build, staging, "18.x"
+  build, production, "20.x"
+]
+
+// GitLab CI Pipeline
+stages = [build, test, deploy]
+
+variables {
+  DOCKER_REGISTRY = "registry.example.com"
+  APP_NAME = "my-app"
+}
+
+gitlabJobs [
+  template { stage, environment, dockerTag }
+  
+  map (j) = {
+    name = j.stage + ":" + j.environment
+    stage = j.stage
+    image = "node:18"
+    
+    script = (j.stage == build ? [
+      "npm ci",
+      "npm run build",
+      "docker build -t $DOCKER_REGISTRY/$APP_NAME:" + j.dockerTag + " ."
+    ] : (j.stage == test ? [
+      "npm ci",
+      "npm test",
+      "npm run lint"
+    ] : [
+      "kubectl set image deployment/$APP_NAME app=$DOCKER_REGISTRY/$APP_NAME:" + j.dockerTag,
+      "kubectl rollout status deployment/$APP_NAME"
+    ]))
+    
+    only = [j.environment == production ? main : develop]
+    
+    environment {
+      name = j.environment
+      url = "https://" + j.environment + ".example.com"
+    }
+  }
+  
+  build, dev, "dev-latest"
+  test, dev, "dev-latest"
+  deploy, dev, "dev-latest"
+  
+  build, staging, "staging-latest"
+  test, staging, "staging-latest"
+  deploy, staging, "staging-latest"
+  
+  build, production, "v1.0.0"
+  test, production, "v1.0.0"
+  deploy, production, "v1.0.0"
+]
+
+// Multi-stage Docker Build Pipeline
+pipeline {
+  agent {
+    docker {
+      image = "node:18-alpine"
+    }
+  }
+  
+  stages [
+    template { name, command }
+    
+    map (s) = {
+      stage = s.name
+      steps = [
+        {
+          sh = s.command
+        }
+      ]
+      when = (s.name == Deploy ? {
+        branch = main
+      } : null)
+    }
+    
+    Install, "npm ci"
+    Lint, "npm run lint"
+    Test, "npm test"
+    Build, "npm run build"
+    Deploy, "npm run deploy"
+  ]
+}
+
+// Environment Matrix
+environments = [dev, staging, production]
+nodeVersions = ["16.x", "18.x", "20.x"]
+
+matrix = (environments map (env) = (
+  nodeVersions map (version) = {
+    environment = env
+    nodeVersion = version
+    jobName = "test-" + env + "-node" + version
+  }
+))

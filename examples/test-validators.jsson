@@ -1,0 +1,33 @@
+// Test validators generating values
+
+user {
+  id = @uuid
+  email = @email
+  website = @url
+  created_at = @datetime
+  birth_date = @date
+}
+
+server {
+  ipv4_address = @ipv4
+  ipv6_address = @ipv6
+  log_file = @filepath
+}
+
+users [
+  template { id, email, website }
+  
+  @uuid, @email, @url
+  @uuid, @email, @url  
+  @uuid, @email, @url
+]
+
+config {
+  // Mix validators with regular values
+  app_name = "MyApp"
+  api_key = @uuid
+  enabled = yes
+  admin_email = @email
+  active = on
+  server_ip = @ipv4
+}

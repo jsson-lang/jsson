@@ -1,0 +1,56 @@
+// JSSON v0.0.6 - Complete feature showcase
+
+// Boolean literals extras
+settings {
+  debug = yes
+  production = no
+  ssl_enabled = on
+  maintenance = off
+  cache = true
+  logging = false
+}
+
+// Validators - auto-generate valid data
+user {
+  id = @uuid
+  email = @email  
+  website = @url
+  created_at = @datetime
+  birth_date = @date
+}
+
+server {
+  ipv4 = @ipv4
+  ipv6 = @ipv6
+  config_file = @filepath
+}
+
+// Multiple users with unique data
+team {
+  lead {
+    id = @uuid
+    email = @email
+  }
+  
+  dev1 {
+    id = @uuid
+    email = @email
+  }
+  
+  dev2 {
+    id = @uuid
+    email = @email
+  }
+}
+
+// Mix everything
+app {
+  name = "JSSON Demo"
+  version = "0.0.6"
+  uuid = @uuid
+  enabled = yes
+  debug_mode = on
+  admin_contact = @email
+  homepage = @url
+  released_at = @datetime
+}

@@ -5,16 +5,21 @@ import (
 	"jsson/internal/token"
 )
 
+// Node is the base interface for all AST nodes
 type Node interface {
 	TokenLiteral() string
 	String() string
+	// Position returns the line and column of the node in the source file
+	Position() (line, col int)
 }
 
+// Statement is a node that represents a statement
 type Statement interface {
 	Node
 	statementNode()
 }
 
+// Expression is a node that represents an expression
 type Expression interface {
 	Node
 	expressionNode()
@@ -39,6 +44,13 @@ func (p *Program) String() string {
 	return out.String()
 }
 
+func (p *Program) Position() (int, int) {
+	if len(p.Statements) > 0 {
+		return p.Statements[0].Position()
+	}
+	return 0, 0
+}
+
 // Assignment: name = "value"
 type AssignmentStatement struct {
 	Token token.Token // the token.IDENT
@@ -48,6 +60,7 @@ type AssignmentStatement struct {
 
 func (as *AssignmentStatement) statementNode()       {}
 func (as *AssignmentStatement) TokenLiteral() string { return as.Token.Literal }
+func (as *AssignmentStatement) Position() (int, int) { return as.Token.Line, as.Token.Column }
 func (as *AssignmentStatement) String() string {
 	var out bytes.Buffer
 	out.WriteString(as.Name.String())
@@ -67,6 +80,7 @@ type VariableDeclaration struct {
 
 func (vd *VariableDeclaration) statementNode()       {}
 func (vd *VariableDeclaration) TokenLiteral() string { return vd.Token.Literal }
+func (vd *VariableDeclaration) Position() (int, int) { return vd.Token.Line, vd.Token.Column }
 func (vd *VariableDeclaration) String() string {
 	var out bytes.Buffer
 	out.WriteString(vd.Name.String())
@@ -85,6 +99,7 @@ type Identifier struct {
 
 func (i *Identifier) expressionNode()      {}
 func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
+func (i *Identifier) Position() (int, int) { return i.Token.Line, i.Token.Column }
 func (i *Identifier) String() string       { return i.Value }
 
 // Literals
@@ -95,6 +110,7 @@ type IntegerLiteral struct {
 
 func (il *IntegerLiteral) expressionNode()      {}
 func (il *IntegerLiteral) TokenLiteral() string { return il.Token.Literal }
+func (il *IntegerLiteral) Position() (int, int) { return il.Token.Line, il.Token.Column }
 func (il *IntegerLiteral) String() string       { return il.Token.Literal }
 
 type FloatLiteral struct {
@@ -104,6 +120,7 @@ type FloatLiteral struct {
 
 func (fl *FloatLiteral) expressionNode()      {}
 func (fl *FloatLiteral) TokenLiteral() string { return fl.Token.Literal }
+func (fl *FloatLiteral) Position() (int, int) { return fl.Token.Line, fl.Token.Column }
 func (fl *FloatLiteral) String() string       { return fl.Token.Literal }
 
 type BooleanLiteral struct {
@@ -113,17 +130,40 @@ type BooleanLiteral struct {
 
 func (b *BooleanLiteral) expressionNode()      {}
 func (b *BooleanLiteral) TokenLiteral() string { return b.Token.Literal }
+func (b *BooleanLiteral) Position() (int, int) { return b.Token.Line, b.Token.Column }
 func (b *BooleanLiteral) String() string       { return b.Token.Literal }
 
 type StringLiteral struct {
-	Token token.Token
-	Value string
-	IsRaw bool // true if this is a raw string ("""...""")
+	Token     token.Token
+	Value     string
+	IsRaw     bool
+	Validator *ValidatorExpression
 }
 
 func (sl *StringLiteral) expressionNode()      {}
 func (sl *StringLiteral) TokenLiteral() string { return sl.Token.Literal }
+func (sl *StringLiteral) Position() (int, int) { return sl.Token.Line, sl.Token.Column }
 func (sl *StringLiteral) String() string       { return sl.Token.Literal }
+
+type ValidatorExpression struct {
+	Token   token.Token
+	Type    string
+	Pattern string
+	Args    []interface{} // For validators like @int(min, max), @float(min, max)
+}
+
+func (ve *ValidatorExpression) expressionNode()      {}
+func (ve *ValidatorExpression) TokenLiteral() string { return ve.Token.Literal }
+func (ve *ValidatorExpression) Position() (int, int) { return ve.Token.Line, ve.Token.Column }
+func (ve *ValidatorExpression) String() string {
+	if ve.Pattern != "" {
+		return "@" + ve.Type + "(\"" + ve.Pattern + "\")"
+	}
+	if len(ve.Args) > 0 {
+		return "@" + ve.Type + "(...)"
+	}
+	return "@" + ve.Type
+}
 
 // InterpolatedString represents a raw string with {var} interpolations
 // Example: """Hello {user.name}, balance: {user.balance * 10}"""
@@ -134,6 +174,7 @@ type InterpolatedString struct {
 
 func (is *InterpolatedString) expressionNode()      {}
 func (is *InterpolatedString) TokenLiteral() string { return is.Token.Literal }
+func (is *InterpolatedString) Position() (int, int) { return is.Token.Line, is.Token.Column }
 func (is *InterpolatedString) String() string {
 	var out bytes.Buffer
 	for _, part := range is.Parts {
@@ -159,6 +200,7 @@ type ObjectLiteral struct {
 
 func (o *ObjectLiteral) expressionNode()      {}
 func (o *ObjectLiteral) TokenLiteral() string { return o.Token.Literal }
+func (o *ObjectLiteral) Position() (int, int) { return o.Token.Line, o.Token.Column }
 func (o *ObjectLiteral) String() string {
 	var out bytes.Buffer
 	out.WriteString("{ ")
@@ -182,6 +224,7 @@ type ArrayLiteral struct {
 
 func (al *ArrayLiteral) expressionNode()      {}
 func (al *ArrayLiteral) TokenLiteral() string { return al.Token.Literal }
+func (al *ArrayLiteral) Position() (int, int) { return al.Token.Line, al.Token.Column }
 func (al *ArrayLiteral) String() string {
 	var out bytes.Buffer
 	out.WriteString("[")
@@ -204,6 +247,7 @@ type MapClause struct {
 
 func (mc *MapClause) expressionNode()      {}
 func (mc *MapClause) TokenLiteral() string { return mc.Token.Literal }
+func (mc *MapClause) Position() (int, int) { return mc.Token.Line, mc.Token.Column }
 func (mc *MapClause) String() string {
 	return "map (" + mc.Param.String() + ") = " + mc.Body.String()
 }
@@ -218,6 +262,7 @@ type BinaryExpression struct {
 
 func (be *BinaryExpression) expressionNode()      {}
 func (be *BinaryExpression) TokenLiteral() string { return be.Operator }
+func (be *BinaryExpression) Position() (int, int) { return be.Token.Line, be.Token.Column }
 func (be *BinaryExpression) String() string {
 	return "(" + be.Left.String() + " " + be.Operator + " " + be.Right.String() + ")"
 }
@@ -231,6 +276,7 @@ type MemberExpression struct {
 
 func (me *MemberExpression) expressionNode()      {}
 func (me *MemberExpression) TokenLiteral() string { return me.Token.Literal }
+func (me *MemberExpression) Position() (int, int) { return me.Token.Line, me.Token.Column }
 func (me *MemberExpression) String() string {
 	return me.Left.String() + "." + me.Property.String()
 }
@@ -246,6 +292,7 @@ type ArrayTemplate struct {
 
 func (at *ArrayTemplate) expressionNode()      {}
 func (at *ArrayTemplate) TokenLiteral() string { return at.Token.Literal }
+func (at *ArrayTemplate) Position() (int, int) { return at.Token.Line, at.Token.Column }
 func (at *ArrayTemplate) String() string {
 	var out bytes.Buffer
 	if at.Name != nil {
@@ -273,6 +320,7 @@ type MapExpression struct {
 
 func (me *MapExpression) expressionNode()      {}
 func (me *MapExpression) TokenLiteral() string { return me.Token.Literal }
+func (me *MapExpression) Position() (int, int) { return me.Token.Line, me.Token.Column }
 func (me *MapExpression) String() string {
 	var out bytes.Buffer
 	out.WriteString("(")
@@ -295,6 +343,7 @@ type RangeExpression struct {
 
 func (re *RangeExpression) expressionNode()      {}
 func (re *RangeExpression) TokenLiteral() string { return re.Token.Literal }
+func (re *RangeExpression) Position() (int, int) { return re.Token.Line, re.Token.Column }
 func (re *RangeExpression) String() string {
 	if re.Step != nil {
 		return re.Start.String() + ".." + re.End.String() + " step " + re.Step.String()
@@ -310,6 +359,7 @@ type IncludeStatement struct {
 
 func (is *IncludeStatement) statementNode()       {}
 func (is *IncludeStatement) TokenLiteral() string { return is.Token.Literal }
+func (is *IncludeStatement) Position() (int, int) { return is.Token.Line, is.Token.Column }
 func (is *IncludeStatement) String() string {
 	return "include " + is.Path.String()
 }
@@ -324,6 +374,7 @@ type ConditionalExpression struct {
 
 func (ce *ConditionalExpression) expressionNode()      {}
 func (ce *ConditionalExpression) TokenLiteral() string { return ce.Token.Literal }
+func (ce *ConditionalExpression) Position() (int, int) { return ce.Token.Line, ce.Token.Column }
 func (ce *ConditionalExpression) String() string {
 	return "(" + ce.Condition.String() + " ? " + ce.Consequence.String() + " : " + ce.Alternative.String() + ")"
 }
@@ -338,6 +389,7 @@ type PresetStatement struct {
 
 func (ps *PresetStatement) statementNode()       {}
 func (ps *PresetStatement) TokenLiteral() string { return ps.Token.Literal }
+func (ps *PresetStatement) Position() (int, int) { return ps.Token.Line, ps.Token.Column }
 func (ps *PresetStatement) String() string {
 	var out bytes.Buffer
 	out.WriteString("@preset ")
@@ -357,6 +409,7 @@ type PresetReference struct {
 
 func (pr *PresetReference) expressionNode()      {}
 func (pr *PresetReference) TokenLiteral() string { return pr.Token.Literal }
+func (pr *PresetReference) Position() (int, int) { return pr.Token.Line, pr.Token.Column }
 func (pr *PresetReference) String() string {
 	var out bytes.Buffer
 	out.WriteString("@")

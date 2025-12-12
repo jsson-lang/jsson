@@ -1,0 +1,22 @@
+// Test new validators: @int(min, max), @float(min, max), @bool
+
+users [
+  template { name, age, score, balance, active }
+  
+  map (u) = {
+    id = @uuid
+    name = u.name
+    age = u.age
+    score = u.score
+    balance = u.balance
+    active = u.active
+    email = @email
+    website = @url
+  }
+  
+  "Alice", @int(18, 65), @float(0, 100), @float(100.50, 9999.99), @bool
+  "Bob", @int(18, 65), @float(0, 100), @float(100.50, 9999.99), @bool
+  "Charlie", @int(18, 65), @float(0, 100), @float(100.50, 9999.99), @bool
+  "Diana", @int(18, 65), @float(0, 100), @float(100.50, 9999.99), @bool
+  "Eve", @int(18, 65), @float(0, 100), @float(100.50, 9999.99), @bool
+]

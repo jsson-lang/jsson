@@ -1,0 +1,8 @@
+test {
+  enabled = yes
+  disabled = no
+  active = on
+  inactive = off
+  traditional = true
+  oldfalse = false
+}

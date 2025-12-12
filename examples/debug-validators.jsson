@@ -1,0 +1,15 @@
+test1 {
+  uuid = @uuid
+}
+
+test2 {
+  email = @email
+}
+
+test3 {
+  ipv4 = @ipv4
+}
+
+test4 {
+  ipv6 = @ipv6
+}

@@ -1,0 +1,32 @@
+// Test file for LSP
+api_url := "https://api.example.com"
+
+config {
+  name = "Test App"
+  ports = 8080..8085
+  debug = true
+}
+
+users [
+  template { name, age }
+  
+  John, 25
+  Mary, 30
+]
+
+items = (1..5 map (x) = x * 2)
+
+// This should show an error:
+invalid syntax here !!
+additional_setting = "value"
+
+features {
+  enable_feature_x = true
+  max_connections = 100
+}
+
+logging {
+  level = "info"
+  file = "/var/log/app.log"
+}
+

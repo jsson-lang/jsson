@@ -1,80 +1,80 @@
+// Package token re-exports jsson/internal/token for public use.
+// This package provides token definitions for the JSSON lexer.
 package token
 
-type TokenType string
+import "jsson/internal/token"
 
-type Token struct {
-	Type    TokenType
-	Literal string
-	Line    int
-	Column  int
-}
+// Re-export types
+type Token = token.Token
+type TokenType = token.TokenType
 
+// Re-export constants
 const (
-	ILLEGAL = "ILLEGAL"
-	EOF     = "EOF"
-
-	// Identifiers + Literals
-	IDENT       = "IDENT"       // user, name, age
-	INT         = "INT"         // 123
-	FLOAT       = "FLOAT"       // 123.45
-	STRING      = "STRING"      // "hello"
-	RAWSTRING   = "RAWSTRING"   // """raw text"""
-	TEMPLATESTR = "TEMPLATESTR" // `template ${var}`
+	// Literals
+	ILLEGAL = token.ILLEGAL
+	EOF     = token.EOF
+	IDENT   = token.IDENT
+	INT     = token.INT
+	FLOAT   = token.FLOAT
+	STRING  = token.STRING
 
 	// Operators
-	ASSIGN   = "="
-	DECLARE  = ":=" // Variable declaration
-	COLON    = ":"
-	QUESTION = "?"
-	EQ       = "=="
-	NEQ      = "!="
-	LT       = "<"
-	GT       = ">"
-	LTE      = "<="
-	GTE      = ">="
-	RANGE    = ".."
-	DOT      = "."
-	PLUS     = "+"
-	MINUS    = "-"
-	SLASH    = "/"
-	ASTERISK = "*"
-	MODULO   = "%"
-	LAND     = "&&" // Logical AND
-	LOR      = "||" // Logical OR
+	ASSIGN   = token.ASSIGN
+	DECLARE  = token.DECLARE
+	PLUS     = token.PLUS
+	MINUS    = token.MINUS
+	ASTERISK = token.ASTERISK
+	SLASH    = token.SLASH
+	MODULO   = token.MODULO
+
+	// Comparison
+	EQ  = token.EQ
+	NEQ = token.NEQ
+	LT  = token.LT
+	GT  = token.GT
+	LTE = token.LTE
+	GTE = token.GTE
+
+	// Logical
+	LAND = token.LAND
+	LOR  = token.LOR
 
 	// Delimiters
-	COMMA    = ","
-	LBRACE   = "{"
-	RBRACE   = "}"
-	LBRACKET = "["
-	RBRACKET = "]"
-	LPAREN   = "("
-	RPAREN   = ")"
-	AT       = "@" // Preset directive prefix
+	COMMA    = token.COMMA
+	COLON    = token.COLON
+	LBRACE   = token.LBRACE
+	RBRACE   = token.RBRACE
+	LBRACKET = token.LBRACKET
+	RBRACKET = token.RBRACKET
+	LPAREN   = token.LPAREN
+	RPAREN   = token.RPAREN
+	DOT      = token.DOT
+	RANGE    = token.RANGE
+	QUESTION = token.QUESTION
+	AT       = token.AT
 
 	// Keywords
-	TRUE     = "TRUE"
-	FALSE    = "FALSE"
-	TEMPLATE = "TEMPLATE"
-	MAP      = "MAP"
-	INCLUDE  = "INCLUDE"
-	STEP     = "STEP"
-	PRESET   = "PRESET" // @preset directive
+	INCLUDE  = token.INCLUDE
+	TEMPLATE = token.TEMPLATE
+	MAP      = token.MAP
+	STEP     = token.STEP
+	TRUE     = token.TRUE
+	FALSE    = token.FALSE
+	PRESET   = token.PRESET
+	USE      = token.USE
+
+	// Validators
+	UUID     = token.UUID
+	EMAIL    = token.EMAIL
+	URL      = token.URL
+	IPV4     = token.IPV4
+	IPV6     = token.IPV6
+	FILEPATH = token.FILEPATH
+	DATE     = token.DATE
+	DATETIME = token.DATETIME
+	REGEX    = token.REGEX
+
+	// String types
+	RAWSTRING   = token.RAWSTRING
+	TEMPLATESTR = token.TEMPLATESTR
 )
-
-var keywords = map[string]TokenType{
-	"true":     TRUE,
-	"false":    FALSE,
-	"template": TEMPLATE,
-	"map":      MAP,
-	"include":  INCLUDE,
-	"step":     STEP,
-	"preset":   PRESET,
-}
-
-func LookupIdent(ident string) TokenType {
-	if tok, ok := keywords[ident]; ok {
-		return tok
-	}
-	return IDENT
-}

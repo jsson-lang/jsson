@@ -1,0 +1,243 @@
+// Test Fixtures & Mock Data Example
+// Tests: validators (@uuid, @email, @url, @ipv4, @datetime, @date), templates, nested ternary
+
+users [
+  template { firstName, lastName, role, age }
+  
+  map (u) = {
+    id = @uuid
+    email = @email(u.firstName + "." + u.lastName)
+    username = u.firstName + u.lastName + 123
+    
+    profile = {
+      firstName = u.firstName
+      lastName = u.lastName
+      fullName = u.firstName + " " + u.lastName
+      age = u.age
+      avatar = @url("https://api.dicebear.com/7.x/avataaars/svg?seed=" + u.firstName)
+    }
+    
+    role = u.role
+    permissions = (u.role == admin ? [read, write, delete] : [read])
+    
+    status = (u.age >= 18 ? active : pending)
+    verified = true
+    
+    createdAt = @datetime
+    updatedAt = @datetime
+  }
+  
+  // Admin users
+  João, Silva, admin, 30
+  Maria, Santos, admin, 28
+  
+  // Regular users
+  Pedro, Costa, user, 25
+  Ana, Lima, user, 22
+  Carlos, Oliveira, user, 35
+  
+  // Edge cases
+  Minor, User, user, 16
+  Senior, User, user, 65
+]
+
+// API Mock Responses
+mockResponses [
+  template { endpoint, method, status }
+  
+  map (m) = {
+    request = {
+      method = m.method
+      endpoint = "/api/v1/" + m.endpoint
+      headers = {
+        Content-Type = "application/json"
+        Authorization = "Bearer " + @uuid
+      }
+    }
+    
+    response = {
+      status = m.status
+      statusText = (m.status == 200 ? OK : (m.status == 404 ? "Not Found" : Error))
+      
+      headers = {
+        Content-Type = "application/json"
+        X-Request-ID = @uuid
+      }
+      
+      body = (m.status == 200 ? {
+        success = true
+        data = {
+          id = @uuid
+          createdAt = @datetime
+        }
+      } : {
+        success = false
+        error = {
+          code = m.status
+          message = "Request failed"
+        }
+      })
+    }
+  }
+  
+  "users", GET, 200
+  "users", POST, 201
+  "users/123", GET, 200
+  "users/999", GET, 404
+  "posts", GET, 200
+  "posts", POST, 201
+]
+
+// Database Test Seeds - Products
+products [
+  template { id, category, name }
+  
+  map (p) = {
+    id = p.id
+    uuid = @uuid
+    sku = "PRD-" + p.category + "-" + p.id
+    
+    name = p.name
+    slug = p.category + "-" + p.name
+    category = p.category
+    
+    price = 99.99
+    currency = USD
+    
+    inventory = {
+      stock = 50
+      reserved = 5
+      available = true
+    }
+    
+    images = [
+      @url("https://images.example.com/" + p.id + "/1.jpg"),
+      @url("https://images.example.com/" + p.id + "/2.jpg")
+    ]
+    
+    metadata = {
+      createdBy = @uuid
+      createdAt = @datetime
+      updatedAt = @datetime
+    }
+  }
+  
+  1, electronics, Laptop
+  2, electronics, Mouse
+  3, electronics, Keyboard
+  4, books, "Programming Guide"
+  5, books, "Design Patterns"
+  6, clothing, "T-Shirt"
+  7, clothing, Jeans
+]
+
+// Orders referencing products
+orders [
+  template { id, userId, productId, quantity }
+  
+  map (o) = {
+    id = o.id
+    uuid = @uuid
+    orderNumber = "ORD-" + o.id + 10000
+    
+    userId = o.userId
+    productId = o.productId
+    quantity = o.quantity
+    
+    status = (o.id % 3 == 0 ? delivered : (o.id % 3 == 1 ? shipped : pending))
+    
+    payment = {
+      method = (o.id % 2 == 0 ? credit_card : paypal)
+      transactionId = @uuid
+      amount = 199.99
+    }
+    
+    timestamps = {
+      orderedAt = @datetime
+      shippedAt = @datetime
+      deliveredAt = @datetime
+    }
+  }
+  
+  1, @uuid, 1, 2
+  2, @uuid, 2, 1
+  3, @uuid, 3, 1
+  4, @uuid, 1, 1
+  5, @uuid, 4, 3
+]
+
+// Error Cases
+errorCases [
+  template { scenario, expectedError }
+  
+  map (e) = {
+    test = e.scenario
+    expected = {
+      error = true
+      code = e.expectedError
+      message = (e.expectedError == 400 ? "Bad Request" : (e.expectedError == 401 ? Unauthorized : (e.expectedError == 404 ? "Not Found" : "Server Error")))
+    }
+  }
+  
+  "Invalid email format", 400
+  "Missing required field", 400
+  "Unauthorized access", 401
+  "Resource not found", 404
+  "Duplicate entry", 409
+  "Rate limit exceeded", 429
+]
+
+// User Factory with Presets
+userFactory {
+  admin [
+    template { name, email }
+    
+    map (u) = {
+      id = @uuid
+      name = u.name
+      email = @email(u.email)
+      role = admin
+      permissions = [*]
+      verified = true
+      active = true
+    }
+    
+    "Admin User", admin
+    "Super Admin", superadmin
+  ]
+  
+  regularUser [
+    template { name, email }
+    
+    map (u) = {
+      id = @uuid
+      name = u.name
+      email = @email(u.email)
+      role = user
+      permissions = [read]
+      verified = true
+      active = true
+    }
+    
+    "Regular User 1", user1
+    "Regular User 2", user2
+    "Regular User 3", user3
+  ]
+  
+  guest [
+    template { sessionId }
+    
+    map (g) = {
+      id = @uuid
+      sessionId = g.sessionId
+      role = guest
+      permissions = []
+      verified = false
+      active = true
+      expiresAt = @datetime
+    }
+    
+    @uuid
+    @uuid
+  ]
+}

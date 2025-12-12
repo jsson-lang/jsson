@@ -1,0 +1,30 @@
+// Test boolean literals extras
+config {
+  enabled yes
+  active on
+  disabled no
+  inactive off
+  feature_flag enabled
+  maintenance disabled
+}
+
+// Test with traditional boolean
+comparison {
+  old_way true
+  new_way1 yes
+  new_way2 on
+  new_way3 enabled
+  
+  old_false false
+  new_false1 no
+  new_false2 off
+  new_false3 disabled
+}
+
+// Mix in conditions
+settings {
+  debug on
+  production no
+  verbose enabled
+  quiet disabled
+}
